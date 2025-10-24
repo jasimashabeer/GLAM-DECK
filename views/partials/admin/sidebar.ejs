@@ -1,0 +1,158 @@
+
+ <!DOCTYPE html>
+ <html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Document</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+ </head>
+ <body>
+  
+ 
+ 
+ 
+ 
+ 
+ <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="/admin/dashboard" class="sidebar-brand">
+        <i class="fas fa-shield-halved"></i>
+        <span>Admin Panel</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Main Navigation</div>
+      <a href="/admin/dashboard" class="sidebar-link">
+        <i class="fas fa-chart-line"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="/admin/users" class="sidebar-link">
+        <i class="fas fa-users"></i>
+        <span>Customer Management</span>
+      </a>
+      <a href="/admin/category" class="sidebar-link active">
+        <i class="fas fa-folder"></i>
+        <span>Category Management</span>
+      </a>
+      <a href="/admin/getproduct" class="sidebar-link">
+        <i class="fas fa-box"></i>
+        <span>Products Management</span>
+      </a>
+      <a href="/admin/offers" class="sidebar-link">
+        <i class="fas fa-tag"></i>
+        <span>Offer Management</span>
+      </a>
+      <a href="/admin/orders" class="sidebar-link">
+        <i class="fas fa-shopping-cart"></i>
+        <span>Orders Management</span>
+      </a>
+      <a href="/admin/reports" class="sidebar-link">
+        <i class="fas fa-file-chart"></i>
+        <span>Reports</span>
+      </a>
+    </nav>
+  </aside>
+
+
+
+
+  <style>
+      /* Professional Sidebar */
+    .sidebar {
+      width: 260px;
+      background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+      color: white;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      padding-top: 0;
+      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      padding: 28px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      text-decoration: none;
+    }
+
+    .sidebar-brand i {
+      font-size: 24px;
+      color: #60a5fa;
+    }
+
+    .sidebar-nav {
+      padding: 20px 12px;
+    }
+
+    .nav-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      padding: 12px 16px 8px;
+      font-weight: 600;
+    }
+
+    .sidebar-link {
+      color: #cbd5e1;
+      text-decoration: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.2s ease;
+      font-size: 14px;
+      font-weight: 500;
+      position: relative;
+    }
+
+    .sidebar-link i {
+      width: 20px;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    .sidebar-link:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      transform: translateX(4px);
+    }
+
+    .sidebar-link.active {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
+
+    .sidebar-link.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 24px;
+      background: white;
+      border-radius: 0 4px 4px 0;
+    }
+  </style>
+  </body>
+ </html>

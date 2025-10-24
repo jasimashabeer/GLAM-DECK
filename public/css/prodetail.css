@@ -1,0 +1,165 @@
+/* Container */
+.product-detail-container {
+    max-width: 1000px;
+    margin: 20px auto;
+    padding: 10px;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+    font-size: 14px;
+    margin-bottom: 15px;
+}
+
+/* Layout */
+.row {
+    display: flex;
+    gap: 20px;
+}
+
+.col-md-6 {
+    flex: 1;
+}
+
+/* Image slider container */
+.image-slider {
+    width: 100%;
+    height: 400px;
+    position: relative;
+    overflow: hidden;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: #fff;
+}
+
+/* All images are positioned absolutely and hidden by default */
+.image-slider img.product-image {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: contain; /* Maintain aspect ratio & fit inside */
+    opacity: 0;
+    transition: opacity 0.5s ease-in-out;
+    cursor: zoom-in;
+    user-select: none;
+}
+
+/* The active image is fully visible */
+.image-slider img.product-image.active {
+    opacity: 1;
+    position: relative; /* So active image participates in layout */
+}
+
+/* Product Info */
+.product-info h2 {
+    margin-top: 0;
+    font-size: 28px;
+    font-weight: 700;
+}
+
+.product-info p {
+    margin: 10px 0;
+    font-size: 16px;
+}
+
+/* Prices */
+.old-price {
+    text-decoration: line-through;
+    color: grey;
+    margin-right: 10px;
+}
+
+.discount-price {
+    color: red;
+    font-weight: bold;
+}
+
+.price {
+    color: black;
+    font-weight: bold;
+}
+
+/* Buttons */
+.btn-primary,
+.btn-secondary,
+.btn-danger {
+    margin: 10px 10px 10px 0;
+    padding: 10px 20px;
+    font-size: 16px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    color: white;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}
+
+.btn-secondary {
+    background-color: #6c757d;
+    color: white;
+}
+
+.btn-secondary:hover {
+    background-color: #5a6268;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-danger.active {
+    font-weight: bold;
+}
+
+/* Related Products Grid */
+.related-products-section {
+    margin-top: 40px;
+}
+
+.related-products-grid {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.related-product-card {
+    width: 180px;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    overflow: hidden;
+    background: white;
+    text-align: center;
+    transition: box-shadow 0.3s ease;
+}
+
+.related-product-card:hover {
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+}
+
+.related-product-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: contain;
+}
+
+.related-product-card h4 {
+    margin: 10px 0 5px 0;
+    font-size: 16px;
+    font-weight: 600;
+}
+
+.related-product-card p {
+    font-size: 14px;
+    color: #333;
+    margin-bottom: 10px;
+}

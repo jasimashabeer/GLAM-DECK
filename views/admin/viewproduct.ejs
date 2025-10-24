@@ -1,0 +1,829 @@
+ <%- include("../../views/partials/admin/header") %>
+<%- include("../../views/partials/admin/sidebar") %>
+
+
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>View Product - Admin Panel</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@10/dist/sweetalert2.min.css"/>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: #f8fafc;
+      color: #1e293b;
+      min-height: 100vh;
+    }
+
+    /* Professional Sidebar */
+    .sidebar {
+      width: 260px;
+      background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
+      color: white;
+      height: 100vh;
+      position: fixed;
+      top: 0;
+      left: 0;
+      padding-top: 0;
+      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
+      z-index: 1000;
+      overflow-y: auto;
+    }
+
+    .sidebar-header {
+      padding: 28px 24px;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+      background: rgba(0, 0, 0, 0.2);
+    }
+
+    .sidebar-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      font-size: 20px;
+      font-weight: 700;
+      color: white;
+      text-decoration: none;
+    }
+
+    .sidebar-brand i {
+      font-size: 24px;
+      color: #60a5fa;
+    }
+
+    .sidebar-nav {
+      padding: 20px 12px;
+    }
+
+    .nav-section-title {
+      font-size: 11px;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      color: #94a3b8;
+      padding: 12px 16px 8px;
+      font-weight: 600;
+    }
+
+    .sidebar-link {
+      color: #cbd5e1;
+      text-decoration: none;
+      padding: 12px 16px;
+      border-radius: 8px;
+      margin-bottom: 4px;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      transition: all 0.2s ease;
+      font-size: 14px;
+      font-weight: 500;
+      position: relative;
+    }
+
+    .sidebar-link i {
+      width: 20px;
+      font-size: 16px;
+      text-align: center;
+    }
+
+    .sidebar-link:hover {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      transform: translateX(4px);
+    }
+
+    .sidebar-link.active {
+      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
+      color: white;
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
+    }
+
+    .sidebar-link.active::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 24px;
+      background: white;
+      border-radius: 0 4px 4px 0;
+    }
+
+    /* Main Content */
+    .main-content {
+      margin-left: 260px;
+      padding: 24px 32px;
+      min-height: 100vh;
+    }
+
+    /* Top Bar */
+    .top-bar {
+      background: white;
+      padding: 16px 24px;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      margin-bottom: 24px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .page-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+
+    .page-title i {
+      color: #3b82f6;
+    }
+
+    .breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: #64748b;
+      font-size: 14px;
+    }
+
+    .breadcrumb a {
+      color: #3b82f6;
+      text-decoration: none;
+    }
+
+    .btn-back {
+      background: linear-gradient(135deg, #64748b 0%, #475569 100%);
+      color: white;
+      padding: 10px 20px;
+      border-radius: 8px;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 8px rgba(100, 116, 139, 0.3);
+    }
+
+    .btn-back:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(100, 116, 139, 0.4);
+    }
+
+    /* Content Layout */
+    .content-grid {
+      display: grid;
+      grid-template-columns: 400px 1fr;
+      gap: 24px;
+    }
+
+    /* Card Styles */
+    .card {
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid #e2e8f0;
+      background: #f8fafc;
+    }
+
+    .card-title {
+      font-size: 18px;
+      font-weight: 700;
+      color: #0f172a;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .card-title i {
+      color: #3b82f6;
+    }
+
+    .card-body {
+      padding: 24px;
+    }
+
+    /* Image Gallery */
+    .image-gallery {
+      display: grid;
+      gap: 12px;
+    }
+
+    .main-image-container {
+      position: relative;
+      width: 100%;
+      aspect-ratio: 1;
+      border-radius: 12px;
+      overflow: hidden;
+      border: 2px solid #e2e8f0;
+      background: #f8fafc;
+      cursor: zoom-in;
+    }
+
+    .main-image {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.3s ease;
+    }
+
+    .main-image-container:hover .main-image {
+      transform: scale(1.05);
+    }
+
+    .zoom-icon {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: rgba(0, 0, 0, 0.6);
+      color: white;
+      width: 36px;
+      height: 36px;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+      pointer-events: none;
+    }
+
+    .thumbnail-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+    }
+
+    .thumbnail {
+      aspect-ratio: 1;
+      border-radius: 8px;
+      overflow: hidden;
+      border: 2px solid #e2e8f0;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .thumbnail:hover {
+      border-color: #3b82f6;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.2);
+    }
+
+    .thumbnail.active {
+      border-color: #3b82f6;
+      box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.2);
+    }
+
+    .thumbnail img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    /* Product Details */
+    .detail-row {
+      display: grid;
+      grid-template-columns: 140px 1fr;
+      padding: 16px 0;
+      border-bottom: 1px solid #e2e8f0;
+      gap: 16px;
+      align-items: start;
+    }
+
+    .detail-row:last-child {
+      border-bottom: none;
+    }
+
+    .detail-label {
+      font-weight: 600;
+      color: #475569;
+      font-size: 14px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .detail-label i {
+      color: #94a3b8;
+      font-size: 13px;
+    }
+
+    .detail-value {
+      color: #1e293b;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+
+    .status-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: capitalize;
+    }
+
+    .status-badge::before {
+      content: '';
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+    }
+
+    .status-active {
+      background: #dcfce7;
+      color: #166534;
+    }
+
+    .status-active::before {
+      background: #16a34a;
+    }
+
+    .status-inactive {
+      background: #fee2e2;
+      color: #991b1b;
+    }
+
+    .status-inactive::before {
+      background: #dc2626;
+    }
+
+    .price-value {
+      font-size: 20px;
+      font-weight: 700;
+      color: #3b82f6;
+    }
+
+    /* Image Zoom Modal */
+    .zoom-modal {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 2000;
+      align-items: center;
+      justify-content: center;
+      cursor: zoom-out;
+      animation: fadeIn 0.3s ease;
+    }
+
+    .zoom-modal.active {
+      display: flex;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
+    .zoom-modal-content {
+      max-width: 90%;
+      max-height: 90%;
+      position: relative;
+      animation: zoomIn 0.3s ease;
+    }
+
+    @keyframes zoomIn {
+      from {
+        opacity: 0;
+        transform: scale(0.8);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1);
+      }
+    }
+
+    .zoom-image {
+      max-width: 100%;
+      max-height: 90vh;
+      border-radius: 12px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+    }
+
+    .zoom-close {
+      position: absolute;
+      top: 20px;
+      right: 20px;
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border: none;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      color: white;
+      font-size: 24px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: all 0.2s ease;
+    }
+
+    .zoom-close:hover {
+      background: rgba(255, 255, 255, 0.3);
+      transform: rotate(90deg);
+    }
+
+    .zoom-nav {
+      position: absolute;
+      top: 50%;
+      transform: translateY(-50%);
+      background: rgba(255, 255, 255, 0.2);
+      backdrop-filter: blur(10px);
+      border: none;
+      width: 48px;
+      height: 48px;
+      border-radius: 50%;
+      color: white;
+      font-size: 20px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .zoom-nav:hover {
+      background: rgba(255, 255, 255, 0.3);
+    }
+
+    .zoom-prev {
+      left: 20px;
+    }
+
+    .zoom-next {
+      right: 20px;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .content-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .sidebar {
+        transform: translateX(-100%);
+      }
+
+      .main-content {
+        margin-left: 0;
+        padding: 16px;
+      }
+
+      .thumbnail-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-header">
+      <a href="/admin/dashboard" class="sidebar-brand">
+        <i class="fas fa-shield-halved"></i>
+        <span>Admin Panel</span>
+      </a>
+    </div>
+    <nav class="sidebar-nav">
+      <div class="nav-section-title">Main Navigation</div>
+      <a href="/admin/dashboard" class="sidebar-link">
+        <i class="fas fa-chart-line"></i>
+        <span>Dashboard</span>
+      </a>
+      <a href="/admin/users" class="sidebar-link">
+        <i class="fas fa-users"></i>
+        <span>Customer Management</span>
+      </a>
+      <a href="/admin/category" class="sidebar-link">
+        <i class="fas fa-folder"></i>
+        <span>Category Management</span>
+      </a>
+      <a href="/admin/getproduct" class="sidebar-link active">
+        <i class="fas fa-box"></i>
+        <span>Products Management</span>
+      </a>
+      <a href="/admin/offers" class="sidebar-link">
+        <i class="fas fa-tag"></i>
+        <span>Offer Management</span>
+      </a>
+      <a href="/admin/orders" class="sidebar-link">
+        <i class="fas fa-shopping-cart"></i>
+        <span>Orders Management</span>
+      </a>
+      <a href="/admin/reports" class="sidebar-link">
+        <i class="fas fa-file-chart"></i>
+        <span>Reports</span>
+      </a>
+    </nav>
+  </aside>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    <!-- Top Bar -->
+    <div class="top-bar">
+      <div>
+        <h1 class="page-title">
+          <i class="fas fa-box-open"></i>
+          Product Details
+        </h1>
+        <div class="breadcrumb">
+          <a href="/admin/dashboard">Dashboard</a>
+          <span>/</span>
+          <a href="/admin/getproduct">Products</a>
+          <span>/</span>
+          <span>View Product</span>
+        </div>
+      </div>
+      <a href="/admin/getproduct" class="btn-back">
+        <i class="fas fa-arrow-left"></i>
+        Back to Products
+      </a>
+    </div>
+
+    <!-- Content Grid -->
+    <div class="content-grid">
+      <!-- Image Gallery -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="fas fa-images"></i>
+            Product Images
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="image-gallery">
+            <!-- Main Image -->
+            <div class="main-image-container" onclick="openZoom(0)">
+              <img src="<%= product.image[0] %>" alt="<%= product.name %>" class="main-image" id="mainImage">
+              <div class="zoom-icon">
+                <i class="fas fa-search-plus"></i>
+              </div>
+            </div>
+
+            <!-- Thumbnails -->
+            <% if (product.image.length > 1) { %>
+              <div class="thumbnail-grid">
+                <% product.image.forEach((img, index) => { %>
+                  <div class="thumbnail <%= index === 0 ? 'active' : '' %>" onclick="changeMainImage('<%= img %>', <%= index %>)">
+                    <img src="<%= img %>" alt="Product Image <%= index + 1 %>">
+                  </div>
+                <% }) %>
+              </div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Product Details -->
+      <div class="card">
+        <div class="card-header">
+          <h3 class="card-title">
+            <i class="fas fa-info-circle"></i>
+            Product Information
+          </h3>
+        </div>
+        <div class="card-body">
+          <div class="detail-row">
+            <div class="detail-label">
+              <i class="fas fa-tag"></i>
+              Name
+            </div>
+            <div class="detail-value"><strong><%= product.name %></strong></div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-label">
+              <i class="fas fa-folder"></i>
+              Category
+            </div>
+            <div class="detail-value"><%= product.categoryId ? product.categoryId.name : 'No Category' %></div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-label">
+              <i class="fas fa-dollar-sign"></i>
+              Price
+            </div>
+            <div class="detail-value price-value">₹<%= product.price %></div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-label">
+              <i class="fas fa-barcode"></i>
+              SKU
+            </div>
+            <div class="detail-value"><%= product.sku %></div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-label">
+              <i class="fas fa-boxes"></i>
+              Quantity
+            </div>
+            <div class="detail-value"><%= product.quantity %> units</div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-label">
+              <i class="fas fa-cube"></i>
+              Material
+            </div>
+            <div class="detail-value"><%= product.material %></div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-label">
+              <i class="fas fa-palette"></i>
+              Color
+            </div>
+            <div class="detail-value"><%= product.color %></div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-label">
+              <i class="fas fa-toggle-on"></i>
+              Status
+            </div>
+            <div class="detail-value">
+              <span class="status-badge <%= product.status === 'active' ? 'status-active' : 'status-inactive' %>">
+                <%= product.status %>
+              </span>
+            </div>
+          </div>
+
+          <div class="detail-row">
+            <div class="detail-label">
+              <i class="fas fa-align-left"></i>
+              Description
+            </div>
+            <div class="detail-value"><%= product.description ? product.description : 'No description available' %></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Image Zoom Modal -->
+  <div id="zoomModal" class="zoom-modal" onclick="closeZoom(event)">
+    <div class="zoom-modal-content">
+      <img id="zoomImage" src="" alt="Zoomed Image" class="zoom-image">
+      <button class="zoom-close" onclick="closeZoom(event)">
+        <i class="fas fa-times"></i>
+      </button>
+      <% if (product.image.length > 1) { %>
+        <button class="zoom-nav zoom-prev" onclick="previousImage(event)">
+          <i class="fas fa-chevron-left"></i>
+        </button>
+        <button class="zoom-nav zoom-next" onclick="nextImage(event)">
+          <i class="fas fa-chevron-right"></i>
+        </button>
+      <% } %>
+    </div>
+  </div>
+
+  <script>
+    const productImages =` <%= JSON.stringify(product.image) %>`;
+    let currentImageIndex = 0;
+
+    function changeMainImage(imageSrc, index) {
+      document.getElementById('mainImage').src = imageSrc;
+      currentImageIndex = index;
+      
+      // Update active thumbnail
+      document.querySelectorAll('.thumbnail').forEach((thumb, i) => {
+        if (i === index) {
+          thumb.classList.add('active');
+        } else {
+          thumb.classList.remove('active');
+        }
+      });
+    }
+
+    function openZoom(index) {
+      currentImageIndex = index;
+      document.getElementById('zoomImage').src = productImages[currentImageIndex];
+      document.getElementById('zoomModal').classList.add('active');
+      document.body.style.overflow = 'hidden';
+    }
+
+    function closeZoom(event) {
+      if (event.target.id === 'zoomModal' || event.target.closest('.zoom-close')) {
+        document.getElementById('zoomModal').classList.remove('active');
+        document.body.style.overflow = 'auto';
+      }
+    }
+
+    function previousImage(event) {
+      event.stopPropagation();
+      currentImageIndex = (currentImageIndex - 1 + productImages.length) % productImages.length;
+      document.getElementById('zoomImage').src = productImages[currentImageIndex];
+      changeMainImage(productImages[currentImageIndex], currentImageIndex);
+    }
+
+    function nextImage(event) {
+      event.stopPropagation();
+      currentImageIndex = (currentImageIndex + 1) % productImages.length;
+      document.getElementById('zoomImage').src = productImages[currentImageIndex];
+      changeMainImage(productImages[currentImageIndex], currentImageIndex);
+    }
+
+    // Keyboard navigation
+    document.addEventListener('keydown', function(e) {
+      const modal = document.getElementById('zoomModal');
+      if (modal.classList.contains('active')) {
+        if (e.key === 'Escape') {
+          modal.classList.remove('active');
+          document.body.style.overflow = 'auto';
+        } else if (e.key === 'ArrowLeft') {
+          previousImage(e);
+        } else if (e.key === 'ArrowRight') {
+          nextImage(e);
+        }
+      }
+    });
+  </script>
+</body>
+</html>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+<!------<link href="/css/viewproduct.css" rel="stylesheet" type="text/css">
+<div class="view-product-container">
+    <h2>Product Details</h2>
+    <table class="view-product-table">
+        <tr><th>Name:</th><td><%= product.name %></td></tr>
+        <tr><th>Category:</th><td><%= product.categoryId ? product.categoryId.name : 'No Category' %></td></tr>
+        <tr><th>Material:</th><td><%= product.material %></td></tr>
+        <tr><th>SKU:</th><td><%= product.sku %></td></tr>
+        <tr><th>Price:</th><td>₹<%= product.price %></td></tr>
+        <tr><th>Description:</th><td><%= product.description ? product.description : 'No description available' %></td></tr>
+        <tr><th>Color:</th><td><%= product.color %></td></tr>
+        <tr><th>Quantity:</th><td><%= product.quantity %></td></tr>
+        <tr><th>Current status:</th><td><%= product.status %></td></tr>
+        <tr><th>Images:</th>
+            <td class="product-images">
+                <% product.image.forEach(img => { %>
+                    <img src="<%= img %>" alt="Product Image">
+                <% }) %>
+            </td>
+        </tr>
+    </table>
+    <a href="/admin/getproduct" class="btn-back">Back</a>
+</div> -->

@@ -1,0 +1,268 @@
+/*.add-product-container {
+    margin-left: 360px !important; /* Force override */
+    /* padding: 40px 20px;
+    background-color: #f8f9fa;
+    min-height: 100vh;
+    box-sizing: border-box;
+}
+
+
+@media (max-width: 992px) {
+    .add-product-container {
+        margin-left: 0;
+        width: 100%;
+    }
+}
+
+.add-product-container .container {
+    max-width: 700px;
+    width: 100%;
+    background: #ffffff;
+    padding: 25px;
+    border-radius: 10px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+/* Heading */
+/* h2 {
+    text-align: center;
+    color: #333;
+    font-weight: 600;
+    margin-bottom: 25px;
+}
+
+/* Form inputs */
+/* .form-label {
+    font-weight: bold;
+    color: #444;
+}
+
+.form-control {
+    border-radius: 6px;
+    border: 1px solid #ced4da;
+    padding: 12px;
+    font-size: 16px;
+}
+
+.form-control:focus {
+    border-color: #007bff;
+    box-shadow: 0 0 5px rgba(0, 123, 255, 0.3);
+    outline: none;
+} */ 
+
+/* Submit Button */
+/*.btn-primary {
+    background-color: #007bff;
+    border: none;
+    font-size: 18px;
+    padding: 12px;
+    font-weight: bold;
+    width: 100%;
+    border-radius: 6px;
+}
+
+.btn-primary:hover {
+    background-color: #0056b3;
+}*/
+
+/* Crop Modal */
+/*#cropModal {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0, 0, 0, 0.8);
+    display: none;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 100%;
+    z-index: 1000;
+}
+
+.crop-container {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    text-align: center;
+    width: 400px;
+    max-width: 90vw;
+    max-height: 90vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.cropper-wrapper {
+    width: 100%;
+    max-height: 300px;
+    overflow: hidden;
+}
+
+#cropImage {
+    max-width: 100%;
+    max-height: 250px;
+    display: block;
+    margin: 0 auto;
+}
+
+.modal-buttons {
+    width: 100%;
+    display: flex;
+    justify-content: space-around;
+    margin-top: 10px;
+}
+
+#cropBtn, #cancelCropBtn {
+    padding: 10px 15px;
+    font-size: 14px;
+    width: 45%;
+}*/
+
+/* General Page Styling */
+body {
+    background: #f5f7fa;
+    font-family: 'Poppins', sans-serif;
+  }
+  
+  /* Main Container */
+  .add-product-container {
+    margin-left: 165px; /* Sidebar width */
+    /* margin-top: 50px; */
+    padding: 30px;
+    min-height: 100vh;
+    background-color: #f5f7fa; /* Light background */
+    width:85%;
+  }
+  #heading{
+  
+  
+    color: #06090c;
+   
+  }
+  
+  form#addProductForm {
+    width: 80%; /* 🔥 stretch more */
+    max-width: 1000px; /* 🔥 maximum limit */
+    background: #fff;
+    padding: 30px 40px;
+    border-radius: 12px;
+    box-shadow: 0px 6px 20px rgba(0, 0, 0, 0.08);
+    margin: auto; /* Center the form horizontally */
+  }
+  
+  
+  form#addProductForm .form-label {
+    font-weight: 600;
+    margin-bottom: 6px;
+  }
+  
+  form#addProductForm .form-control {
+    border: 1px solid #ced4da;
+    border-radius: 8px;
+    padding: 10px 15px;
+    font-size: 14px;
+    transition: border-color 0.3s;
+  }
+  
+  form#addProductForm .form-control:focus {
+    border-color: #6c63ff;
+    box-shadow: 0 0 5px rgba(108, 99, 255, 0.5);
+  }
+  
+  /* Submit Button */
+  form#addProductForm button[type="submit"] {
+    background: #6c63ff;
+    border: none;
+    padding: 12px;
+    font-size: 16px;
+    font-weight: 600;
+    border-radius: 10px;
+    margin-top: 10px;
+    transition: background 0.3s;
+  }
+  
+  form#addProductForm button[type="submit"]:hover {
+    background: #574fd6;
+  }
+  
+  /* Heading */
+  h2.text-center {
+    font-weight: 700;
+    color: #333;
+  }
+  
+  /* Crop Modal Styling */
+  #cropModal {
+    display: none; /* hidden by default */
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.7);
+    z-index: 9999;
+    justify-content: center;
+    align-items: center;
+    padding: 20px;
+  }
+  
+  .crop-container {
+    background: #fff;
+    padding: 20px;
+    border-radius: 10px;
+    max-width: 500px;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .cropper-wrapper {
+    margin: 20px 0;
+    max-height: 400px;
+    overflow: hidden;
+  }
+  
+  .cropper-wrapper img {
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+  
+  /* Modal Buttons */
+  .modal-buttons {
+    display: flex;
+    justify-content: space-between;
+    gap: 10px;
+  }
+  
+  .modal-buttons button {
+    flex: 1;
+    padding: 10px;
+    font-weight: 600;
+    border-radius: 8px;
+  }
+  
+  /* Crop and Skip buttons */
+  #cropBtn {
+    background-color: #28a745;
+    border: none;
+    color: white;
+  }
+  
+  #cropBtn:hover {
+    background-color: #218838;
+  }
+  
+  #cancelCropBtn {
+    background-color: #dc3545;
+    border: none;
+    color: white;
+  }
+  
+  #cancelCropBtn:hover {
+    background-color: #c82333;
+  }
+  form#addProductForm .mb-3 {
+    margin-bottom: 24px; /* or 24px for even more breathing room */
+  }
+  

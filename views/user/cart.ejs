@@ -1,0 +1,117 @@
+<%- include("../../views/partials/user/header") %>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Cart</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="/css/cart.css">
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+</head>
+<body>
+  <div class="container my-5">
+    <h2 class="text-center mb-3">CART</h2>
+    <div class="text-center mb-4">
+      <a href="/shop">Continue shopping</a>
+    </div>
+
+    <div class="row">
+      <!-- Left: Cart Items -->
+      <div class="col-md-8">
+        <% if (cartItems.length === 0) { %>
+          <p>Your cart is empty.</p>
+        <% } else { %>
+          <% cartItems.forEach(item => { %>
+            <% item.products.forEach(product => { %>
+              <div class="cart-item">
+                <div>
+                  <img src="<%= product.productId.image[0] %>" alt="<%= product.productId.name %>" class="img-fluid rounded">
+                </div>
+                <div >
+                  <h5><%= product.productId.name %></h5>
+                  <p>Price: $<%= product.productId.price %></p>
+                  <p>Quantity: <%= product.quantity %></p>
+                  
+                  <% if (product.productId.stock <= 0) { %>
+                    <button class="btn btn-outline-secondary" disabled>Out of stock</button>
+                  <% } else { %>
+                    <form action="/cart/updateQuantity/<%= product.productId._id %>" method="POST" class="d-flex">
+                      <button class="btn btn-outline-dark btn-sm" name="action" value="decrease">-</button>
+                      <span class="mx-2"><%= product.quantity %></span>
+                      <button class="btn btn-outline-dark btn-sm" name="action" value="increase">+</button>
+                    </form>
+                    <button class="btn btn-link text-danger p-0" onclick="confirmRemove('<%= product.productId._id %>', this)">Remove</button>
+
+                    
+                    
+                  <% } %>
+                </div>
+              </div>
+            <% }) %>
+          <% }) %>
+          
+          
+        <% } %>
+      </div>
+
+      <!-- Right: Summary -->
+      <div class="col-md-4">
+        <div class="cart-summary">
+          <h6 class="mb-3">ORDER NOTE</h6>
+          <form action="/cart/checkout" method="POST">
+            <textarea name="note" placeholder="Add a note to your order..."></textarea>
+            <hr>
+            <p><strong>Subtotal</strong>: Rs. <%= subtotal %></p>
+            <button class="btn btn-dark w-100 mt-3" type="submit">CHECK OUT</button>
+          </form>
+          <div class="mt-2">
+            <a href="/gift-card">Have a Gift card?</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    function confirmRemove(productId, buttonElement) {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: "Do you want to remove this item from your cart?",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#6c757d',
+        confirmButtonText: 'Yes, remove it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          fetch(`/cart/remove/${productId}`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+          .then(res => {
+            if (res.ok) {
+              // Remove the cart item from the page
+              const cartItem = buttonElement.closest('.cart-item');
+              cartItem.remove();
+  
+              // Optionally show success alert
+              Swal.fire('Removed!', 'Item has been removed from your cart.', 'success');
+            } else {
+              Swal.fire('Oops!', 'Something went wrong.', 'error');
+            }
+          })
+          .catch(err => {
+            console.error(err);
+            Swal.fire('Error!', 'Unable to remove item.', 'error');
+          });
+        }
+      });
+    }
+  </script>
+  
+  
+</body>
+</html>
