@@ -1,6 +1,7 @@
 
 const { text } = require('express');
 const User=require('../../models/userSchema')
+const Product=require('../../models/productSchema')
 const env=require('dotenv').config();
 const nodemailer=require('nodemailer')
 const bcrypt=require('bcrypt')
@@ -17,15 +18,35 @@ res.redirect("/pageNotFound")
 
 
 
-const loadHomepage= async(req,res)=>{
-    try{
-      return res.render('home')
+// const loadHomepage= async(req,res)=>{
+//     try{
+     
 
-    }catch(error){
-     console.log('Homepage not found')
-     res.status(500).send("server error")
-    }
-}
+//     const products = await Product.find(filter).sort(sortOption).skip(skip).limit(limit);
+
+//      return res.render('home')
+//     }catch(error){
+//      console.log('Homepage not found',error)
+//      res.status(500).send("server error")
+//     }
+// }
+
+const loadHomepage = async (req, res) => {
+  try {
+    // Fetch latest 8 "Listed" products (not blocked or deleted)
+    const products = await Product.find({ status: "Listed" })
+      .sort({ createdAt: -1 })
+      .limit(4);
+
+    return res.render("home", { products });
+  } catch (error) {
+    console.log("Homepage not found:", error);
+    res.status(500).send("Server error");
+  }
+};
+
+
+
 
 
 

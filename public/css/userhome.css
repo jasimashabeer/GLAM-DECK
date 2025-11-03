@@ -1,0 +1,94 @@
+
+  /* Home Page Product Grid */
+  body {
+    background: #f8fafc;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    color: #1e293b;
+  }
+
+  h2.text-center {
+    font-weight: 700;
+    color: #204056;
+    letter-spacing: 0.5px;
+  }
+
+  .card {
+    border: none;
+    border-radius: 16px;
+    overflow: hidden;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+    transition: all 0.3s ease;
+    background: white;
+    height: 100%;
+  }
+
+  .card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.15);
+  }
+
+  .card img {
+    height: 250px;
+    width: 100%;
+    object-fit: cover;
+    border-bottom: 2px solid #f44336;
+    transition: transform 0.3s ease;
+  }
+
+  .card:hover img {
+    transform: scale(1.05);
+  }
+
+  .card-body {
+    padding: 16px;
+  }
+
+  .card-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 8px;
+    min-height: 40px;
+  }
+
+  .card-text {
+    font-size: 18px;
+    font-weight: 700;
+    color: #f44336;
+    margin-bottom: 12px;
+  }
+
+  .btn-dark {
+    background: #204056;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    font-weight: 600;
+    font-size: 14px;
+    transition: all 0.2s ease;
+    color: #f8fafc;
+  }
+
+  .btn-dark:hover {
+    background: #162d3f;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(32, 64, 86, 0.3);
+  }
+
+  /* Responsive layout */
+  @media (max-width: 768px) {
+    .card img {
+      height: 220px;
+    }
+  }
+
+  @media (max-width: 576px) {
+    .card img {
+      height: 200px;
+    }
+
+    h2.text-center {
+      font-size: 22px;
+    }
+  }
+

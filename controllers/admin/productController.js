@@ -7,7 +7,7 @@ const fs = require("fs");
 const getAllProducts = async (req, res) => {
   try {
     let page = parseInt(req.query.page) || 1;
-    let limit = 3;
+    let limit = 10;
     let skip = (page - 1) * limit;
 
     let searchQuery = req.query.search || "";
