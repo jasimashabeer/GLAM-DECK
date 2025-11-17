@@ -1,0 +1,452 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Glam Deck</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body, html {
+      height: 100%;
+      font-family: 'Inter', sans-serif;
+      background: #f8f6f1;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+      overflow-x: hidden;
+    }
+
+    .main-container {
+      display: flex;
+      width: 100%;
+      max-width: 900px;
+      height: 500px;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+
+    /* Left Side - Branded Section */
+    .left-section {
+      flex: 1;
+      background: linear-gradient(135deg, #204056 0%, #204056 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 2rem 1.5rem;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .left-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(45deg, rgba(212, 165, 116, 0.1), transparent);
+      z-index: 1;
+    }
+
+    .brand-content {
+      position: relative;
+      z-index: 2;
+      text-align: center;
+    }
+
+    .logo {
+      width: 60px;
+      height: 60px;
+      background: linear-gradient(135deg, #f1f1f0, #fdfbf9);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 1.5rem;
+      box-shadow: 0 10px 25px rgba(212, 165, 116, 0.3);
+    }
+
+    .logo i {
+      font-size: 1.5rem;
+      color: white;
+    }
+
+    .brand-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      letter-spacing: -1px;
+    }
+
+    .brand-tagline {
+      font-size: 0.9rem;
+      font-weight: 400;
+      opacity: 0.8;
+      margin-bottom: 1rem;
+    }
+
+    .welcome-text {
+      font-size: 1.3rem;
+      font-weight: 600;
+      opacity: 0.9;
+    }
+
+    /* Right Side - Form Section */
+    .right-section {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      padding: 2rem 1.5rem;
+      background: white;
+    }
+
+    .form-container {
+      width: 100%;
+      max-width: 320px;
+      margin: 0 auto;
+    }
+
+    .form-header {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-header h2 {
+      font-size: 1.4rem;
+      font-weight: 600;
+      color: #2d2d2d;
+      margin-bottom: 0.5rem;
+    }
+
+    .form-header p {
+      color: #6b6b6b;
+      font-size: 0.85rem;
+      line-height: 1.4;
+    }
+
+    .form-group {
+      margin-bottom: 1.2rem;
+      position: relative;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.4rem;
+      color: #2d2d2d;
+      font-weight: 500;
+      font-size: 0.85rem;
+    }
+
+    .input-wrapper {
+      position: relative;
+    }
+
+    .form-input {
+      width: 100%;
+      padding: 12px 16px 12px 40px;
+      border: 2px solid #e8e4db;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      transition: all 0.3s ease;
+      background: #fafafa;
+    }
+
+    .form-input:focus {
+      outline: none;
+      border-color: #d4a574;
+      box-shadow: 0 0 0 3px rgba(212, 165, 116, 0.1);
+      background: white;
+    }
+
+    .input-icon {
+      position: absolute;
+      left: 14px;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #9b9b9b;
+      font-size: 0.9rem;
+    }
+
+    .error-message {
+      color: #ec1a1a;
+      font-size: 0.8rem;
+      margin-top: 0.4rem;
+    }
+
+    .server-error {
+      background: #fee;
+      color: #ec1a1a;
+      padding: 0.6rem;
+      border-radius: 8px;
+      font-size: 0.85rem;
+      margin-bottom: 1.2rem;
+      text-align: center;
+    }
+
+    .verify-btn {
+      width: 100%;
+      padding: 12px;
+      background: linear-gradient(135deg, #204056, #204056);
+      color: white;
+      border: none;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-bottom: 1rem;
+    }
+
+    .verify-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(212, 165, 116, 0.3);
+    }
+
+    .verify-btn:active {
+      transform: translateY(0);
+    }
+
+    .verify-btn:disabled {
+      opacity: 0.6;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    .back-link {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: rgba(0, 0, 255, 0.825);
+      text-decoration: none;
+      font-size: 0.85rem;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      padding: 0.5rem;
+      border-radius: 8px;
+    }
+
+    .back-link:hover {
+      color: blue;
+      background: rgba(0, 0, 255, 0.05);
+      text-decoration: none;
+    }
+
+    .back-link i {
+      margin-right: 0.4rem;
+      font-size: 0.8rem;
+    }
+
+    .info-box {
+      background: #f8f9ff;
+      border: 1px solid #e1e8ff;
+      border-radius: 10px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: flex-start;
+    }
+
+    .info-box i {
+      color: #4f46e5;
+      margin-right: 0.75rem;
+      margin-top: 0.1rem;
+      font-size: 1rem;
+    }
+
+    .info-box p {
+      color: #4b5563;
+      font-size: 0.85rem;
+      line-height: 1.4;
+      margin: 0;
+    }
+
+    /* Responsive Design */
+    @media (max-width: 1024px) {
+      .main-container {
+        max-width: 800px;
+        height: 450px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      body {
+        padding: 15px;
+      }
+      
+      .main-container {
+        flex-direction: column;
+        height: auto;
+        max-width: 400px;
+        border-radius: 12px;
+      }
+      
+      .left-section {
+        min-height: 200px;
+        padding: 1.5rem;
+      }
+      
+      .right-section {
+        padding: 1.5rem;
+      }
+      
+      .logo {
+        width: 50px;
+        height: 50px;
+        margin-bottom: 1rem;
+      }
+      
+      .logo i {
+        font-size: 1.2rem;
+      }
+      
+      .brand-name {
+        font-size: 1.5rem;
+        margin-bottom: 0.3rem;
+      }
+      
+      .brand-tagline {
+        font-size: 0.8rem;
+        margin-bottom: 0.8rem;
+      }
+      
+      .welcome-text {
+        font-size: 1.1rem;
+      }
+      
+      .form-header h2 {
+        font-size: 1.3rem;
+      }
+      
+      .form-header p {
+        font-size: 0.8rem;
+      }
+    }
+
+    @media (max-width: 480px) {
+      body {
+        padding: 10px;
+      }
+      
+      .main-container {
+        max-width: 100%;
+      }
+      
+      .left-section {
+        padding: 1.2rem;
+        min-height: 180px;
+      }
+      
+      .right-section {
+        padding: 1.2rem;
+      }
+      
+      .form-input {
+        font-size: 16px; /* Prevents zoom on iOS */
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="main-container">
+    <!-- Left Side - Branded Section -->
+    <div class="left-section">
+      <div class="brand-content">
+        <div class="logo">
+           <img src="/images/1.png" alt="">
+        </div>
+        <div class="brand-name">Glam Deck</div>
+        <div class="brand-tagline">Unleash Your Inner Sparkle</div>
+       
+      </div>
+    </div>
+
+   <!-- Right Side - Form Section -->
+<div class="right-section">
+  <div class="form-container">
+    <div class="form-header">
+      <h2>Change Your Name</h2>
+    </div>
+
+    <% if (locals.message) { %>
+      <div class="server-error"><%= message %></div>
+    <% } %>
+
+    <form id="nameChangeForm" action="/change-name" method="POST" onsubmit="return validateNameForm()">
+      <div class="form-group">
+        <label for="newName">Enter Your New Name</label>
+        <div class="input-wrapper">
+          <i class="fas fa-user input-icon"></i>
+          <input
+            type="text"
+            name="newName"
+            id="newName"
+            class="form-input"
+            placeholder="Enter your new name"
+            value="<%= currentName || '' %>"
+          />
+        </div>
+        <div id="nameError" class="error-message"></div>
+      </div>
+
+      <button type="submit" class="verify-btn" id="verifyBtn">
+        <i class="fas fa-save" style="margin-right: 0.5rem;"></i>
+        Update Name
+      </button>
+    </form>
+  </div>
+</div>
+
+  </div>
+
+  <script>
+  function validateNameForm() {
+    const name = document.getElementById('newName').value.trim();
+    const nameError = document.getElementById('nameError');
+    const verifyBtn = document.getElementById('verifyBtn');
+
+    nameError.textContent = '';
+
+    if (name === '') {
+      nameError.textContent = 'Name cannot be empty';
+      return false;
+    }
+
+    if (name.length < 3) {
+      nameError.textContent = 'Name must be at least 3 characters';
+      return false;
+    }
+
+    verifyBtn.disabled = true;
+    verifyBtn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 0.5rem;"></i>Updating...';
+
+    return true;
+  }
+
+  // Clear error on input
+  document.getElementById('newName').addEventListener('input', function () {
+    document.getElementById('nameError').textContent = '';
+  });
+
+  // Reset button on load
+  window.addEventListener('load', function () {
+    const verifyBtn = document.getElementById('verifyBtn');
+    verifyBtn.disabled = false;
+    verifyBtn.innerHTML = '<i class="fas fa-save" style="margin-right: 0.5rem;"></i>Update Name';
+  });
+</script>
+
+</body>
+</html>

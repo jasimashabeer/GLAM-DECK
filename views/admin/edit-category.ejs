@@ -1,0 +1,128 @@
+<%- include("../../views/partials/admin/header") %>
+<style>
+.error-message {
+  color: red;
+  font-size: 14px;
+  margin-top: 5px;
+  display: none;
+}
+</style>
+
+
+<div class="container">
+    <div class="row justify-content-center">
+        <div class="col-md-6 mt-60">
+<form method="post" action="/admin/editCategory/<%=category._id%>" onsubmit="return handleEditFormSubmit(event)">
+  <div class="mb-4 mt-30">
+    <label for="edit-category-name" class="form-label">Name</label>
+    <input 
+      type="text" 
+      name="categoryName" 
+      id="edit-category-name"
+      value="<%= category.name %>" 
+      class="form-control border" 
+    />
+    <div id="edit-name-error" class="error-message"></div>
+  </div>
+  
+  <div class="mb-4">
+    <label for="edit-description" class="form-label">Description</label>
+    <textarea 
+      name="description" 
+      id="edit-description" 
+      class="form-control border"><%= category.description %></textarea>
+    <div id="edit-description-error" class="error-message"></div>
+  </div>
+  
+  <div class="d-grid text-end mt-30 col-md-5">
+    <button class="btn btn-primary" type="submit">Update category</button>
+  </div>
+</form>
+
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+  async function handleEditFormSubmit(event) {
+    event.preventDefault(); // Stop normal form submit
+
+    const form = event.target;
+    const categoryId = "<%= category._id %>";
+    const categoryName = document.getElementById("edit-category-name").value.trim();
+    const description = document.getElementById("edit-description").value.trim();
+
+    // Validation
+   const nameError = document.getElementById("edit-name-error");
+const descriptionError = document.getElementById("edit-description-error");
+
+let isValid = true;
+
+if (!categoryName) {
+  nameError.innerText = "Name is required.";
+  nameError.style.display = "block";
+  isValid = false;
+} else {
+  nameError.innerText = "";
+  nameError.style.display = "none";
+}
+
+if (!description) {
+  descriptionError.innerText = "Description is required.";
+  descriptionError.style.display = "block";
+  isValid = false;
+} else {
+  descriptionError.innerText = "";
+  descriptionError.style.display = "none";
+}
+
+if (!isValid) return false;
+
+
+    // Optional: Disable button while submitting
+    const submitBtn = form.querySelector("button[type='submit']");
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Updating...";
+
+    try {
+      const response = await fetch(`/admin/editCategory/${categoryId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ categoryName, description })
+      });
+
+      const result = await response.json();
+
+      if (response.ok) {
+        Swal.fire({
+          icon: 'success',
+          title: 'Category Updated',
+          text: result.message || 'Update successful'
+        }).then(() => {
+          window.location.href = '/admin/category';
+        });
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Update Failed',
+          text: result.error || 'Something went wrong'
+        });
+        submitBtn.disabled = false;
+        submitBtn.innerText = "Update category";
+      }
+    } catch (error) {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: error.message || 'Failed to update category'
+      });
+      submitBtn.disabled = false;
+      submitBtn.innerText = "Update category";
+    }
+
+    return false; // Prevent normal form submission
+  }
+</script>

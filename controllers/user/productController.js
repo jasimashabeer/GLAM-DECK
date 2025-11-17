@@ -6,175 +6,139 @@ const mongoose=require('mongoose')
 
 
   
-      
-  
-
-  const getAllProducts = async (req, res) => {
+  const loadShoppingPage = async (req, res) => {
   try {
+    const userId = req.session.user;
+    const userData = userId ? await User.findById(userId) : null;
+    const categories = await Category.find({ isListed: true });
+    const categoryIds = categories.map(cat => cat._id.toString());
+
+    // Extract query params
     const page = parseInt(req.query.page) || 1;
-    const limit = 9;
-    const skip = (page - 1) * limit;
+    const limit = 6;
+    const search = req.query.search || '';
+    const sort = req.query.sort || 'newest';
+    const gt = parseInt(req.query.gt) || 0;
+    const lt = parseInt(req.query.lt) || 1000000;
+    const categoryFilter = req.query.category || null;
 
-    const { category, minPrice, maxPrice, search, sort } = req.query;
+    // Build product query
+    const query = {
+      isBlocked: false,
+      category: { $in: categoryIds },
+      regularPrice: { $gt: gt, $lt: lt }
+    };
 
-    // Base filter (exclude deleted)
-    let baseFilter = { status: { $ne: "deleted" } };
-
-    // Build $and array for combining conditions
-    let andConditions = [baseFilter];
-
-    //  Category filter
-    if (category) {
-      const categories = category.split(",");
-      if (categories.every(id => mongoose.isValidObjectId(id))) {
-        andConditions.push({
-          categoryId: { $in: categories.map(id => new mongoose.Types.ObjectId(id)) },
-        });
-      } else {
-        console.log("Invalid category IDs");
-      }
+    if (categoryFilter) {
+      query.category = categoryFilter;
     }
 
-    // Price filter
-    if (minPrice || maxPrice) {
-      let priceCondition = {};
-      if (minPrice) priceCondition.$gte = Number(minPrice);
-      if (maxPrice) priceCondition.$lte = Number(maxPrice);
-      andConditions.push({ price: priceCondition });
-    }
-
-    //  Search (case-insensitive, across multiple fields)
     if (search) {
-      const regex = new RegExp(search, "i");
-      andConditions.push({
-        $or: [
-          { name: regex },
-          { sku: regex },
-          { description: regex },
-        ],
-      });
+      query.productName = { $regex: search, $options: 'i' };
     }
 
-    // Combine everything
-    const filter = { $and: andConditions };
-
-    //  Sorting
+    // Sort
     let sortOption = {};
-    if (sort === "priceAsc") sortOption.price = 1;
-    else if (sort === "priceDesc") sortOption.price = -1;
-    else if (sort === "newest") sortOption.createdAt = -1;
-    else if (sort === "oldest") sortOption.createdAt = 1;
+    if (sort === 'price-asc') sortOption.salePrice = 1;
+    else if (sort === 'price-desc') sortOption.salePrice = -1;
+    else if (sort === 'name-asc') sortOption.productName = 1;
+    else if (sort === 'name-desc') sortOption.productName = -1;
+    else sortOption.createdAt = -1; // default: newest
 
-    // Fetch Products
-    const products = await Product.find(filter).sort(sortOption).skip(skip).limit(limit);
-    const totalProducts = await Product.countDocuments(filter);
+    // Fetch and update products
+    let products = await Product.find(query)
+      .populate('category')
+      .sort(sortOption)
+      .lean();
+
+    // Apply best offer logic
+    products = products.map(product => {
+      const productOffer = product.productOffer || 0;
+      const categoryOffer = product.category?.categoryOffer || 0;
+      const appliedOffer = Math.max(productOffer, categoryOffer);
+      const salePrice = product.regularPrice - (product.regularPrice * appliedOffer / 100);
+      return {
+        ...product,
+        salePrice: Math.round(salePrice),
+        appliedOffer
+      };
+    });
+
+    const totalProducts = products.length;
     const totalPages = Math.ceil(totalProducts / limit);
+    const paginatedProducts = products.slice((page - 1) * limit, page * limit);
 
-    // Fetch categories
-    const categoriesList = await Category.find();
-
-    //  Add discount price logic (you can extend later)
-    const updatedProducts = products.map(product => {
-      const discountPrice = product.price; // You can calculate later
-      return { ...product.toObject(), discountPrice };
-    });
-
-    //  Wishlist
-    let wishlistItems = [];
-    if (req.session.user) {
-      const wishlistDocs = await Wishlist.find({ userId: req.session.user._id });
-      wishlistItems = wishlistDocs.map(item => item.productId.toString());
-    }
-
-    // Render EJS
-    res.render("products", {
-      products: updatedProducts,
-      categories: categoriesList,
-      currentPage: page,
+    res.render('shop', {
+      user: userData,
+      products: paginatedProducts,
+      category: categories,
       totalPages,
-      query: req.query,
-      selectedCategories: category ? category.split(",") : [],
-      selectedMinPrice: minPrice || "",
-      selectedMaxPrice: maxPrice || "",
-      selectedSort: sort || "",
-      user: req.session.user  || null,
-      wishlistItems,
-      currentPage: 'products' ,
+      currentPage: page,
+      sort,
+      search,
+      gt,
+      lt,
+      selectedCategory: categoryFilter
     });
+
   } catch (error) {
-    console.error("Error fetching products:", error);
-    res.status(500).send("Internal Server Error");
+    console.log("Error loading shop page:", error);
+    res.redirect('/pageNotFound');
   }
 };
 
 
 
+
+
   
-  const getProductDetail = async (req, res) => {
+ 
+const productDetails=async(req,res)=>{
     try {
-        const productId = req.params.productId;
-        console.log("Fetching product with ID:", productId); 
-  
-        const product = await Product.findById(productId).populate('categoryId');
-        console.log("Product fetched:", product); // Debug log
+        const userId=req.session.user;
+        const userData=await User.findById(userId)
+        const productId=req.query.id;
+   
 
-        let wishlistProductIds = [];
-        if (req.session.user) {
-          const wishlist = await Wishlist.find({ userId: req.session.user._id });
-          wishlistProductIds = wishlist.map(item => item.productId.toString());
-        }
-     
-        if (!product) {
+        const product=await Product.findById(productId).populate('category')
 
-            console.log("Product not found");
-            return res.status(404).send("Product not found");
-           
-            
-          }
-  
-       
-       
-  
-        let discountPrice = product.price; // Default: original price
-        let maxDiscount = 0;
-  
-        // Check for product-specific and category-level discounts
-     
-        // Apply the highest discount
-        if (maxDiscount > 0) {
-            discountPrice = product.price - (product.price * maxDiscount) / 100;
-        }
-
-      
-         const relatedProducts = await Product.find({
-            _id: { $ne: product._id }, // use the actual ObjectId
-            categoryId: product.categoryId._id, // correct field
-            status: "Listed" // ensure it's not Blocked/Unlisted
-          })
-          .limit(4)
-          .lean();
-
-
-
-  
-        res.render("productdetails", {
-            product: { ...product.toObject(), discountPrice }, // Add discountPrice dynamically
-            user: req.session.user ? { name: req.session.userName } : null,
-            relatedProducts,
-            wishlistProductIds,
-            
-        });
-       
-    
-       // res.render('productDetails', { product, relatedProducts });
-
-
-    } catch (error) {
-        console.error("Error fetching product details:", error);
-        res.status(500).send("Internal Server Error");
         
+         if (!product || product.isBlocked ) {
+      return res.redirect('/shop');
     }
-  };
+
+
+        const findCategory=product.category;
+        const categoryOffer = product.category?.categoryOffer || 0;
+const productOffer = product.productOffer || 0;
+const totalOffer = Math.max(categoryOffer, productOffer);
+const salePrice = product.regularPrice - (product.regularPrice * totalOffer / 100);
+
+        const relatedProducts = await Product.find({
+      category: product.category._id,
+      _id: { $ne: product._id },
+      isBlocked: false,
+    //   quantity: { $gt: 0 },
+    })
+      .limit(4)
+      .lean();
+        res.render('product-details',{
+            user:userData,
+            product:product,
+            quantity:product.quantity,
+            totalOffer:totalOffer,
+            category:findCategory,
+            salePrice:salePrice,
+            relatedProducts,
+        })
+    } catch (error) {
+        console.log('Error for fetching product details',error)
+        res.redirect('/pageNotFound')
+    }
+}
+
+
+    
 
 
   
@@ -206,4 +170,4 @@ const mongoose=require('mongoose')
   };
   
 
-  module.exports={getAllProducts, getProductDetail,toggleWishlist}
+  module.exports={loadShoppingPage, productDetails,toggleWishlist}

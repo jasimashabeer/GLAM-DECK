@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Invoice - <%= order.orderId %></title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { font-family: Arial, sans-serif; color: #333; }
+    .invoice-container { max-width: 800px; margin: 0 auto; padding: 20px; }
+    .invoice-header { display: flex; justify-content: space-between; border-bottom: 1px solid #ddd; margin-bottom: 20px; padding-bottom: 10px; }
+    .company-details { text-align: right; }
+    .invoice-title { font-size: 24px; font-weight: bold; }
+    .invoice-details { margin-bottom: 20px; }
+    .invoice-details-row { display: flex; justify-content: space-between; margin-bottom: 15px; }
+    .section-title { font-size: 16px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+    table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
+    th, td { padding: 8px; border-bottom: 1px solid #ddd; }
+    .product-image { width: 60px; height: 60px; object-fit: cover; }
+    .total-section { text-align: right; margin-top: 10px; }
+    .total-row { display: flex; justify-content: flex-end; margin-bottom: 6px; }
+    .total-label { width: 150px; text-align: right; margin-right: 10px; }
+    .total-value { width: 100px; text-align: right; }
+    .grand-total { font-weight: bold; font-size: 16px; border-top: 2px solid #333; padding-top: 5px; }
+    .footer { text-align: center; font-size: 12px; color: #777; margin-top: 40px; }
+    .download-btn { background-color: #4caf50; color: white; padding: 10px 20px; border: none; border-radius: 6px; cursor: pointer; }
+    .download-btn:hover { background-color: #388e3c; }
+  </style>
+</head>
+<body>
+
+  <div class="invoice-container" id="invoice">
+    <div class="invoice-header">
+      <div>
+        <div class="invoice-title">INVOICE</div>
+        <div>Invoice No: <%= order.orderId %></div>
+        <div>Date: <%= new Date(order.createdOn).toLocaleDateString() %></div>
+      </div>
+      <div class="company-details">
+        <strong>BookMart Store</strong><br>
+        Ann Syra Complex<br>
+        Kerala, Malappuram<br>
+        Phone: 9999999999<br>
+        Email: bookmartstore@gmail.com
+      </div>
+    </div>
+
+    <div class="invoice-details">
+      <div class="invoice-details-row">
+        <div style="width:48%">
+          <div class="section-title">Bill To</div>
+          <% if (selectedAddress) { %>
+
+    <p class="mb-1"><strong><%= selectedAddress.name %></strong> <%= selectedAddress.addressType %></p>
+    <p class="mb-1"><%= selectedAddress.locality %>, <%= selectedAddress.city %></p>
+    <p class="mb-1"><%= selectedAddress.state %></p>
+    <p class="mb-1">Pin: <%= selectedAddress.pincode %></p>
+    <p class="mb-1"><small>Ph: <%= selectedAddress.mobile %></small></p>
+ <div><%= user.email %></div>
+<% } else { %>
+  <p class="text-danger">Address not found.</p>
+<% } %>
+        </div>
+        <div style="width:48%">
+          <div class="section-title">Ship To</div>
+           <p class="mb-1"><strong><%= selectedAddress.name %></strong> <%= selectedAddress.addressType %></p>
+    <p class="mb-1"><%= selectedAddress.locality %>, <%= selectedAddress.city %></p>
+          <div><p class="mb-1"><%= selectedAddress.state %></p></div>
+          <div><p class="mb-1">Pin: <%= selectedAddress.pincode %></p></div>
+          <div> <p class="mb-1"><small>Ph: <%= selectedAddress.mobile %></small></p></div>
+          <div><%= user.email %></div>
+        </div>
+      </div>
+
+      <div class="invoice-details-row">
+        <div>
+          <div class="section-title">Payment Method</div>
+          <div><span><%= order.paymentMethod || 'Cash On Delivery' %></span></div>
+        </div>
+        <div>
+          <div class="section-title">Order Status</div>
+          <span class="badge 
+            <%= order.status === 'delivered' ? 'bg-success' : 
+                order.status === 'cancelled' ? 'bg-danger' :
+                order.status === 'shipped' ? 'bg-info text-dark' : 
+                order.status === 'returned' ? 'bg-secondary' : 
+                'bg-warning text-dark' %>">
+            <%= order.status.toUpperCase() %>
+          </span>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-title">Order Items</div>
+    <table>
+      <thead>
+        <tr>
+          <th>Image</th>
+          <th>Product</th>
+          <th>Qty</th>
+          <th>Price</th>
+          <th>Total</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% order.orderedItems.forEach(item => { %>
+          <tr>
+            <td><img src="/uploads/product-images/<%= item.product.image[0] %>" alt="Product" class="product-image"></td>
+            <td><%= item.product.productName %></td>
+            <td><%= item.quantity %></td>
+            <td>₹<%= item.product.salePrice %></td>
+            <td>₹<%= item.price %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+
+    <div class="total-section">
+      <div class="total-row"><div class="total-label">Subtotal:</div><div class="total-value">₹<%= order.totalPrice %></div></div>
+       <div class="total-row"><div class="total-label">Discount:</div><div class="total-value">₹<%= order.discount || 0 %></div></div>
+      <div class="total-row"><div class="total-label">Delivery:</div><div class="total-value">₹<%= shippingCharge || 0 %></div></div>
+      <div class="total-row grand-total"><div class="total-label">Grand Total:</div><div class="total-value">₹<%= order.finalAmount %></div></div>
+    </div>
+
+    <div class="footer">
+      <p>Thank you for shopping with BookMart!</p>
+      <p>For support, contact: support@bookmart.com</p>
+    </div>
+  </div>
+
+  <div class="text-center my-4">
+    <a href="/userProfile" class="btn btn-outline-secondary">Go Back</a>
+    <button onclick="downloadPDF()" class="download-btn">Download Invoice</button>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
+    function downloadPDF() {
+      const element = document.getElementById('invoice');
+      const opt = {
+        margin: 0.5,
+        filename: 'invoice_<%= order.orderId %>.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: { scale: 2 },
+        jsPDF: { unit: 'in', format: 'letter', orientation: 'portrait' }
+      };
+      html2pdf().set(opt).from(element).save();
+    }
+  </script>
+
+</body>
+</html>

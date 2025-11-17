@@ -412,6 +412,20 @@
       gap: 8px;
     }
 
+.error-message {
+  color: #e74c3c;
+  font-size: 13px;
+  margin-top: 4px;
+  display: none;
+}
+
+.invalid {
+  border-color: #e74c3c !important;
+}
+
+
+
+
     #cropBtn {
       background: linear-gradient(135deg, #10b981 0%, #059669 100%);
       color: white;

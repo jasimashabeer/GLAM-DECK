@@ -10,9 +10,9 @@ const bcrypt=require('bcrypt')
 
 const pageNotFound= async(req,res)=>{
   try{
-  res.render("Page404")
+  res.render("pageNotFound")
   }catch(error){
-res.redirect("/pageNotFound")
+console.log("error")
   }
 }
 
@@ -38,7 +38,7 @@ const loadHomepage = async (req, res) => {
       .sort({ createdAt: -1 })
       .limit(4);
 
-    return res.render("home", { products });
+    return res.render("home", { products:products });
   } catch (error) {
     console.log("Homepage not found:", error);
     res.status(500).send("Server error");
@@ -255,7 +255,8 @@ const login = async(req,res)=>{
         // Add other fields like phone, etc. if needed
       };
       
-      res.render('home')
+      // res.render('home')
+      res.redirect('/')
   } catch (error) {
       console.error('Login error',error);
       res.render('login',{message:'Login failed. Please try again later.'})

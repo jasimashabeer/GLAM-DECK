@@ -1,792 +1,108 @@
-
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard - Glam Deck</title>
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css"/>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      background: linear-gradient(135deg, #f5f7fa 0%, #e4e8ec 100%);
-      color: #2d3748;
-      min-height: 100vh;
-    }
-
-    /* Header Styles */
-    .top-header {
-      background: linear-gradient(135deg, #f44336 0%, #d32f2f 100%);
-      padding: 1rem 2rem;
-      color: white;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-      position: fixed;
-      top: 0;
-      left: 260px;
-      right: 0;
-      z-index: 999;
-      height: 70px;
-    }
-
-    .header-brand {
-      font-size: 1.5rem;
-      font-weight: bold;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .header-brand img {
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-    }
-
-    .header-actions a {
-      color: white;
-      text-decoration: none;
-      font-weight: 600;
-      padding: 10px 24px;
-      border-radius: 8px;
-      background: rgba(255, 255, 255, 0.2);
-      transition: all 0.3s ease;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .header-actions a:hover {
-      background: rgba(255, 255, 255, 0.3);
-      transform: translateY(-2px);
-    }
-
-    /* Sidebar */
-    .sidebar {
-      width: 260px;
-      background: linear-gradient(180deg, #0f172a 0%, #1e293b 100%);
-      color: white;
-      height: 100vh;
-      position: fixed;
-      top: 0;
-      left: 0;
-      box-shadow: 4px 0 24px rgba(0, 0, 0, 0.12);
-      z-index: 1000;
-      overflow-y: auto;
-      transition: all 0.3s ease;
-    }
-
-    .sidebar-header {
-      padding: 28px 24px;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-      background: rgba(0, 0, 0, 0.2);
-    }
-
-    .sidebar-brand {
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      font-size: 20px;
-      font-weight: 700;
-      color: white;
-      text-decoration: none;
-    }
-
-    .sidebar-brand i {
-      font-size: 24px;
-      color: #60a5fa;
-    }
-
-    .sidebar-nav {
-      padding: 20px 12px;
-    }
-
-    .nav-section-title {
-      font-size: 11px;
-      text-transform: uppercase;
-      letter-spacing: 1px;
-      color: #94a3b8;
-      padding: 12px 16px 8px;
-      font-weight: 600;
-    }
-
-    .sidebar-link {
-      color: #cbd5e1;
-      text-decoration: none;
-      padding: 12px 16px;
-      border-radius: 8px;
-      margin-bottom: 4px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      transition: all 0.2s ease;
-      font-size: 14px;
-      font-weight: 500;
-      position: relative;
-    }
-
-    .sidebar-link i {
-      width: 20px;
-      font-size: 16px;
-      text-align: center;
-    }
-
-    .sidebar-link:hover {
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      transform: translateX(4px);
-    }
-
-    .sidebar-link.active {
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-      color: white;
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-    }
-
-    .sidebar-link.active::before {
-      content: '';
-      position: absolute;
-      left: 0;
-      top: 50%;
-      transform: translateY(-50%);
-      width: 4px;
-      height: 24px;
-      background: white;
-      border-radius: 0 4px 4px 0;
-    }
-
-    /* Mobile Toggle */
-    .sidebar-toggle {
-      display: none;
-      position: fixed;
-      top: 15px;
-      left: 15px;
-      z-index: 1001;
-      background: linear-gradient(135deg, #3b82f6 0%, #2563eb 100%);
-      color: white;
-      border: none;
-      width: 45px;
-      height: 45px;
-      border-radius: 12px;
-      cursor: pointer;
-      box-shadow: 0 4px 12px rgba(59, 130, 246, 0.4);
-      font-size: 18px;
-    }
-
-    .sidebar-overlay {
-      display: none;
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.5);
-      z-index: 999;
-    }
-
-    /* Main Content */
-    .main-wrapper {
-      margin-left: 260px;
-      margin-top: 70px;
-      padding: 30px;
-      min-height: calc(100vh - 70px);
-      transition: all 0.3s ease;
-    }
-
-    .dashboard-header {
-      margin-bottom: 30px;
-    }
-
-    .dashboard-title {
-      font-size: 32px;
-      font-weight: 700;
-      color: #1a202c;
-      margin-bottom: 8px;
-    }
-
-    .dashboard-subtitle {
-      color: #64748b;
-      font-size: 16px;
-    }
-
-    /* Stats Cards */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
-      margin-bottom: 30px;
-    }
-
-    .stat-card {
-      background: white;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      transition: all 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .stat-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 4px;
-      height: 100%;
-      background: linear-gradient(180deg, var(--card-color) 0%, var(--card-color-dark) 100%);
-    }
-
-    .stat-card:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.1);
-    }
-
-    .stat-card.blue {
-      --card-color: #3b82f6;
-      --card-color-dark: #2563eb;
-    }
-
-    .stat-card.green {
-      --card-color: #10b981;
-      --card-color-dark: #059669;
-    }
-
-    .stat-card.purple {
-      --card-color: #8b5cf6;
-      --card-color-dark: #7c3aed;
-    }
-
-    .stat-card.orange {
-      --card-color: #f59e0b;
-      --card-color-dark: #d97706;
-    }
-
-    .stat-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: flex-start;
-      margin-bottom: 16px;
-    }
-
-    .stat-icon {
-      width: 56px;
-      height: 56px;
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 24px;
-      background: linear-gradient(135deg, var(--card-color) 0%, var(--card-color-dark) 100%);
-      color: white;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    }
-
-    .stat-info {
-      flex: 1;
-      text-align: right;
-    }
-
-    .stat-value {
-      font-size: 32px;
-      font-weight: 700;
-      color: #1a202c;
-      line-height: 1;
-      margin-bottom: 4px;
-    }
-
-    .stat-label {
-      font-size: 14px;
-      color: #64748b;
-      font-weight: 500;
-    }
-
-    .stat-change {
-      margin-top: 12px;
-      padding-top: 12px;
-      border-top: 1px solid #e5e7eb;
-      display: flex;
-      align-items: center;
-      gap: 6px;
-      font-size: 13px;
-    }
-
-    .stat-change.positive {
-      color: #10b981;
-    }
-
-    .stat-change.negative {
-      color: #ef4444;
-    }
-
-    /* Charts Section */
-    .charts-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
-      gap: 24px;
-      margin-bottom: 30px;
-    }
-
-    .chart-card {
-      background: white;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-
-    .chart-header {
-      margin-bottom: 20px;
-      padding-bottom: 16px;
-      border-bottom: 2px solid #e5e7eb;
-    }
-
-    .chart-title {
-      font-size: 18px;
-      font-weight: 600;
-      color: #1a202c;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .chart-body {
-      min-height: 300px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #94a3b8;
-      font-style: italic;
-    }
-
-    /* Recent Activity */
-    .activity-card {
-      background: white;
-      border-radius: 12px;
-      padding: 24px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-    }
-
-    .activity-header {
-      margin-bottom: 20px;
-      padding-bottom: 16px;
-      border-bottom: 2px solid #e5e7eb;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .activity-title {
-      font-size: 18px;
-      font-weight: 600;
-      color: #1a202c;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-
-    .view-all-btn {
-      color: #3b82f6;
-      text-decoration: none;
-      font-size: 14px;
-      font-weight: 600;
-      transition: all 0.3s ease;
-    }
-
-    .view-all-btn:hover {
-      color: #2563eb;
-    }
-
-    .activity-list {
-      list-style: none;
-    }
-
-    .activity-item {
-      padding: 16px;
-      border-radius: 8px;
-      margin-bottom: 12px;
-      background: #f9fafb;
-      display: flex;
-      align-items: flex-start;
-      gap: 16px;
-      transition: all 0.3s ease;
-    }
-
-    .activity-item:hover {
-      background: #f3f4f6;
-      transform: translateX(4px);
-    }
-
-    .activity-icon {
-      width: 40px;
-      height: 40px;
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 16px;
-      flex-shrink: 0;
-    }
-
-    .activity-icon.blue {
-      background: #dbeafe;
-      color: #3b82f6;
-    }
-
-    .activity-icon.green {
-      background: #d1fae5;
-      color: #10b981;
-    }
-
-    .activity-icon.purple {
-      background: #ede9fe;
-      color: #8b5cf6;
-    }
-
-    .activity-icon.orange {
-      background: #fed7aa;
-      color: #f59e0b;
-    }
-
-    .activity-content {
-      flex: 1;
-    }
-
-    .activity-text {
-      font-size: 14px;
-      color: #4b5563;
-      margin-bottom: 4px;
-    }
-
-    .activity-time {
-      font-size: 12px;
-      color: #94a3b8;
-    }
-
-    /* Responsive */
-    @media (max-width: 1024px) {
-      .sidebar {
-        transform: translateX(-100%);
-      }
-
-      .sidebar.active {
-        transform: translateX(0);
-      }
-
-      .sidebar-toggle {
-        display: block;
-      }
-
-      .sidebar-overlay.active {
-        display: block;
-      }
-
-      .main-wrapper {
-        margin-left: 0;
-      }
-
-      .top-header {
-        left: 0;
-      }
-
-      .charts-grid {
-        grid-template-columns: 1fr;
-      }
-    }
-
-    @media (max-width: 768px) {
-      .main-wrapper {
-        padding: 15px;
-      }
-
-      .top-header {
-        padding: 1rem;
-      }
-
-      .header-brand {
-        font-size: 1.2rem;
-      }
-
-      .dashboard-title {
-        font-size: 24px;
-      }
-
-      .stats-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .stat-value {
-        font-size: 28px;
-      }
-    }
-  </style>
-</head>
-<body>
-  <!-- Mobile Sidebar Toggle -->
-  <button class="sidebar-toggle" onclick="toggleSidebar()">
-    <i class="fas fa-bars"></i>
-  </button>
-
-  <!-- Sidebar Overlay -->
-  <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
-
-  <!-- Sidebar -->
-  <aside class="sidebar" id="sidebar">
-    <div class="sidebar-header">
-      <a href="/admin/dashboard" class="sidebar-brand">
-        <i class="fas fa-shield-halved"></i>
-        <span>Admin Panel</span>
-      </a>
-    </div>
-    <nav class="sidebar-nav">
-      <div class="nav-section-title">Main Navigation</div>
-      <a href="/admin/dashboard" class="sidebar-link active">
-        <i class="fas fa-chart-line"></i>
-        <span>Dashboard</span>
-      </a>
-      <a href="/admin/users" class="sidebar-link">
-        <i class="fas fa-users"></i>
-        <span>Customer Management</span>
-      </a>
-      <a href="/admin/category" class="sidebar-link">
-        <i class="fas fa-folder"></i>
-        <span>Category Management</span>
-      </a>
-      <a href="/admin/getproduct" class="sidebar-link">
-        <i class="fas fa-box"></i>
-        <span>Products Management</span>
-      </a>
-      <a href="/admin/offers" class="sidebar-link">
-        <i class="fas fa-tag"></i>
-        <span>Offer Management</span>
-      </a>
-      <a href="/admin/orders" class="sidebar-link">
-        <i class="fas fa-shopping-cart"></i>
-        <span>Orders Management</span>
-      </a>
-      <a href="/admin/reports" class="sidebar-link">
-        <i class="fas fa-file-chart"></i>
-        <span>Reports</span>
-      </a>
-    </nav>
-  </aside>
-
-  <!-- Top Header -->
-  <header class="top-header">
-    <div class="header-brand">
-      <img src="/images/1.png" alt="Glam Deck Logo">
-      Glam Deck
-    </div>
-    <div class="header-actions">
-      <a href="/admin/logout">
-        <i class="fas fa-sign-out-alt"></i> Logout
-      </a>
-    </div>
-  </header>
-
-  <!-- Main Content -->
-  <div class="main-wrapper">
-    <!-- Dashboard Header -->
-    <div class="dashboard-header">
-      <h1 class="dashboard-title">📊 Dashboard Overview</h1>
-      <p class="dashboard-subtitle">Welcome back! Here's what's happening with your store today.</p>
-    </div>
-
-    <!-- Stats Grid -->
-    <div class="stats-grid">
-      <div class="stat-card blue">
-        <div class="stat-header">
-          <div class="stat-icon">
-            <i class="fas fa-users"></i>
-          </div>
-          <div class="stat-info">
-            <div class="stat-value">1,234</div>
-            <div class="stat-label">Total Customers</div>
+<%- include("../../views/partials/admin/header") %>
+
+    <!-- Dashboard Content -->
+    <div class="container-fluid p-4">
+      <h2 class="mb-4">Dashboard Overview</h2>
+      
+      <!-- Stats Cards -->
+      <div class="row g-4 mb-4">
+        <div class="col-md-3">
+          <div class="card text-white bg-primary">
+            <div class="card-body">
+              <h5 class="card-title">Total Sales</h5>
+              <p class="card-text display-6">$12,450</p>
+            </div>
           </div>
         </div>
-        <div class="stat-change positive">
-          <i class="fas fa-arrow-up"></i>
-          <span>+12% from last month</span>
+        <div class="col-md-3">
+          <div class="card text-white bg-success">
+            <div class="card-body">
+              <h5 class="card-title">Orders</h5>
+              <p class="card-text display-6">245</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-white bg-info">
+            <div class="card-body">
+              <h5 class="card-title">Customers</h5>
+              <p class="card-text display-6">180</p>
+            </div>
+          </div>
+        </div>
+        <div class="col-md-3">
+          <div class="card text-white bg-warning">
+            <div class="card-body">
+              <h5 class="card-title">Products</h5>
+              <p class="card-text display-6">89</p>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="stat-card green">
-        <div class="stat-header">
-          <div class="stat-icon">
-            <i class="fas fa-shopping-cart"></i>
-          </div>
-          <div class="stat-info">
-            <div class="stat-value">567</div>
-            <div class="stat-label">Total Orders</div>
+      <!-- Recent Activity -->
+      <div class="row">
+        <div class="col-md-8">
+          <div class="card">
+            <div class="card-header">
+              <h5>Recent Orders</h5>
+            </div>
+            <div class="card-body">
+              <table class="table table-hover">
+                <thead>
+                  <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>#1001</td>
+                    <td>John Doe</td>
+                    <td>$125.00</td>
+                    <td><span class="badge bg-success">Delivered</span></td>
+                  </tr>
+                  <tr>
+                    <td>#1002</td>
+                    <td>Jane Smith</td>
+                    <td>$89.50</td>
+                    <td><span class="badge bg-warning">Pending</span></td>
+                  </tr>
+                  <tr>
+                    <td>#1003</td>
+                    <td>Mike Johnson</td>
+                    <td>$210.00</td>
+                    <td><span class="badge bg-info">Shipped</span></td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
           </div>
         </div>
-        <div class="stat-change positive">
-          <i class="fas fa-arrow-up"></i>
-          <span>+8% from last month</span>
-        </div>
-      </div>
-
-      <div class="stat-card purple">
-        <div class="stat-header">
-          <div class="stat-icon">
-            <i class="fas fa-dollar-sign"></i>
+        
+        <div class="col-md-4">
+          <div class="card">
+            <div class="card-header">
+              <h5>Quick Actions</h5>
+            </div>
+            <div class="card-body">
+              <div class="d-grid gap-2">
+                <a href="/admin/addProduct" class="btn btn-primary">Add New Product</a>
+                <a href="/admin/orders" class="btn btn-success">View All Orders</a>
+                <a href="/admin/users" class="btn btn-info">Manage Customers</a>
+                <a href="/admin/sales" class="btn btn-warning">Sales Report</a>
+              </div>
+            </div>
           </div>
-          <div class="stat-info">
-            <div class="stat-value">$45.2K</div>
-            <div class="stat-label">Total Revenue</div>
-          </div>
-        </div>
-        <div class="stat-change positive">
-          <i class="fas fa-arrow-up"></i>
-          <span>+15% from last month</span>
-        </div>
-      </div>
-
-      <div class="stat-card orange">
-        <div class="stat-header">
-          <div class="stat-icon">
-            <i class="fas fa-box"></i>
-          </div>
-          <div class="stat-info">
-            <div class="stat-value">89</div>
-            <div class="stat-label">Total Products</div>
-          </div>
-        </div>
-        <div class="stat-change negative">
-          <i class="fas fa-arrow-down"></i>
-          <span>-3% from last month</span>
         </div>
       </div>
     </div>
 
-    <!-- Charts Section -->
-    <div class="charts-grid">
-      <div class="chart-card">
-        <div class="chart-header">
-          <h3 class="chart-title">
-            <i class="fas fa-chart-line"></i>
-            Sales Overview
-          </h3>
-        </div>
-        <div class="chart-body">
-          Chart will be rendered here with your preferred charting library
-        </div>
-      </div>
-
-      <div class="chart-card">
-        <div class="chart-header">
-          <h3 class="chart-title">
-            <i class="fas fa-chart-pie"></i>
-            Category Distribution
-          </h3>
-        </div>
-        <div class="chart-body">
-          Chart will be rendered here with your preferred charting library
-        </div>
-      </div>
-    </div>
-
-    <!-- Recent Activity -->
-    <div class="activity-card">
-      <div class="activity-header">
-        <h3 class="activity-title">
-          <i class="fas fa-clock"></i>
-          Recent Activity
-        </h3>
-        <a href="#" class="view-all-btn">View All <i class="fas fa-arrow-right"></i></a>
-      </div>
-      <ul class="activity-list">
-        <li class="activity-item">
-          <div class="activity-icon blue">
-            <i class="fas fa-user-plus"></i>
-          </div>
-          <div class="activity-content">
-            <div class="activity-text">New customer <strong>John Doe</strong> registered</div>
-            <div class="activity-time">2 minutes ago</div>
-          </div>
-        </li>
-        <li class="activity-item">
-          <div class="activity-icon green">
-            <i class="fas fa-shopping-bag"></i>
-          </div>
-          <div class="activity-content">
-            <div class="activity-text">Order <strong>#12345</strong> was completed</div>
-            <div class="activity-time">15 minutes ago</div>
-          </div>
-        </li>
-        <li class="activity-item">
-          <div class="activity-icon purple">
-            <i class="fas fa-box-open"></i>
-          </div>
-          <div class="activity-content">
-            <div class="activity-text">New product <strong>"Premium Lipstick"</strong> added</div>
-            <div class="activity-time">1 hour ago</div>
-          </div>
-        </li>
-        <li class="activity-item">
-          <div class="activity-icon orange">
-            <i class="fas fa-tags"></i>
-          </div>
-          <div class="activity-content">
-            <div class="activity-text">New offer <strong>"Summer Sale 20%"</strong> created</div>
-            <div class="activity-time">2 hours ago</div>
-          </div>
-        </li>
-      </ul>
-    </div>
   </div>
+</div>
 
-  <script>
-    function toggleSidebar() {
-      const sidebar = document.getElementById('sidebar');
-      const overlay = document.querySelector('.sidebar-overlay');
-      sidebar.classList.toggle('active');
-      overlay.classList.toggle('active');
-    }
-  </script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
-   
-         
-
-
-
-     <!-- <div class="main-container">
-     
-       <div class="sidebar">
-            <div class="sidebar-header">
-                <h2>Admin Panel</h2>
-            </div>
-            <ul>
-                <li><a href="#">Dashboard</a></li>
-                <li><a href="/admin/users">Customer Management</a></li>
-                <li><a href="/admin/category">Category Management</a></li>
-                <li><a href="/admin/getproduct">Products</a></li>
-                <li><a href="#">Settings</a></li>
-                <li><a href="#">Logout</a></li>
-            </ul>
-        </div> -->
-        <!-- <div class="main-content"> -->
-            <!-- <div class="header">
-                <h2>Dashboard</h2>
-                <div class="admin-profile">
-                    <span>Admin</span>
-                    <img src="" alt="Admin Profile Picture">
-                </div>
-            </div> -->
-            <!-- <div class="content">
-             <div style="display: block; width: 915px;">
-
-             </div>
-                 <img src="" alt="">
-            </div>
-        </div>
-    </div> --> 
-

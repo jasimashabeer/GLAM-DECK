@@ -1,0 +1,241 @@
+<%- include('../partials/user/profileHeader') %>
+
+<!-- Main Content Area -->
+<div class="flex-grow-1 main-content" >
+  <div class="content-card" style="padding-bottom: 20px;">
+    <h2 class="mb-4">My Addresses</h2>
+    <div class="row">
+      <!-- Left Side: Address List -->
+      <div class="col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-header bg-white fw-bold fs-5">Saved Addresses</div>
+          <div class="card-body p-2" style="max-height: 400px; overflow-y: auto;">
+            <% if (user.addresses && user.addresses.length > 0) { %>
+              <% user.addresses.forEach(address => { %>
+              <div class="border rounded p-3 mb-2">
+                <div class="d-flex justify-content-between align-items-start">
+                  <div>
+                    <p class="mb-1"><strong><%= address.name %></strong> <%= address.addressType %></p>
+                    <p class="mb-1"><%= address.locality %>, <%= address.city %></p>
+                    <p class="mb-1"><%= address.state %></p>
+                    <p class="mb-1">Pin: <%= address.pincode %></p>
+                    <p class="mb-1"><small>Ph: <%= address.mobile %></small></p>
+                  </div>
+                  <div class="d-flex gap-1">
+                    <button type="button" class="btn btn-sm btn-outline-primary edit-address-btn"
+                      style="height: 30px;"
+                      data-id="<%= address._id %>"
+                      data-name="<%= address.name %>"
+                      data-locality="<%= address.locality %>"
+                      data-city="<%= address.city %>"
+                      data-state="<%= address.state %>"
+                      data-pincode="<%= address.pincode %>"
+                      data-mobile="<%= address.mobile %>"
+                      data-alt="<%= address.alternatePhone %>">
+                      Edit
+                    </button>
+
+                    <form action="/delete-address/<%= address._id %>" method="POST">
+                      <button type="button"
+  class="btn btn-sm btn-danger delete-btn"
+  data-id="<%= address._id %>"
+  style="height: 30px;">
+  Delete
+</button>
+
+                    </form>
+                  </div>
+                </div>
+              </div>
+              <% }) %>
+            <% } else { %>
+              <div class="alert alert-info">No addresses found. Please add an address.</div>
+            <% } %>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Side: Add/Edit Address Form -->
+      <div class="col-md-6">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-header bg-white fw-bold fs-5">Add / Edit Address</div>
+          <div class="card-body">
+            <form id="addressForm" action="/addAddress" method="POST" onsubmit="return validation()">
+              <input type="hidden" id="addressId" name="addressId" />
+              <div class="mb-2">
+                <input type="text" id="name" name="name" class="form-control" placeholder="Full Name">
+                <div id="nameError" class="text-danger"></div>
+              </div>
+              <div class="mb-2">
+                <input type="text" id="locality" name="locality" class="form-control" placeholder="Locality">
+                <div id="localityError" class="text-danger"></div>
+              </div>
+              <div class="mb-2">
+                <input type="text" id="city" name="city" class="form-control" placeholder="City">
+                <div id="cityError" class="text-danger"></div>
+              </div>
+              <div class="mb-2">
+                <select id="state" name="state" class="form-control">
+                  <option value="" disabled selected>Select State</option>
+                  <option value="Andhra Pradesh">Andhra Pradesh</option>
+                  <option value="Arunachal Pradesh">Arunachal Pradesh</option>
+                  <option value="Assam">Assam</option>
+                  <option value="Bihar">Bihar</option>
+                  <option value="Chhattisgarh">Chhattisgarh</option>
+                  <option value="Goa">Goa</option>
+                  <option value="Gujarat">Gujarat</option>
+                  <option value="Haryana">Haryana</option>
+                  <option value="Himachal Pradesh">Himachal Pradesh</option>
+                  <option value="Jharkhand">Jharkhand</option>
+                  <option value="Karnataka">Karnataka</option>
+                  <option value="Kerala">Kerala</option>
+                  <option value="Madhya Pradesh">Madhya Pradesh</option>
+                  <option value="Maharashtra">Maharashtra</option>
+                  <option value="Manipur">Manipur</option>
+                  <option value="Meghalaya">Meghalaya</option>
+                  <option value="Mizoram">Mizoram</option>
+                  <option value="Nagaland">Nagaland</option>
+                  <option value="Odisha">Odisha</option>
+                  <option value="Punjab">Punjab</option>
+                  <option value="Rajasthan">Rajasthan</option>
+                  <option value="Sikkim">Sikkim</option>
+                  <option value="Tamil Nadu">Tamil Nadu</option>
+                  <option value="Telangana">Telangana</option>
+                  <option value="Tripura">Tripura</option>
+                  <option value="Uttar Pradesh">Uttar Pradesh</option>
+                  <option value="Uttarakhand">Uttarakhand</option>
+                  <option value="West Bengal">West Bengal</option>
+                  <option value="Delhi">Delhi</option>
+                  <option value="Jammu and Kashmir">Jammu and Kashmir</option>
+                </select>
+                <div id="stateError" class="text-danger"></div>
+              </div>
+              <div class="mb-2">
+                <input type="text" id="pincode" name="pincode" class="form-control" placeholder="Pincode">
+                <div id="pincodeError" class="text-danger"></div>
+              </div>
+              <div class="mb-2">
+                <input type="text" id="mobile" name="mobile" class="form-control" placeholder="Mobile Number">
+                <div id="mobileError" class="text-danger"></div>
+              </div>
+              <div class="mb-2">
+                <input type="text" id="alternatePhone" name="alternatePhone" class="form-control" placeholder="Alternate Phone (optional)">
+                <div id="altPhoneError" class="text-danger"></div>
+              </div>
+              <button type="submit" id="submitBtn" class="btn btn-success px-4 btn-pill" style="height: 40px;">Save Address</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+  document.querySelectorAll('.edit-address-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      document.getElementById('name').value = button.dataset.name;
+      document.getElementById('locality').value = button.dataset.locality;
+      document.getElementById('city').value = button.dataset.city;
+      document.getElementById('state').value = button.dataset.state;
+      document.getElementById('pincode').value = button.dataset.pincode;
+      document.getElementById('mobile').value = button.dataset.mobile;
+      document.getElementById('alternatePhone').value = button.dataset.alt || '';
+      document.getElementById('addressId').value = button.dataset.id;
+      const form = document.getElementById('addressForm');
+      form.action = `/edit-address/${button.dataset.id}`;
+      document.getElementById('submitBtn').textContent = 'Update Address';
+    });
+  });
+function validation() {
+  let valid = true;
+
+  // Clear all error messages first
+  document.querySelectorAll(".text-danger").forEach(el => el.textContent = '');
+
+  const name = document.getElementById("name").value.trim();
+  const locality = document.getElementById("locality").value.trim();
+  const city = document.getElementById("city").value.trim();
+  const state = document.getElementById("state").value;
+  const pincode = document.getElementById("pincode").value.trim();
+  const mobile = document.getElementById("mobile").value.trim();
+  const altPhone = document.getElementById("alternatePhone").value.trim();
+
+  const pinRegex = /^[0-9]{6}$/;
+  const phoneRegex = /^[6-9][0-9]{9}$/;
+
+  if (name.length < 3) {
+    document.getElementById("nameError").textContent = "Full name must be at least 3 characters";
+    valid = false;
+  }
+
+  if (locality.length < 3) {
+    document.getElementById("localityError").textContent = "Locality must be at least 3 characters";
+    valid = false;
+  }
+
+  if (city.length < 2) {
+    document.getElementById("cityError").textContent = "City must be at least 2 characters";
+    valid = false;
+  }
+
+  if (!state) {
+    document.getElementById("stateError").textContent = "Please select a state";
+    valid = false;
+  }
+
+  if (!pinRegex.test(pincode)) {
+    document.getElementById("pincodeError").textContent = "Pincode must be exactly 6 digits";
+    valid = false;
+  }
+
+  if (!phoneRegex.test(mobile)) {
+    document.getElementById("mobileError").textContent = "Please enter a valid 10-digit mobile number";
+    valid = false;
+  }
+
+  if (altPhone && !phoneRegex.test(altPhone)) {
+    document.getElementById("altPhoneError").textContent = "Alternate phone must be a valid 10-digit number";
+    valid = false;
+  }
+
+  //  Check if mobile and altPhone are the same
+  if (altPhone && altPhone === mobile) {
+    document.getElementById("altPhoneError").textContent = "Alternate phone number must be different from mobile number";
+    valid = false;
+  }
+
+  return valid;
+}
+
+document.querySelectorAll('.delete-btn').forEach(button => {
+    button.addEventListener('click', () => {
+      const addressId = button.dataset.id;
+
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'Do you really want to delete this address?',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, delete it!'
+      }).then(result => {
+        if (result.isConfirmed) {
+          // Create and submit a form
+          const form = document.createElement('form');
+          form.method = 'POST';
+          form.action = `/delete-address/${addressId}`;
+          document.body.appendChild(form);
+          form.submit();
+        }
+      });
+    });
+  });
+
+
+
+</script>
+
+<%- include('../partials/user/profileFooter') %>

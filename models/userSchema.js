@@ -40,6 +40,7 @@ const userSchema = new mongoose.Schema(
       type: Boolean,
       default: false, // False means normal user, true means admin user
     },
+    image: { type: String, default: '' },
     wishlist: [{
       type: mongoose.Schema.Types.ObjectId,
       ref: 'Product'

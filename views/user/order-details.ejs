@@ -1,0 +1,661 @@
+<%- include('../partials/user/header') %>
+<style>
+  /* Order Details Page Styling */
+
+body {
+  background-color: #f5f3ef;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+.main {
+  background-color: #f5f3ef;
+  padding: 2rem 0;
+}
+
+.container {
+  max-width: 850px !important;
+}
+
+/* Card Styling */
+.card {
+  background: #ffffff;
+  border: none;
+  border-radius: 12px;
+  box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+}
+
+/* Order Title */
+.card h4 {
+  color: #c4a574;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 2rem;
+}
+
+/* Order Status Steps */
+.d-flex.justify-content-between.align-items-center.mb-4 {
+  position: relative;
+  padding: 0 1rem;
+}
+
+.d-flex.justify-content-between.align-items-center.mb-4::before {
+  content: '';
+  position: absolute;
+  top: 14px;
+  left: 10%;
+  right: 10%;
+  height: 2px;
+  background: linear-gradient(to right, #198754 50%, #ced4da 50%);
+  z-index: 0;
+}
+
+.d-flex.justify-content-between.align-items-center.mb-4 .text-center {
+  z-index: 1;
+  background: #ffffff;
+  padding: 0 0.5rem;
+}
+
+.d-flex.justify-content-between.align-items-center.mb-4 .rounded-circle {
+  width: 32px !important;
+  height: 32px !important;
+  border: 3px solid #ffffff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
+}
+
+.d-flex.justify-content-between.align-items-center.mb-4 small {
+  font-size: 0.7rem !important;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: 0.5rem;
+}
+
+/* Product Details Section */
+h5 {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1.5rem;
+}
+
+/* Product Cards */
+.d-flex.align-items-center.border.rounded {
+  border: 1px solid #e8e5df !important;
+  border-radius: 8px !important;
+  padding: 1rem !important;
+  background: #fafaf8;
+  transition: all 0.3s ease;
+}
+
+.d-flex.align-items-center.border.rounded:hover {
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+}
+
+.d-flex.align-items-center.border.rounded img {
+  width: 70px !important;
+  height: 70px !important;
+  border-radius: 6px;
+  border: 1px solid #e0e0e0;
+}
+
+.d-flex.align-items-center.border.rounded strong {
+  color: #333;
+  font-size: 0.95rem;
+  font-weight: 600;
+}
+
+/* Status Badges */
+.badge {
+  font-size: 0.7rem;
+  padding: 0.35rem 0.75rem;
+  font-weight: 600;
+  border-radius: 4px;
+  letter-spacing: 0.3px;
+}
+
+.badge.bg-success {
+  background-color: #2d8659 !important;
+}
+
+.badge.bg-danger {
+  background-color: #dc3545 !important;
+}
+
+.badge.bg-warning {
+  background-color: #ffc107 !important;
+}
+
+.badge.bg-dark {
+  background-color: #495057 !important;
+}
+
+/* Shipping Address Card */
+.card.p-3 {
+  background: #fafaf8;
+  border: 1px solid #e8e5df;
+  border-radius: 8px;
+}
+
+.card.p-3 h5 {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.card.p-3 p {
+  margin-bottom: 0.4rem;
+  color: #555;
+  font-size: 0.9rem;
+  line-height: 1.6;
+}
+
+.card.p-3 strong {
+  color: #333;
+}
+
+/* Order Summary */
+.card.mt-3 {
+  background: #fafaf8;
+  border: 1px solid #e8e5df;
+  border-radius: 8px;
+  margin-top: 1.5rem !important;
+}
+
+.card.mt-3 .card-body {
+  padding: 1.5rem;
+}
+
+.card.mt-3 .card-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1.25rem;
+}
+
+.list-group-item {
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid #e8e5df !important;
+  padding: 0.75rem 0;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.list-group-item:last-child {
+  border-bottom: none !important;
+}
+
+.list-group-item.fw-bold {
+  font-weight: 600 !important;
+  color: #333;
+  font-size: 1rem;
+  padding-top: 1rem;
+}
+
+/* View Invoice Button */
+.btn-primary {
+  background-color: #c4a574 !important;
+  border: none !important;
+  border-radius: 6px;
+  padding: 0.75rem;
+  font-weight: 600;
+  font-size: 0.9rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  transition: all 0.3s ease;
+}
+
+.btn-primary:hover {
+  background-color: #b39664 !important;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(196, 165, 116, 0.3);
+}
+
+/* Alert Styling */
+.alert-secondary {
+  background-color: #f8f9fa;
+  border: 1px solid #e8e5df;
+  color: #555;
+  font-size: 0.9rem;
+}
+
+.alert-light {
+  background-color: #fafaf8;
+  border: 1px solid #e8e5df;
+}
+
+/* Links */
+a.text-warning,
+a.text-danger {
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+a.text-warning:hover {
+  color: #e0a800 !important;
+}
+
+a.text-danger:hover {
+  color: #c82333 !important;
+}
+
+/* Modal Styling */
+.modal-content {
+  border-radius: 10px;
+  border: none;
+  box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
+}
+
+.modal-header {
+  background-color: #fafaf8;
+  border-bottom: 1px solid #e8e5df;
+  border-radius: 10px 10px 0 0;
+}
+
+.modal-title {
+  color: #333;
+  font-weight: 600;
+  font-size: 1.1rem;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.form-label {
+  color: #555;
+  font-weight: 500;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.form-select,
+.form-control {
+  border: 1px solid #d0d0d0;
+  border-radius: 6px;
+  padding: 0.6rem;
+  font-size: 0.9rem;
+  transition: all 0.2s ease;
+}
+
+.form-select:focus,
+.form-control:focus {
+  border-color: #c4a574;
+  box-shadow: 0 0 0 0.2rem rgba(196, 165, 116, 0.15);
+}
+
+.btn-secondary {
+  background-color: #6c757d;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.25rem;
+  font-weight: 500;
+}
+
+.btn-secondary:hover {
+  background-color: #5a6268;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+  .container {
+    padding: 1rem;
+  }
+  
+  .card {
+    padding: 1.5rem !important;
+  }
+  
+  .d-flex.align-items-center.border.rounded img {
+    width: 60px !important;
+    height: 60px !important;
+  }
+}
+</style>
+<main class="main">
+
+<div class="container py-4" style="max-width: 900px;">
+  <div class="card shadow p-4">
+    <h4 class="text-primary fw-bold mb-4">Order #<%= order.orderId %></h4>
+
+    <!-- ===== Order Status Steps ===== -->
+    <% const stages = ['Pending','Confirmed','Shipped','Delivered']; %>
+    <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+      <% stages.forEach((s,i)=>{ %>
+        <div class="text-center flex-fill">
+          <div class="rounded-circle mx-auto mb-1" style="width:28px;height:28px;background:<%= stages.indexOf(order.status)>=i?'#198754':'#ced4da' %>;"></div>
+          <small class="d-block text-uppercase" style="font-size:0.75rem"><%= s %></small>
+        </div>
+      <% }) %>
+    </div>
+    <!-- ===== Delivered Date (If delivered) ===== -->
+    <% if (order.status === 'Delivered') { %>
+    <div class="alert alert-secondary py-2">Delivered On: <strong><%= order.deliveredDate?.toLocaleDateString() || 'N/A' %></strong></div>
+    <% } %>
+
+    <!-- ===== Return Button (Only if Delivered) ===== -->
+    <% if (order.status === 'Delivered') { %>
+    <div class="alert alert-light border">
+      <p class="mb-2">Return Order <small class="text-muted">(Return Window will be open for Only 15 Days After delivered)</small></p>
+        <!-- Your Return Order Link -->
+<a href="#" class="text-warning" onclick="openReturnModal('<%= order._id %>')">Return Order</a>
+
+<!-- Return Modal -->
+<div class="modal fade" id="returnModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <form id="returnForm" enctype="multipart/form-data">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Return Request</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Reason Dropdown -->
+          <div class="mb-3">
+            <label for="reasonCategory" class="form-label">Return Reason Category</label>
+            <select id="reasonCategory" name="reason" class="form-select" required>
+              <option value="">Select a reason</option>
+              <option value="Damaged item">Damaged item</option>
+              <option value="Wrong item">Wrong item received</option>
+              <option value="Quality issue">Poor quality</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <!-- Description -->
+          <div class="mb-3">
+            <label for="description" class="form-label">Detailed Description</label>
+            <textarea id="description" name="description" class="form-control" rows="3" required placeholder="Please describe the issue..."></textarea>
+          </div>
+
+          <!-- Image Upload -->
+          <div class="mb-3">
+            <label for="images" class="form-label">Upload Images (optional)</label>
+            <input type="file" name="images" id="images" class="form-control" accept="image/*" multiple>
+            <small class="form-text text-muted">You can upload up to 3 images</small>
+          </div>
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary">Submit Return Request</button>
+        </div>
+      </div>
+    </form>
+  </div>
+</div>
+
+    </div>
+    <% } %>
+
+    <!-- ===== Products ===== -->
+    <!-- ===== Products List ===== -->
+<div class="row gy-4">
+  <div class="col-12">
+    <h5 class="mb-3">Product Details</h5>
+
+ <% order.orderedItems.forEach(item => {
+  /* normalise to lower‑case */
+  const st = (item.status || '').toLowerCase();
+  let badgeClass = 'bg-secondary';
+  let statusText = '';
+
+  if (st === 'cancelled') {
+    badgeClass = 'bg-danger';
+    statusText = 'CANCELLED';
+  } else if (st === 'returned') {
+    badgeClass = 'bg-dark text-white';
+    statusText = 'RETURNED';
+  } else if (st === 'return request' || st === 'return requested') {
+    badgeClass = 'bg-warning text-dark';
+    statusText = 'RETURN REQUESTED';
+  } else if (order.status === 'Delivered') {        /* fallback */
+    badgeClass = 'bg-success';
+    statusText = 'DELIVERED';
+  } else {
+    badgeClass = 'bg-success';
+    statusText = order.status.toUpperCase();
+  }
+%>
+  <!-- card markup stays the same -->
+  <div class="d-flex align-items-center border rounded p-2 mb-2">
+    <img src="/uploads/images/<%= item.product.image[0] || 'placeholder.png' %>"
+         class="me-3 rounded" style="width:60px;height:60px;object-fit:cover" />
+    <div class="flex-grow-1">
+      <strong><%= item.product.productName %></strong><br>
+      Qty <%= item.quantity %>   |   ₹<%= item.price %><br>
+      Status : <span class="badge <%= badgeClass %>"><%= statusText %></span>
+
+      <% /* buttons stay exactly as you had them */ %>
+      <% if (!item.status && ['Pending','Confirmed','Shipped'].includes(order.status)) { %>
+        <a href="#" class="d-block text-danger mt-1"
+           onclick="cancelItem('<%= order._id %>', '<%= item._id %>')">Cancel Product</a>
+      <% } %>
+      <% if (!item.status && order.status === 'Delivered') { %>
+        <a href="#" class="d-block text-warning mt-1"
+           onclick="returnItem('<%= order._id %>', '<%= item._id %>')">Return Product</a>
+      <% } %>
+    </div>
+  </div>
+<% }) %>
+
+  </div>
+</div>
+
+      <!-- Shipping Address -->
+<% if (selectedAddress) { %>
+<div class="col-12">
+  <div class="card p-3">
+    <h5>Shipping Address</h5>
+    <p class="mb-1"><strong><%= selectedAddress.name %></strong> <%= selectedAddress.addressType %></p>
+    <p class="mb-1"><%= selectedAddress.locality %>, <%= selectedAddress.city %></p>
+    <p class="mb-1"><%= selectedAddress.state %></p>
+    <p class="mb-1">Pin: <%= selectedAddress.pincode %></p>
+    <p class="mb-1"><small>Ph: <%= selectedAddress.mobile %></small></p>
+  </div>
+</div>
+<% } else { %>
+  <p class="text-danger">Address not found.</p>
+<% } %>
+
+
+      
+
+      <!-- Summary -->
+      <div class="col-12">
+        <div class="card mt-3">
+          <div class="card-body">
+            <h5 class="card-title">Order Summary</h5>
+            <ul class="list-group list-group-flush">
+              <li class="list-group-item d-flex justify-content-between">
+                <span>Subtotal</span>
+                <span>₹<%= order.totalPrice %></span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between">
+                <span>Discount</span>
+                <span>₹<%= order.discount %></span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between">
+                <span>Delivery Charge</span>
+                <span>₹<%= shippingCharge || 0 %></span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between fw-bold">
+                <span>Total</span>
+                <span>₹<%= order.finalAmount %></span>
+              </li>
+              <li class="list-group-item d-flex justify-content-between">
+                <span>Payment Method</span>
+                <span><%= order.paymentMethod || 'Cash On Delivery' %></span>
+              </li>
+            </ul>
+            <a href="/download-invoice/<%= order._id %>" class="btn btn-primary w-100 mt-3">View Invoice</a>
+          </div>
+        </div>
+      </div>
+    </div>
+
+   
+
+  </div>
+</div>
+</main>
+<!-- ===== SweetAlert2 JS ===== -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script>
+function openReturnPopup(orderId){
+  Swal.fire({
+    title:'Return Request',
+    html:`<select id="reason" class="swal2-input">
+            <option value="Damaged product">Damaged product</option>
+            <option value="Wrong item">Wrong item received</option>
+            <option value="Not needed">Not needed</option>
+            <option value="Other">Other</option>
+          </select>
+          <textarea id="desc" class="swal2-textarea" placeholder="Describe the issue" required></textarea>`,
+    showCancelButton:true,
+    confirmButtonText:'Submit',
+    preConfirm:()=>{
+      const reason=document.getElementById('reason').value;
+      const desc=document.getElementById('desc').value.trim();
+      if(!desc) return Swal.showValidationMessage('Description required');
+      return {reason,desc};
+    }
+  }).then(res=>{
+    if(res.isConfirmed){
+      fetch(`/return-order/${orderId}`,{
+        method:'POST',headers:{'Content-Type':'application/json'},
+        body:JSON.stringify(res.value)
+      }).then(r=>r.json()).then(d=>{
+        if(d.ok){Swal.fire('Success','Return request sent','success').then(()=>location.reload());}
+        else{Swal.fire('Error',d.msg||'Failed','error');}
+      });
+    }
+  })
+}
+
+function cancelOrderSwal(orderId){
+  Swal.fire({title:'Cancel Order?',showCancelButton:true,confirmButtonText:'Yes, cancel'}).then(r=>{
+    if(r.isConfirmed){
+      fetch(`/cancel-order/${orderId}`,{method:'PATCH'}).then(x=>x.json()).then(d=>{
+        if(d.ok) Swal.fire('Cancelled','Order cancelled','success').then(()=>location.reload());
+        else Swal.fire('Error',d.msg||'Failed','error');
+      })
+    }
+  })
+}
+</script>
+
+
+<script>
+
+let currentOrderId = '';
+
+function openReturnModal(orderId) {
+  currentOrderId = orderId;
+  const modal = new bootstrap.Modal(document.getElementById('returnModal'));
+  modal.show();
+}
+
+document.getElementById('returnForm').addEventListener('submit', async function (e) {
+  e.preventDefault();
+
+  const form = e.target;
+  const formData = new FormData(form);
+  formData.append('orderId', currentOrderId);
+
+  try {
+    const res = await fetch(`/return-order/${currentOrderId}`, {
+      method: 'POST',
+      body: formData
+    });
+
+    const result = await res.json();
+
+    if (result.ok) {
+      Swal.fire('Success', 'Return request submitted!', 'success');
+      bootstrap.Modal.getInstance(document.getElementById('returnModal')).hide();
+    } else {
+      Swal.fire('Error', result.msg || 'Something went wrong', 'error');
+    }
+  } catch (err) {
+    console.error(err);
+    Swal.fire('Error', 'Server error', 'error');
+  }
+});
+</script>
+<script>
+function cancelItem(orderId, itemId) {
+  Swal.fire({
+    title: 'Cancel this product?',
+    input: 'select',
+    inputOptions: {
+      'Ordered by mistake': 'Ordered by mistake',
+      'Found cheaper elsewhere': 'Found cheaper elsewhere',
+      'Delivery is too late': 'Delivery is too late',
+      'Changed my mind': 'Changed my mind',
+      'Other': 'Other'
+    },
+    inputPlaceholder: 'Select a reason',
+    showCancelButton: true,
+    confirmButtonText: 'Cancel Product'
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch(`/cancel-product/${orderId}/${itemId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ reason: result.value })
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.ok) Swal.fire('Cancelled', 'Product cancelled', 'success').then(() => location.reload());
+          else Swal.fire('Error', data.msg || 'Cancel failed', 'error');
+        });
+    }
+  });
+}
+
+function returnItem(orderId, itemId) {
+  Swal.fire({
+    title: 'Return this product?',
+    html: `
+      <select id="reason" class="swal2-input">
+        <option value="Damaged product">Damaged product</option>
+        <option value="Wrong item">Wrong item received</option>
+        <option value="Not needed">Not needed</option>
+        <option value="Other">Other</option>
+      </select>
+      <textarea id="desc" class="swal2-textarea" placeholder="Describe the issue" required></textarea>
+    `,
+    showCancelButton: true,
+    confirmButtonText: 'Return Product',
+    preConfirm: () => {
+      const reason = document.getElementById('reason').value;
+      const desc = document.getElementById('desc').value.trim();
+      if (!desc) return Swal.showValidationMessage('Description required');
+      return { reason, description: desc };
+    }
+  }).then((result) => {
+    if (result.isConfirmed) {
+      fetch(`/return-product/${orderId}/${itemId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(result.value)
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (data.ok) Swal.fire('Requested', 'Return request submitted', 'success').then(() => location.reload());
+          else Swal.fire('Error', data.msg || 'Return failed', 'error');
+        });
+    }
+  });
+}
+</script>
+
+
+
+<%- include('../partials/user/footer') %>

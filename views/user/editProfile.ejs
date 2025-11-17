@@ -1,0 +1,111 @@
+<%- include('../partials/user/profileHeader') %>
+
+<style>
+
+    
+ .header_top {
+    padding: 1em 0 !important;
+  }
+
+.profile-letter-circle {
+  width: 110px;
+  height: 110px;
+  background-color: #204056;
+  border: 2px solid #ddd;
+  color: white;
+  font-weight: bold;
+  font-size: 39px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  margin-left: 40%;
+}
+
+/* Custom button styles */
+.btn-custom-profile {
+  background-color: #204056;
+  color: white;
+  border: none;
+  transition: all 0.3s ease;
+}
+
+.btn-custom-profile:hover {
+  background-color: #1a3444;
+  color: white;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(32, 64, 86, 0.3);
+}
+</style>
+
+<!-- Main Content Area -->
+<!-- Main content area -->
+<div class="flex-grow-1 main-content">
+  <div class="content-card">
+    <h2 class="mb-4">My Profile</h2>
+
+    <div class="row">
+      <!-- Personal Information Card -->
+      <div class="col-md-6 mb-4">
+        <div class="card shadow-sm border-0 h-100">
+          <div class="card-header bg-white fw-bold fs-5">Personal Information</div>
+          <div class="card-body row g-3">
+            <div class="col-md-12">
+              <label class="form-label">Name</label>
+              <input type="text" class="form-control" value="<%=user.name%>" readonly>
+            </div>
+            <div class="col-md-12">
+              <label class="form-label">Email</label>
+              <input type="email" class="form-control" value="<%=user.email%>" readonly>
+            </div>
+            <div class="col-md-12">
+              <label class="form-label">Phone Number</label>
+              <input type="text" class="form-control" value="<%=user.phone%>" readonly>
+            </div>
+            <div class="col-md-12 d-flex align-items-center justify-content-between">
+              <a href="/change-name">
+                <button class="btn btn-custom-profile px-4 btn-pill" style="height: 40px; font-size: small;">Change Name</button>
+              </a>
+              
+              <a href="/changeEmail">
+                <button class="btn btn-custom-profile px-4 btn-pill" style="height: 40px; font-size: small;">Change Email</button>
+              </a>
+              
+              <a href="/validate-pass">
+                <button class="btn btn-custom-profile px-4 btn-pill" style="height: 40px; font-size: small;">Change Password</button>
+              </a>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Profile Picture Upload Card -->
+      <div class="col-md-6 mb-4">
+        <div class="card shadow-sm border-0 h-100 text-center">
+          <div class="card-header bg-white fw-bold fs-5">Update Profile Picture</div>
+          <div class="card-body">
+            
+            <% if (user.image) { %>
+              <img src="<%= user.image %>" alt="Profile Picture" class="rounded-circle mb-3" style="width: 120px; height: 120px; object-fit: cover; border: 2px solid #ddd;" />
+            <% } else { %>
+              <div class="profile-letter-circle mb-3">
+                <%= user.email.charAt(0).toUpperCase() %>
+              </div>
+            <% } %>
+
+            <form action="/upload-picture" method="POST" enctype="multipart/form-data">
+              <div class="mb-3">
+                <input type="file" name="profilePicture" class="form-control" required />
+              </div>
+              <button type="submit" class="btn btn-custom-profile px-4 btn-pill" style="height: 40px; font-size: small;">
+                <i class="fas fa-upload me-1"></i> Upload
+              </button>
+            </form>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<%- include('../partials/user/profileFooter') %>

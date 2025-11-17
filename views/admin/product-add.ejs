@@ -1,0 +1,267 @@
+<%- include("../../views/partials/admin/header") %>
+
+<link href="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.css" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/cropperjs/1.5.13/cropper.min.js"></script>
+
+<style>
+  .error-message { color: red; font-size: 0.9rem; }
+  .thumbnail-wrapper {
+    position: relative;
+    width: 120px;
+    height: 120px;
+    margin-right: 15px;
+  }
+  .thumbnail-wrapper img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    border-radius: 6px;
+  }
+  .remove-image {
+    position: absolute;
+    top: -5px;
+    right: -5px;
+    background: red;
+    color: white;
+    border-radius: 50%;
+    padding: 2px 6px;
+    cursor: pointer;
+    font-size: 0.75rem;
+  }
+  .image-cropper {
+    display: none;
+    max-width: 300px;
+    margin-top: 10px;
+  }
+</style>
+
+<section class="content-main">
+  <div class="row">
+    <div class="col-12 col-lg-8">
+      <div class="card mb-4">
+        <div class="card-body">
+          <h2 class="content-title mb-4">Add New Product</h2>
+
+          <!-- ✅ Only ONE FORM -->
+          <form id="productForm" method="POST" action="/admin/addProduct" enctype="multipart/form-data">
+
+            <!-- Product Info -->
+            <div class="mb-3">
+              <label>Product Name</label>
+              <input name="productName" class="form-control" />
+              <div id="productName-error" class="error-message"></div>
+            </div>
+
+            <div class="mb-3">
+              <label>Material</label>
+              <input name="author" class="form-control" />
+              <div id="author-error" class="error-message"></div>
+            </div>
+
+            <div class="mb-3">
+              <label>Description</label>
+              <textarea name="description" rows="3" class="form-control"></textarea>
+              <div id="description-error" class="error-message"></div>
+            </div>
+
+            <!-- Pricing -->
+            <div class="row">
+              <div class="col-md-4 mb-3">
+                <label>Regular Price</label>
+                <input name="regularPrice" class="form-control" />
+                <div id="regularPrice-error" class="error-message"></div>
+              </div>
+
+              <div class="col-md-4 mb-3">
+                <label>Quantity</label>
+                <input name="quantity" class="form-control" />
+                <div id="quantity-error" class="error-message"></div>
+              </div>
+            </div>
+
+            <!-- Category -->
+            <div class="mb-3">
+              <label>Category</label>
+              <select name="category" class="form-select">
+                <% cat.forEach(c => { %>
+                  <option value="<%= c._id %>"><%= c.name %></option>
+                <% }) %>
+              </select>
+              <div id="category-error" class="error-message"></div>
+            </div>
+
+            <!-- Images -->
+            <div class="mb-4">
+              <label>Upload exactly 3 images</label>
+
+              <div class="d-flex flex-wrap" id="imagePreviewContainer"></div>
+
+              <input type="file" id="uploadInput" class="form-control mt-2" accept="image/*" onchange="handleImage(this)" />
+
+              <div id="images-error" class="error-message"></div>
+
+              <div class="image-cropper mt-3">
+                <img id="cropperPreview" style="max-width: 100%;" />
+                <button type="button" onclick="saveCroppedImage()" class="btn btn-sm btn-primary mt-2">Crop & Save</button>
+              </div>
+            </div>
+
+            <!-- Hidden Inputs for Images -->
+            <div id="hiddenImageInputs"></div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-success">Publish</button>
+
+          </form>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+let cropper;
+let croppedBlobs = [];
+
+// 📌 Handle Image Upload + Open Cropper
+function handleImage(input) {
+  if (!input.files.length) return;
+
+  if (croppedBlobs.length >= 3) {
+    Swal.fire("Limit Reached", "You can upload exactly 3 images", "warning");
+    input.value = "";
+    return;
+  }
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    const image = document.getElementById("cropperPreview");
+    image.src = reader.result;
+
+    document.querySelector(".image-cropper").style.display = "block";
+
+    if (cropper) cropper.destroy();
+    cropper = new Cropper(image, { aspectRatio: 1, viewMode: 1 });
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
+// 📌 Save Cropped Image
+function saveCroppedImage() {
+  if (!cropper) return;
+
+  cropper.getCroppedCanvas().toBlob(blob => {
+    croppedBlobs.push(blob);
+    addPreview(blob);
+    updateHiddenInputs();
+
+    document.querySelector(".image-cropper").style.display = "none";
+    cropper.destroy();
+    cropper = null;
+  }, "image/jpeg");
+}
+
+// 📌 Preview Thumbnail
+function addPreview(blob) {
+  const container = document.getElementById("imagePreviewContainer");
+
+  const wrapper = document.createElement("div");
+  wrapper.className = "thumbnail-wrapper";
+
+  const img = document.createElement("img");
+  img.src = URL.createObjectURL(blob);
+
+  const removeBtn = document.createElement("div");
+  removeBtn.className = "remove-image";
+  removeBtn.innerHTML = "&times;";
+  removeBtn.onclick = () => {
+    const index = [...container.children].indexOf(wrapper);
+    croppedBlobs.splice(index, 1);
+    wrapper.remove();
+    updateHiddenInputs();
+  };
+
+  wrapper.appendChild(img);
+  wrapper.appendChild(removeBtn);
+  container.appendChild(wrapper);
+}
+
+
+
+// 📌 Form Validation
+function validateForm() {
+  let isValid = true;
+  const fields = ["productName", "author", "description", "regularPrice", "quantity", "category"];
+
+  fields.forEach(field => {
+    const value = document.getElementsByName(field)[0].value.trim();
+    const errorEl = document.getElementById(field + "-error");
+
+    if (!value) {
+      errorEl.innerText = `${field} is required`;
+      isValid = false;
+    } else {
+      errorEl.innerText = "";
+    }
+  });
+
+  // Price > 1
+  const price = parseFloat(document.getElementsByName("regularPrice")[0].value);
+  if (isNaN(price) || price <= 1) {
+    document.getElementById("regularPrice-error").innerText = "Regular price must be greater than ₹1";
+    isValid = false;
+  }
+
+  // Must have exactly 3 cropped images
+  if (croppedBlobs.length !== 3) {
+    document.getElementById("images-error").innerText = "Please upload exactly 3 images";
+    isValid = false;
+  } else {
+    document.getElementById("images-error").innerText = "";
+  }
+
+  return isValid;
+}
+
+document.getElementById('productForm').addEventListener('submit', async function (e) {
+    e.preventDefault();
+
+    if (!validateForm()) return;
+
+    const form = e.target;
+    const formData = new FormData();
+
+    // Append all normal text fields
+    ["productName", "author", "description", "regularPrice", "quantity", "category"]
+        .forEach(field => {
+            formData.append(field, form[field].value);
+        });
+
+    // Append cropped images
+    if (croppedBlobs.length !== 3) {
+        Swal.fire("Error", "Please upload exactly 3 images", "error");
+        return;
+    }
+
+    croppedBlobs.forEach((blob, index) => {
+        formData.append("images", blob, `product-${index + 1}.jpg`);
+    });
+
+    const response = await fetch('/admin/addProduct', {
+        method: 'POST',
+        body: formData
+    });
+
+    if (response.ok) {
+        Swal.fire("Success", "Product added successfully!", "success")
+            .then(() => window.location.reload());
+    } else {
+        const error = await response.json().catch(() => ({}));
+        Swal.fire("Error", error.message || "Something went wrong!", "error");
+    }
+});
+
+</script>

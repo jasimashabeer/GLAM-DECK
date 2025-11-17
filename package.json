@@ -1,7 +1,6 @@
 {
   "name": "glam-deck-11",
   "version": "1.0.0",
-  "description": "",
   "main": "app.js",
   "scripts": {
     "start": "node app.js",
@@ -16,6 +15,7 @@
     "ejs": "^3.1.10",
     "express": "^5.1.0",
     "express-session": "^1.18.1",
+    "jimp": "^0.16.1",
     "localtunnel": "^2.0.2",
     "mongodb": "^6.16.0",
     "mongoose": "^8.14.3",
@@ -23,6 +23,9 @@
     "nodemailer": "^7.0.3",
     "nodemon": "^3.1.10",
     "passport": "^0.7.0",
-    "passport-google-oauth20": "^2.0.0"
-  }
+    "passport-google-oauth20": "^2.0.0",
+    "sharp": "^0.34.5",
+    "uuid": "^8.3.2"
+  },
+  "description": ""
 }

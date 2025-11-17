@@ -165,5 +165,8 @@ const postNewPassword=async(req,res)=>{
     }
 }
 
+
+
+
   
   module.exports={forgotEmailValid,getforgotPassword,verifyForgotPassOtp,getResetPassPage,resendOtp,postNewPassword}

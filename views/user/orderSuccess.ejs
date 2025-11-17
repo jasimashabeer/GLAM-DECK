@@ -1,0 +1,79 @@
+<style>
+  body {
+    background-color: #f8f9fa;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .order-success-box {
+    background-color: #fff;
+    width: 100%;
+    max-width: 500px;
+    padding: 2.5rem;
+    border-radius: 1rem;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    text-align: center;
+    animation: fadeInUp 0.6s ease-in-out;
+  }
+
+  .order-success-icon {
+    font-size: 3.5rem;
+    color: #28a745;
+  }
+
+  .order-id-box {
+    font-weight: 600;
+    background-color: #e6ffed;
+    border-left: 4px solid #28a745;
+    padding: 1rem;
+    margin-top: 1rem;
+    border-radius: 0.5rem;
+  }
+
+  .btn-primary, .btn-outline-dark {
+    padding: 0.6rem 1.2rem;
+    border-radius: 30px;
+    font-weight: 500;
+  }
+
+  .btn-primary:hover {
+    background-color: #1f7a38;
+  }
+
+  @keyframes fadeInUp {
+    0% {
+      opacity: 0;
+      transform: translateY(40px);
+    }
+    100% {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  @media (max-width: 576px) {
+    .order-success-box {
+      margin: 0 1rem;
+      padding: 1.5rem;
+    }
+  }
+</style>
+
+<div class="order-success-box">
+  <div class="mb-4">
+    <i class="bi bi-check-circle-fill order-success-icon"></i>
+  </div>
+  <h3 class="fw-bold mb-3">Order Placed Successfully!</h3>
+  <p class="text-muted">Thank you for your purchase. Your order has been confirmed.</p>
+  <div class="order-id-box">
+    Order ID: <%= orderId %>
+  </div>
+  <div class="d-flex justify-content-center gap-3 mt-4 flex-wrap">
+    <a href="/orders" class="btn btn-primary">View Orders</a>
+    <a href="/shop" class="btn btn-outline-dark">Continue Shopping</a>
+  </div>
+</div>

@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Enter OTP - Glam Deck</title>
+  <style>
+    body {
+      font-family: sans-serif;
+      background-color: #f7f4ef;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+    }
+    .otp-container {
+      background-color: #f0dfd8;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+      width: 300px;
+      text-align: center;
+    }
+    h2 {
+      margin-bottom: 1rem;
+    }
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+ 
+       button {
+    width: 100%;
+    padding: 10px;
+    background-color: #1f2937;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    margin-top: 10px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  #resendBtn:disabled {
+    background-color: #6b7280;
+    cursor: not-allowed;
+  }
+
+  #resendBtn:enabled {
+    background-color: #1f2937;
+    cursor: pointer;
+  }
+    .error {
+      color: red;
+      margin-top: 10px;
+    }
+    .timer {
+      margin-top: 10px;
+      font-weight: bold;
+    }
+  </style>
+
+
+</head>
+<body>
+  <div class="otp-container">
+    <h2>Enter OTP</h2>
+
+      <form action="/verifyEmailOtp" method="POST" onsubmit="return validateOtpForm()">
+      <input type="text" name="otp" id="otp" placeholder="Enter 6-digit OTP" />
+      <div id="otp-error" class="error"></div>
+
+      <% if (locals.message) { %>
+        <div class="error"><%= message %></div>
+      <% } %>
+
+      <div class="timer" id="timer">Time left: 1:00</div>
+      <button type="submit" id="verifyBtn">Verify OTP</button>
+    </form>
+
+    <!-- <form action="/resend-forgot-otp" method="POST">
+      <button type="submit" id="resendBtn" onclick="resendOtp()" disabled>Resend OTP</button>
+    </form> -->
+
+
+    <button type="button" id="resendBtn" onclick="resendOtp()" disabled>Resend OTP</button>
+
+  </div>
+
+
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+
+<script>
+  let timeLeft = 60; // ⏱ 1 minute
+  let timer;
+
+  function startTimer() {
+    const timerElement = document.getElementById("timer");
+    const verifyBtn = document.getElementById("verifyBtn");
+    const resendBtn = document.getElementById("resendBtn");
+
+    timer = setInterval(() => {
+      const minutes = Math.floor(timeLeft / 60);
+      const seconds = timeLeft % 60;
+      timerElement.textContent =` Time left: ${minutes}:${seconds.toString().padStart(2, '0')}`;
+
+      if (timeLeft <= 0) {
+        clearInterval(timer);
+        verifyBtn.disabled = true;
+        resendBtn.disabled = false;
+        timerElement.textContent = "OTP expired. Please resend.";
+      }
+
+      timeLeft--;
+    }, 1000);
+  }
+
+  function validateOtpForm() {
+    const otpInput = document.getElementById('otp').value.trim();
+    const errorDiv = document.getElementById('otp-error');
+
+    if (!otpInput) {
+      errorDiv.textContent = 'OTP is required';
+      return false;
+    }
+
+    if (otpInput.length !== 6 || isNaN(otpInput)) {
+      errorDiv.textContent = 'Please enter a valid 6-digit number';
+      return false;
+    }
+
+    errorDiv.textContent = '';
+
+    // ✅ AJAX verification
+    $.ajax({
+      url: '/verifyEmailOtp',
+      method: 'POST',
+      data: { otp: otpInput },
+      success: function (response) {
+        if (response.success) {
+          Swal.fire({
+            icon: 'success',
+            title: 'OTP Verified',
+            text: 'You can now reset your Email'
+          }).then(() => {
+            window.location.href = response.redirectUrl;
+          });
+        } else {
+          Swal.fire({
+            icon: 'error',
+            title: 'Invalid OTP',
+            text: response.message
+          });
+        }
+      },
+      error: function () {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: 'Failed to verify OTP. Please try again.'
+        });
+      }
+    });
+
+    return false; // prevent default form submission
+  }
+
+  window.onload = startTimer;
+
+  function resendOtp() {
+  clearInterval(timer); // ✅ correct variable
+  timeLeft = 60; // reset
+  startTimer(); // ✅ correct function
+
+  $.ajax({
+    type: 'POST',
+    url: '/resend-forgot-otp',
+    success: function(response) {
+      if (response.success) {
+        Swal.fire({
+          icon: 'success',
+          title: 'OTP Resent',
+          showConfirmButton: false,
+          timer: 1500,
+        });
+        document.getElementById('verifyBtn').disabled = false;
+        document.getElementById('resendBtn').disabled = true;
+      } else {
+        Swal.fire({
+          icon: 'error',
+          title: 'Error',
+          text: response.message
+        });
+      }
+    },
+    error: function() {
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: 'Failed to resend OTP. Please try again.'
+      });
+    }
+  });
+}
+
+</script>
+
+
+
+</body>
+</html>

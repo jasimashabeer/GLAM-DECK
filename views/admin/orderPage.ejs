@@ -1,0 +1,167 @@
+<%- include('../../views/partials/admin/header') %>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<section class="container mt-4">
+  <h2 class="text-center mb-4">Order Management</h2>
+
+  <!--  Filter / Search   -->
+  <form class="row g-2 bg-light p-3 rounded mb-3" method="GET" action="/admin/orders">
+    <div class="col-md-3 d-flex">
+      <input name="search" value="<%= searchQuery %>" placeholder="Search OrderId"
+             class="form-control me-2">
+      <button class="btn btn-outline-primary">Search</button>
+    </div>
+
+    <div class="col-md-2">
+      <select name="status" class="form-select">
+        <option value="all">All Status</option>
+        <% ['Pending','Confirmed','Shipped','Delivered','Cancelled','Return Request','returned']
+           .forEach(s=>{ %>
+          <option value="<%=s%>" <%= s===status?'selected':'' %>><%=s%></option>
+        <% }) %>
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <select name="sortField" class="form-select">
+        <option value="createdOn"   <%= sortField==='createdOn'?'selected':'' %>>Date</option>
+        <option value="finalAmount" <%= sortField==='finalAmount'?'selected':'' %>>Amount</option>
+      </select>
+    </div>
+
+    <div class="col-md-2">
+      <select name="sortOrder" class="form-select">
+        <option value="desc" <%= sortOrder==='desc'?'selected':'' %>>Desc</option>
+        <option value="asc"  <%= sortOrder==='asc'?'selected':'' %>>Asc</option>
+      </select>
+    </div>
+
+    <div class="col-md-2 d-grid">
+      <button class="btn btn-primary">Apply Filters</button>
+    </div>
+
+    <div class="col-md-1 d-grid">
+      <a href="/admin/orders" class="btn btn-secondary">Clear</a>
+    </div>
+  </form>
+
+  <!--  Orders table  -->
+   
+  <div class="table-responsive">
+    <table class="table table-bordered align-middle text-center">
+      <thead class="table-dark">
+        <tr>
+          <th>#ID</th><th>Date</th><th>Customer</th><th>Total</th><th>Status</th><th>Actions</th>
+        </tr>
+      </thead>
+      <tbody>
+      <% if(!orders.length){ %>
+        <tr><td colspan="6">No orders found</td></tr>
+      <% } %>
+
+      <% orders.forEach(o=>{ %>
+        <tr>
+          <td><%= o.orderId %></td>
+          <td><%= new Date(o.createdOn).toLocaleDateString() %></td>
+          <td><%= o.user?.name || '-' %></td>
+          <td>₹<%= o.finalAmount %></td>
+          <td>
+            <span class="badge
+              <%= o.status==='Delivered'      ?'bg-success':
+                  o.status==='Cancelled'      ?'bg-danger':
+                  o.status==='Pending'        ?'bg-warning text-dark':
+                  o.status==='Return Request' ?'bg-secondary':
+                  o.status==='returned'       ?'bg-dark' :'bg-info' %>">
+              <%= o.status %>
+            </span>
+          </td>
+
+          <!-- ═══ ACTIONS ═══ -->
+          <td class="d-flex flex-column gap-1">
+            <a href="/admin/viewDetails/<%= o._id %>" class="btn btn-sm btn-outline-primary">
+              View
+            </a>
+
+            <!-- Status dropdown -->
+            <select class="form-select form-select-sm"
+                    onchange="changeStatus('<%= o._id %>', this.value)">
+              <% ['Pending','Confirmed','Shipped','Delivered',
+                  'Cancelled','Return Request','returned']
+                 .forEach(s=>{ %>
+                <option value="<%=s%>" <%= s===o.status?'selected':'' %>><%=s%></option>
+              <% }) %>
+            </select>
+
+           
+           
+
+            <!-- Verify Return -->
+            <% if(o.status==='Return Request'){ %>
+            <button class="btn btn-sm btn-success"
+                    onclick="verifyReturn('<%= o._id %>')">Verify Return</button>
+            <% } %>
+          </td>
+        </tr>
+      <% }) %>
+      </tbody>
+    </table>
+  </div>
+
+  <!--  Pagination -->
+  <nav aria-label="pagination">
+    <ul class="pagination justify-content-center">
+      <% for(let i=1;i<=totalPages;i++){ %>
+        <li class="page-item <%= i===currentPage?'active':'' %>">
+          <a class="page-link"
+             href="?page=<%=i%>&search=<%= searchQuery %>&status=<%= status %>&sortField=<%=sortField%>&sortOrder=<%=sortOrder%>">
+            <%= i %>
+          </a>
+        </li>
+      <% } %>
+    </ul>
+  </nav>
+</section>
+
+<script>
+/* ——— CHANGE STATUS ——— */
+function changeStatus(id,newStatus){
+  fetch(`/admin/orders/${id}/status`,{
+    method:'PATCH',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({status:newStatus})
+  }).then(r=>r.json()).then(d=>{
+    if(d.ok) Swal.fire('Updated','Status changed','success').then(()=>location.reload());
+    else     Swal.fire('Error',d.msg||'Failed','error');
+  });
+}
+
+/* ——— CANCEL ENTIRE ORDER ——— */
+function cancelOrder(id){
+  Swal.fire({title:'Cancel order?',icon:'warning',showCancelButton:true})
+    .then(r=>{
+      if(r.isConfirmed){
+        fetch(`/admin/orders/${id}/cancel`,{method:'PATCH'})
+          .then(r=>r.json()).then(d=>{
+            if(d.ok) Swal.fire('Cancelled','','success').then(()=>location.reload());
+            else Swal.fire('Error',d.msg,'error');
+        });
+      }
+    });
+}
+
+/* ——— VERIFY RETURN ——— */
+function verifyReturn(id){
+  Swal.fire({title:'Verify return & refund?',showCancelButton:true,icon:'question'})
+   .then(r=>{
+     if(r.isConfirmed){
+       fetch(`/admin/verify-return/${id}`,{method:'POST'})
+         .then(r=>r.json()).then(d=>{
+           if(d.ok) Swal.fire('Done','Refund added to wallet','success')
+                     .then(()=>location.reload());
+           else Swal.fire('Error',d.msg,'error');
+       });
+     }
+   });
+}
+</script>

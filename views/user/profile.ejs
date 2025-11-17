@@ -1,0 +1,95 @@
+
+<%- include('../partials/user/profileHeader') %>
+
+<style>
+
+  .header_top {
+    padding: 1em 0 !important;
+  }
+
+ 
+  .btn-success.custom-hover {
+    background-color: #204056 !important;
+    border-color: #204056 !important;
+    color: #fff !important;
+  }
+
+  .btn-success.custom-hover:hover {
+    background-color: #042a3cf6 !important; 
+    border-color: #e6e1dbf6 !important;
+    color: #fff !important;
+  }
+
+  .sidebar {
+    background-color: #ffffff !important;
+  }
+</style>
+
+
+   
+<!-- Main content area -->
+<div class="flex-grow-1 main-content">
+  <div class="content-card">
+    <h2 class="mb-4">My Profile</h2>
+
+<div class="row">
+  <!-- Profile Info -->
+  <div class="col-md-6 mb-4">
+    <div class="card shadow-sm border-0 h-100">
+      <div class="card-header bg-white fw-bold fs-5">Personal Information</div>
+      <div class="card-body">
+        <p><strong>Model Name:</strong> <%= user.name %></p>
+        <p><strong>Phone:</strong> <%= user.phone %></p>
+        <p><strong>Email:</strong> <%= user.email %></p>
+<% if (user.referralCode) { %>
+  <p><strong>Referral Code:</strong> <span class="text-success fw-bold"><%= user.referralCode %></span></p>
+<% } else { %>
+  <p><strong>Referral Code:</strong> <span class="text-muted">Not generated</span></p>
+<% } %>
+
+      </div>
+    <a href="/editProfile" class="btn btn-success custom-hover px-4 btn-pill mt-2 ms-3 mb-3" style="height: 40px; width: fit-content;">Edit Profile</a>
+
+
+    </div>
+  </div>
+
+
+<div class="col-md-6 mb-4">
+  <div class="card shadow-sm border-0 h-100">
+    <div class="card-header bg-white fw-bold fs-5">Saved Addresses</div>
+
+    <div class="card-body p-2" style="max-height: 300px; overflow-y: auto;">
+      <% if (user.addresses && user.addresses.length > 0) { %>
+        <% user.addresses.forEach(address => { %>
+          <div class="border rounded p-3 mb-2">
+            <p class="mb-1"><strong><%= address.name %></strong> (<%= address.addressType %>)</p>
+            <p class="mb-1"><%= address.locality %>, <%= address.city %></p>
+            <p class="mb-1"><%= address.state %></p>
+            <p class="mb-1">Pin: <%= address.pincode %></p>
+            <p class="mb-1"><small><%= address.mobile %></small></p>
+          </div>
+        <% }) %>
+      <% } else { %>
+        <div class="alert alert-info">No addresses found. Please add an address.</div>
+      <% } %>
+    </div>
+
+    <div class="card-footer bg-white border-top-0 text-end">
+    <a href="/address" class="btn btn-success custom-hover px-4 btn-pill mt-2 ms-3 mb-3" style="height: 40px; width: fit-content;">Add New Address</a>
+
+
+    </div>
+  </div>
+</div>
+
+
+
+</div>
+
+    
+  </div>
+</div>
+
+
+<%- include('../partials/user/profileFooter') %>
