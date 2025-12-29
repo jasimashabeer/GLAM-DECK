@@ -1,0 +1,203 @@
+<%- include('../partials/admin/header') %>
+
+<div class="container mt-4">
+  <div class="row">
+    <!-- Add / Edit Coupon Form -->
+    <div class="col-md-4">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="mb-3"><%= editCoupon ? 'Edit Coupon' : 'Add Coupon' %></h5>
+
+          <form 
+            action="<%= editCoupon ? '/admin/coupons/update/' + editCoupon._id : '/admin/createCoupon' %>" 
+            method="POST" 
+            onsubmit="return validateForm()">
+
+<div class="mb-3">
+  <label class="form-label">Coupon Name</label>
+  <input type="text" id="couponName" name="couponName" class="form-control" placeholder="Type here"
+    value="<%= editCoupon ? editCoupon.couponName : '' %>">
+  <div class="text-danger small" id="couponNameError"></div>
+</div>
+
+<div class="mb-3">
+  <label class="form-label">Start Date</label>
+  <input type="date" id="startDate" name="startDate" class="form-control"
+    value="<%= editCoupon ? editCoupon.startDate.toISOString().split('T')[0] : '' %>">
+  <div class="text-danger small" id="startDateError"></div>
+</div>
+
+<div class="mb-3">
+  <label class="form-label">End Date</label>
+  <input type="date" id="endDate" name="endDate" class="form-control"
+    value="<%= editCoupon ? editCoupon.endDate.toISOString().split('T')[0] : '' %>">
+  <div class="text-danger small" id="endDateError"></div>
+</div>
+
+<div class="mb-3">
+  <label class="form-label">Offer Price</label>
+  <input type="number" id="offerPrice" name="offerPrice" class="form-control"
+    value="<%= editCoupon ? editCoupon.offerPrice : '' %>" min="1">
+  <div class="text-danger small" id="offerPriceError"></div>
+</div>
+
+<div class="mb-3">
+  <label class="form-label">Minimum Price</label>
+  <input type="number" id="minimumPrice" name="minimumPrice" class="form-control"
+    value="<%= editCoupon ? editCoupon.minimumPrice : '' %>" min="1">
+  <div class="text-danger small" id="minimumPriceError"></div>
+</div>
+
+
+            <!-- <div id="errorMsg" class="text-danger mb-2" style="display:none;"></div> -->
+
+            <% if (errorMsg && errorMsg.trim() !== '') { %>
+  <div class="alert alert-danger text-center"><%= errorMsg %></div>
+<% } %>
+
+            <button type="submit" class="btn btn-<%= editCoupon ? 'primary' : 'success' %> w-100">
+              <%= editCoupon ? 'Update Coupon' : 'Add Coupon' %>
+            </button>
+          </form>
+        </div>
+      </div>
+    </div>
+
+    <!-- Coupon Table -->
+    <div class="col-md-8">
+      <div class="card shadow-sm">
+        <div class="card-body">
+          <h5 class="mb-3">Coupons</h5>
+          <div class="table-responsive">
+            <table class="table table-bordered text-center align-middle">
+              <thead class="table-light">
+                <tr>
+                  <th>Name</th><th>Start Date</th><th>End Date</th>
+                  <th>Offer</th><th>Minimum</th><th>Status</th><th>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                <% if (coupons && coupons.length > 0) { %>
+                  <% coupons.forEach(coupon => { %>
+                    <tr>
+                      <td><%= coupon.couponName %></td>
+                      <td><%= coupon.startDate.toLocaleDateString() %></td>
+                      <td><%= coupon.endDate.toLocaleDateString() %></td>
+                      <td>₹<%= coupon.offerPrice %></td>
+                      <td>₹<%= coupon.minimumPrice %></td>
+                      <td>
+                        <% if (new Date() > new Date(coupon.endDate)) { %>
+                          <span class="badge bg-danger">Expired</span>
+                        <% } else { %>
+                          <span class="badge bg-success">Active</span>
+                        <% } %>
+                      </td>
+                      <td>
+                        <a href="/admin/coupons/edit/<%= coupon._id %>" class="btn btn-sm btn-success mb-1">Edit</a>
+                        <button class="btn btn-sm btn-danger" onclick="deleteCoupon('<%= coupon._id %>')">Delete</button>
+
+                      </td>
+                    </tr>
+                  <% }) %>
+                <% } else { %>
+                  <tr><td colspan="7">No coupons available</td></tr>
+                <% } %>
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Frontend Validation -->
+ <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<script>
+function validateForm() {
+  let valid = true;
+
+
+  document.querySelectorAll('.text-danger').forEach(el => el.textContent = '');
+
+  const name  = document.getElementById('couponName').value.trim();
+  const start = document.getElementById('startDate').value;
+  const end   = document.getElementById('endDate').value;
+  const offer = +document.getElementById('offerPrice').value;
+  const min   = +document.getElementById('minimumPrice').value;
+
+  if (!name) {
+    document.getElementById('couponNameError').textContent = 'Coupon name is required';
+    valid = false;
+  }
+
+  if (!start) {
+    document.getElementById('startDateError').textContent = 'Start date is required';
+    valid = false;
+  }
+
+  if (!end) {
+    document.getElementById('endDateError').textContent = 'End date is required';
+    valid = false;
+  } else if (new Date(end) < new Date(start)) {
+    document.getElementById('endDateError').textContent = 'End date must be after start date';
+    valid = false;
+  }
+
+  if (!offer || offer <= 0) {
+    document.getElementById('offerPriceError').textContent = 'Offer price must be greater than 0';
+    valid = false;
+  }
+
+  if (!min || min <= 0) {
+    document.getElementById('minimumPriceError').textContent = 'Minimum price must be greater than 0';
+    valid = false;
+  } else if (offer >= min) {
+    document.getElementById('minimumPriceError').textContent = 'Minimum price must be greater than offer price';
+    valid = false;
+  }
+
+  return valid;
+}
+
+  
+</script>
+<script>
+  function deleteCoupon(couponId) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: 'This coupon will be permanently deleted!',
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#3085d6',
+      confirmButtonText: 'Yes, delete it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        fetch(`/admin/coupons/${couponId}`, {
+          method: 'DELETE',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        })
+        .then(res => res.json())
+        .then(data => {
+          if (data.ok) {
+            Swal.fire('Deleted!', 'Coupon has been deleted.', 'success').then(() => {
+              location.reload();
+            });
+          } else {
+            Swal.fire('Error', data.msg || 'Failed to delete', 'error');
+          }
+        })
+        .catch(err => {
+          console.error(err);
+          Swal.fire('Error', 'Something went wrong', 'error');
+        });
+      }
+    });
+  }
+</script>
+
+

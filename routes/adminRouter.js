@@ -5,6 +5,8 @@ const customerController=require('../controllers/admin/customerController')
 const categoryController=require('../controllers/admin/categoryController')
 const productController=require('../controllers/admin/productController')
 const orderController=require('../controllers/admin/orderController')
+const couponController=require ('../controllers/admin/couponController')
+const salesController=require('../controllers/admin/salesController')
 const {userAuth,adminAuth}=require('../middlewares/auth')
 
 
@@ -63,6 +65,24 @@ router.get('/unblockproduct',adminAuth,productController.unblockProduct)
 router.get('/editProduct',adminAuth,productController.getEditProduct)
 router.post('/editProduct/:id',adminAuth,uploads.array("images",4),productController.editProduct)
 
+// coupen mangement
+
+
+
+router.get('/coupons',adminAuth,couponController.loadCoupon)
+router.post('/createCoupon',adminAuth,couponController.createCoupon)
+router.post('/coupons/update/:id', adminAuth, couponController.updateCoupon);
+router.get('/coupons/edit/:id', adminAuth, couponController.editCouponForm);
+router.delete('/coupons/:id', adminAuth, couponController.deleteCoupon);
+
+
+
+
+
+
+
+
+
 
 // order management
 
@@ -71,5 +91,13 @@ router.patch('/orders/:id/status',adminAuth, orderController.updateStatus);
 router.post('/verify-return/:id', orderController.verifyReturnRequest);
 router.get('/viewDetails/:id', adminAuth, orderController.viewAdminOrderDetails);
 router.post('/viewDetails/:id/verify-return/:itemId', orderController.verifyProductReturn);
+
+
+// sales
+router.get('/sales',adminAuth,salesController.getSales);
+router.get('/salesReport',adminAuth,salesController.getSalesReport);
+
+//dashboard
+router.get('/dashboard',adminAuth,salesController.getDashboard)
 
 module.exports=router;

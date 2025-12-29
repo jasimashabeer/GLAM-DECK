@@ -150,19 +150,32 @@ function handleImage(input) {
 }
 
 // 📌 Save Cropped Image
+
 function saveCroppedImage() {
   if (!cropper) return;
 
   cropper.getCroppedCanvas().toBlob(blob => {
     croppedBlobs.push(blob);
     addPreview(blob);
-    updateHiddenInputs();
 
-    document.querySelector(".image-cropper").style.display = "none";
+    // 🔥 Fully destroy cropper
     cropper.destroy();
     cropper = null;
+
+    // 🔥 Replace the image element (IMPORTANT)
+    const oldImg = document.getElementById("cropperPreview");
+    const newImg = oldImg.cloneNode();
+    newImg.src = "";
+    oldImg.parentNode.replaceChild(newImg, oldImg);
+
+    // 🔥 Hide cropper UI
+    document.querySelector(".image-cropper").style.display = "none";
+
+    // 🔥 Clear file input
+    document.getElementById("uploadInput").value = "";
   }, "image/jpeg");
 }
+
 
 // 📌 Preview Thumbnail
 function addPreview(blob) {
@@ -231,6 +244,26 @@ document.getElementById('productForm').addEventListener('submit', async function
 
     if (!validateForm()) return;
 
+    // Hide cropper immediately when form is submitted
+    if (cropper) {
+        try {
+            cropper.destroy();
+        } catch (e) {
+            console.error('Error destroying cropper:', e);
+        }
+        cropper = null;
+    }
+    
+    const cropperContainer = document.querySelector(".image-cropper");
+    if (cropperContainer) {
+        cropperContainer.style.display = "none";
+    }
+    
+    const previewImg = document.getElementById("cropperPreview");
+    if (previewImg) {
+        previewImg.src = "";
+    }
+
     const form = e.target;
     const formData = new FormData();
 
@@ -256,6 +289,34 @@ document.getElementById('productForm').addEventListener('submit', async function
     });
 
     if (response.ok) {
+        // Clean up cropper before showing success message
+        if (cropper) {
+            try {
+                cropper.destroy();
+            } catch (e) {
+                console.error('Error destroying cropper:', e);
+            }
+            cropper = null;
+        }
+        
+        const cropperContainer = document.querySelector(".image-cropper");
+        if (cropperContainer) {
+            cropperContainer.style.display = "none";
+            // Clear the preview image
+            const previewImg = document.getElementById("cropperPreview");
+            if (previewImg) {
+                previewImg.src = "";
+            }
+        }
+        
+        const uploadInput = document.getElementById("uploadInput");
+        if (uploadInput) {
+            uploadInput.value = "";
+        }
+        
+        // Clear all cropped blobs
+        croppedBlobs = [];
+        
         Swal.fire("Success", "Product added successfully!", "success")
             .then(() => window.location.reload());
     } else {

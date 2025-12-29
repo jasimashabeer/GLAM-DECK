@@ -1,0 +1,330 @@
+<%- include("../../views/partials/admin/header") %>
+<style>
+    .shadow-yellow {
+    box-shadow: 0 0.15rem 1rem 0 rgba(255, 193, 7, 0.5); /* Bootstrap warning color with opacity */
+  }
+  .shadow-green {
+    box-shadow: 0 0.15rem 1rem 0 rgba(40, 167, 69, 0.5); /* Bootstrap success color with opacity */
+  }
+    .shadow-blue {
+    box-shadow: 0 0.15rem 1rem 0 rgba(0, 123, 255, 0.5); /* Bootstrap primary blue with opacity */
+  }
+    .shadow-red {
+    box-shadow: 0 0.15rem 1rem 0 rgba(220, 53, 69, 0.5); /* Bootstrap danger red with opacity */
+  }
+    .shadow-black {
+    box-shadow: 0 0.15rem 1rem 0 rgba(0, 0, 0, 0.5); /* Black shadow with 50% opacity */
+  }
+</style>
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-mQ93GZ0I1kW+WjAp9vR+N2ZV6VuHkZUcF1Yk9lVuCAnbZoCv4jV0uv1zxquB6FUZ" crossorigin="anonymous">
+
+
+<div class="container my-5">
+  
+  <div class="container-fluid">
+    <div class="row justify-content-end mb-2">
+      <div class="col-auto d-flex flex-wrap align-items-center gap-2">
+        <a href="/admin/salesReport" class="btn btn-success" style="margin-right: 10px;">View Report</a>
+  
+        <form method="GET" action="/admin/sales" class="d-flex align-items-center bg-light p-2 rounded shadow-sm flex-wrap gap-2" id="filterForm">
+          <label for="range" class="form-label mb-0 me-2 fw-semibold text-primary">
+            Sort By:
+          </label>
+          <select 
+            name="range" 
+            id="range" 
+            class="form-select form-select-sm w-auto border-primary me-2" 
+            onchange="handleRangeChange()"
+          >
+            <option value="daily" <%= range === 'daily' ? 'selected' : '' %>>Daily</option>
+            <option value="weekly" <%= range === 'weekly' ? 'selected' : '' %>>Weekly</option>
+            <option value="monthly" <%= range === 'monthly' ? 'selected' : '' %>>Monthly</option>
+            <option value="yearly" <%= range === 'yearly' ? 'selected' : '' %>>Yearly</option>
+            <option value="custom" <%= range === 'custom' ? 'selected' : '' %>>Custom</option>
+          </select>
+        
+          <div id="customDateBlock" class="d-flex flex-column" style="display: none;">
+            <div class="d-flex flex-row gap-2">
+              <input type="date" name="from" id="fromDate" class="form-control form-control-sm" value="<%= from || '' %>">
+              <input type="date" name="to" id="toDate" class="form-control form-control-sm" value="<%= to || '' %>">
+              <button type="submit" class="btn btn-primary btn-sm" id="applyBtn">Apply</button>
+            </div>
+            <p id="dateError" class="text-danger mt-1 mb-0" style="display: none;"></p>
+          </div>
+        </form>
+
+      </div>
+    </div>
+  </div>
+
+    <div class="row g-4 text-center">
+  
+        <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-success shadow-green h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div
+                      class="text-xs font-weight-bold text-success text-uppercase mb-1"
+                    >
+                      Total Sales
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                      ₹<%= totalSales.toLocaleString() %>
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-rupee-sign fa-2x text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+          <div class="col-xl-4 col-md-6 mb-4">
+            <div  class="card border-left-warning shadow-yellow h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div
+                      class="text-xs font-weight-bold text-warning text-uppercase mb-1"
+                    >
+                      Total Orders
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        <%= totalOrders %>
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-truck fa-2x text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-primary shadow-blue h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div
+                      class="text-xs font-weight-bold text-primary text-uppercase mb-1"
+                    >
+                      Products Sold
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        <%= totalProducts %>
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-store fa-2x text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+      
+          
+          <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-danger shadow-red h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div
+                      class="text-xs font-weight-bold text-danger text-uppercase mb-1"
+                    >
+                    Discounts Given
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        ₹<%= totalDiscounts.toLocaleString() %>
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-tag fa-2x text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+  
+          <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-info shadow-blue h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div
+                      class="text-xs font-weight-bold text-info text-uppercase mb-1"
+                    >
+                    Net Revenue
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        ₹<%= netRevenue.toLocaleString() %>
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-rupee-sign fa-2x text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div class="col-xl-4 col-md-6 mb-4">
+            <div class="card border-left-secondary shadow-black h-100 py-2">
+              <div class="card-body">
+                <div class="row no-gutters align-items-center">
+                  <div class="col mr-2">
+                    <div
+                      class="text-xs font-weight-bold text-secondary text-uppercase mb-1"
+                    >
+                    Avg. Order Value
+                    </div>
+                    <div class="h5 mb-0 font-weight-bold text-gray-800">
+                        ₹<%= averageOrderValue.toFixed(2) %>
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <i class="fas fa-rupee-sign fa-2x text-gray-300"></i>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+    </div>
+    <div class="container my-5">
+        <div class="card shadow-lg p-4 rounded-4">
+          <h5 class="text-center mb-4 fw-bold">Sales Trend</h5>
+          <canvas id="salesChart" height="350"></canvas>
+        </div>
+      </div>
+      
+      
+
+  </div>
+  
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-W7Ff1DhJ6+t4T9ZGH9YfMPG3p1pN+9KEe3KfG/m7sGn5i9cuG5XLwIob9BwvSldH" crossorigin="anonymous"></script>
+
+  <script>
+    const ctx = document.getElementById('salesChart').getContext('2d');
+  
+    // Create a gradient for the line fill
+    const gradient = ctx.createLinearGradient(0, 0, 0, 400);
+    gradient.addColorStop(0, 'rgba(54, 162, 235, 0.4)');
+    gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+  
+  
+    
+
+    const salesChart = new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: <%- JSON.stringify(salesData.months) %>,
+        datasets: [
+          {
+            label: 'Sales (₹)',
+            data: <%-JSON.stringify(salesData.sales) %>,
+            fill: true,
+            backgroundColor: gradient,
+            borderColor: 'rgba(54, 162, 235, 1)',
+            pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+            tension: 0.4,
+            borderWidth: 3
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        plugins: {
+          legend: {
+            labels: {
+              font: {
+                size: 14,
+                weight: 'bold'
+              }
+            }
+          },
+          tooltip: {
+            callbacks: {
+              label: function (context) {
+                return '₹ ' + context.formattedValue;
+              }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: {
+              display: false
+            },
+            ticks: {
+              font: {
+                size: 13
+              }
+            }
+          },
+          y: {
+            beginAtZero: true,
+            ticks: {
+              callback: (value) => '₹' + value,
+              font: {
+                size: 13
+              }
+            }
+          }
+        }
+      }
+    });
+    
+    
+  </script>
+<script>
+  function handleRangeChange(autoLoad = false) {
+    const range = document.getElementById('range').value;
+    const from = document.getElementById('fromDate');
+    const to = document.getElementById('toDate');
+    const btn = document.getElementById('applyBtn');
+    const error = document.getElementById('dateError');
+
+    if (range === 'custom') {
+      from.style.display = 'block';
+      to.style.display = 'block';
+      btn.style.display = 'inline-block';
+      error.style.display = 'none';
+    } else {
+      from.style.display = 'none';
+      to.style.display = 'none';
+      btn.style.display = 'none';
+      error.style.display = 'none';
+      if (!autoLoad) {
+        document.getElementById('filterForm').submit();
+      }
+    }
+  }
+
+  // Validate custom date before submitting
+  document.getElementById('applyBtn').addEventListener('click', function (e) {
+    const from = document.getElementById('fromDate').value;
+    const to = document.getElementById('toDate').value;
+    const error = document.getElementById('dateError');
+
+    if (!from || !to) {
+      e.preventDefault();
+      error.textContent = 'Please select both From and To dates.';
+      error.style.display = 'block';
+    } else {
+      error.style.display = 'none';
+    }
+  });
+
+  // Trigger UI setup on initial page load
+  window.addEventListener('DOMContentLoaded', () => {
+    handleRangeChange(true);
+  });
+</script>
+
+  
+

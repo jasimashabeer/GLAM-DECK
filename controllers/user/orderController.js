@@ -3,11 +3,19 @@
 const Order    = require('../../models/orderSchema');
 const Product  = require('../../models/productSchema');
 const Address  = require('../../models/addressSchema');
+const { creditWallet } = require('../user/walletController');
 const User=require('../../models/userSchema')
+const Razorpay = require('razorpay');
 
 const crypto = require('crypto');   //  built-in module
 
 const mongoose = require('mongoose');
+
+// Initialize Razorpay
+const rzp = new Razorpay({
+  key_id:     process.env.RAZORPAY_KEY_ID,
+  key_secret: process.env.RAZORPAY_KEY_SECRET
+});
 
 // Make sure this is NOT repeated anywhere
 
@@ -15,7 +23,7 @@ const mongoose = require('mongoose');
 const incStock = async (productId, qty) => {
   await Product.findByIdAndUpdate(
     productId,
-    { $inc: { stock: qty } },
+    { $inc: { stock: qty } }, 
     { new: true }
   );
 };
@@ -241,7 +249,7 @@ const returnProduct = async (req, res) => {
 
 const getretryPayment = async (req, res) => {
   const { orderId } = req.params;
-  const user = req.session.user;
+  const userSession = req.session.user;
 
   //  First, check if orderId is a valid ObjectId
   if (!mongoose.Types.ObjectId.isValid(orderId)) {
@@ -251,6 +259,9 @@ const getretryPayment = async (req, res) => {
   //  Only query database if orderId is valid
   const order = await Order.findById(orderId);
   if (!order) return res.status(404).send('Order not found');
+
+  // Load full user with wallet to avoid undefined in view
+  const user = userSession ? await User.findById(userSession).lean() : null;
 
   res.render('retryPayment', { user, order });
 };
@@ -298,6 +309,137 @@ const returnOrder = async (req, res) => {
 
 
 
+const retryCOD = async (req, res) => {
+  try {
+    const { orderId } = req.params;   //  FIXED
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    if (order.finalAmount > 1000) {
+      return res.status(400).json({ message: 'COD is only available for orders up to ₹1000.' });
+    }
+
+    order.paymentMethod = 'Cash On Delivery';
+    order.status = 'Confirmed';
+    await order.save();
+
+return res.json({ status: true, message: 'COD selected successfully', orderId: order._id });
+
+  } catch (err) {
+    console.error('Retry COD Error:', err);
+    res.status(500).json({ message: 'Server error during COD retry' });
+  }
+};
+
+/* ========== WALLET RETRY ========== */
+const retryWallet = async (req, res) => {
+  try {
+   const { orderId } = req.params;
+    const userId = req.session.user;
+
+    const order = await Order.findById(orderId);
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    const user = await User.findById(userId);
+
+    if (user.wallet.balance < order.finalAmount) {
+      return res.status(400).json({ message: 'Insufficient wallet balance.' });
+    }
+
+    // Deduct wallet balance
+    user.wallet.balance -= order.finalAmount;
+    user.wallet.transactions.push({
+      amount: order.finalAmount,
+      type: 'debit',
+      description: 'Retry order payment using wallet',
+      createdAt: new Date()
+    });
+    await user.save();
+
+    // Update order status
+    order.paymentMethod = 'Wallet';
+ 
+    order.status = 'Confirmed';
+    await order.save();
+
+ return res.json({ status: true, message: 'Wallet payment successful', orderId: order._id });
+
+  } catch (err) {
+    console.error('Retry Wallet Error:', err);
+    res.status(500).json({ message: 'Server error during wallet retry' });
+  }
+};
+
+
+
+const retryRazorpay = async (req, res) => {
+  try {
+    const { orderId } = req.body;   // use the correct field
+
+   const order = await Order.findById(orderId);   //  now it will work
+
+    if (!order) return res.status(404).json({ message: 'Order not found' });
+
+    //  Create new Razorpay order with correct amount
+    const rzOrder = await rzp.orders.create({
+      amount: order.finalAmount * 100,   //  Razorpay expects paisa, so multiply by 100
+      currency: 'INR',
+      receipt: `retry_${order._id}`
+    });
+
+    //  Update DB
+    order.razorpayOrderId = rzOrder.id;
+    order.paymentMethod = 'Razorpay';
+    order.status = 'Pending';
+    await order.save();
+
+    return res.json({ id: rzOrder.id, amount: order.finalAmount * 100, orderId: order._id });
+  } catch (err) {
+    console.error('Retry Razorpay Error:', err);
+    res.status(500).json({ message: 'Server error during Razorpay retry' });
+  }
+};
+
+
+/* ========== VERIFY RAZORPAY PAYMENT ========== */
+const verifyRetryPayment = async (req, res) => {
+  try {
+    const { razorpay_payment_id, razorpay_order_id, razorpay_signature, orderId } = req.body;
+
+const order = await Order.findById(orderId);
+if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
+
+const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);
+hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
+const generatedSignature = hmac.digest('hex');
+
+if (generatedSignature !== razorpay_signature) {
+   return res.status(400).json({ success: false, message: 'Payment signature mismatch' });
+}
+
+
+    order.status = 'Confirmed';
+    await order.save();
+
+
+return res.json({ 
+  success: true, 
+  message: 'Payment verified and order confirmed',
+  orderId: order._id 
+});
+
+
+
+
+
+  } catch (err) {
+    console.log('Verify Retry Payment Error:', err);
+    res.status(500).json({ success: false, message: 'Server error verifying Razorpay payment' });
+  }
+};
+
+
+
 
 module.exports = {
   loadOrders,
@@ -308,5 +450,8 @@ module.exports = {
   returnOrder,
   returnProduct,
   getretryPayment,
-
+  verifyRetryPayment,
+  retryCOD,
+  retryWallet,
+  retryRazorpay
 };

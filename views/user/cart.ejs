@@ -121,9 +121,9 @@
 
   <td id="item-total-<%= i._id %>">₹<%= p.salePrice * i.quantity %></td>
 
-  <td>
-    <button class="btn btn-sm btn-outline-danger" style="height: 40px;margin-bottom: 10px;" onclick="confirmRemove('<%=p._id%>')">Remove</button>
-  </td>
+<td>
+  <button class="btn btn-sm" style="height: 40px; margin-bottom: 10px; background-color: #dc3545; color: white; border: none;" onclick="confirmRemove('<%=p._id%>')">Remove</button>
+</td>
 </tr>
 
             <% }) %>

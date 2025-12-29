@@ -84,14 +84,28 @@
             </a>
 
             <!-- Status dropdown -->
-            <select class="form-select form-select-sm"
+            <!-- <select class="form-select form-select-sm"
                     onchange="changeStatus('<%= o._id %>', this.value)">
               <% ['Pending','Confirmed','Shipped','Delivered',
                   'Cancelled','Return Request','returned']
                  .forEach(s=>{ %>
                 <option value="<%=s%>" <%= s===o.status?'selected':'' %>><%=s%></option>
               <% }) %>
-            </select>
+            </select> -->
+
+
+
+            <!-- Status dropdown -->
+<% if(o.status !== 'Delivered'){ %>
+  <select class="form-select form-select-sm"
+          onchange="changeStatus('<%= o._id %>', this.value)">
+    <% ['Pending','Confirmed','Shipped','Delivered','Cancelled','Return Request','returned']
+       .forEach(s=>{ %>
+      <option value="<%=s%>" <%= s===o.status?'selected':'' %>><%=s%></option>
+    <% }) %>
+  </select>
+<% } %>
+
 
            
            

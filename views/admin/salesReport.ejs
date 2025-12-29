@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Sales Report</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+
+
+
+<style>
+  #salesReport {
+    width: 100%;
+    font-size: 12px;  
+  }
+  table {
+    width: 100%;
+    border-collapse: collapse;
+  }
+  th, td {
+    padding: 6px;
+    word-wrap: break-word;
+    text-align: center;
+  }
+</style>
+
+
+  <style>
+    body { background-color: #f8f9fa; }
+    #salesReport {
+      background-color: white;
+      padding: 30px;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h2, h4 { font-weight: bold; }
+    table th, table td { vertical-align: middle !important; page-break-inside: avoid; }
+    .download-btn {
+      background-color: #0d6efd;
+      color: #fff;
+      border: none;
+      padding: 6px 16px;
+      border-radius: 6px;
+      font-weight: 500;
+      transition: background-color 0.3s ease;
+      margin-right: 12px;
+    }
+    .download-btn:hover { background-color: #084298; }
+    td, th { word-break: break-word; white-space: normal; }
+    td.order-id { max-width: 150px; word-break: break-all; white-space: normal; }
+    table { table-layout: fixed; width: 100%; border-collapse: collapse; }
+    .table-bordered th, .table-bordered td { border: 1px solid #dee2e6; padding: 8px; }
+  </style>
+</head>
+
+<body>
+  <div class="col d-flex justify-content-end align-items-center mb-3 me-5 mt-3">
+    <div class="d-flex gap-2">
+      <a href="/admin/sales" class="btn btn-warning">Go Back</a>
+      <button onclick="generatePDF()" class="download-btn">Download PDF</button>
+      <button onclick="downloadExcel()" class="download-btn">Download ExcelSheet</button>
+    </div>
+    <form method="GET" action="/admin/salesReport" class="d-flex align-items-center bg-light p-2 rounded shadow-sm flex-wrap gap-2" id="filterForm">
+      <label for="range" class="form-label mb-0 me-2 fw-semibold text-primary">Sort By:</label>
+      <select name="range" id="range" class="form-select form-select-sm w-auto border-primary me-2" onchange="handleRangeChange()">
+        <option value="daily" <%= range === 'daily' ? 'selected' : '' %>>Daily</option>
+        <option value="weekly" <%= range === 'weekly' ? 'selected' : '' %>>Weekly</option>
+        <option value="monthly" <%= range === 'monthly' ? 'selected' : '' %>>Monthly</option>
+        <option value="yearly" <%= range === 'yearly' ? 'selected' : '' %>>Yearly</option>
+        <option value="custom" <%= range === 'custom' ? 'selected' : '' %>>Custom</option>
+      </select>
+      <div id="customDateBlock" class="d-flex flex-column" style="display: none;">
+        <div class="d-flex flex-row gap-2">
+          <input type="date" name="from" id="fromDate" class="form-control form-control-sm" value="<%= from || '' %>">
+          <input type="date" name="to" id="toDate" class="form-control form-control-sm" value="<%= to || '' %>">
+          <button type="submit" class="btn btn-primary btn-sm" id="applyBtn">Apply</button>
+        </div>
+        <p id="dateError" class="text-danger mt-1 mb-0" style="display: none;"></p>
+      </div>
+    </form>
+  </div>
+
+  <div id="salesReport" class="container p-4">
+    <div class="text-center mb-4">
+      <h2>Glam Deck</h2>
+      <h4 class="mb-2">Sales Report</h4>
+      <p><strong>Report Range:</strong> <%= new Date(startDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) %> – <%= new Date(endDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
+      <p><strong>Generated On:</strong> <%= new Date().toLocaleDateString() %></p>
+    </div>
+
+    <div class="mb-4">
+      <table class="table table-bordered">
+        <tbody>
+          <tr><th>Total Sales</th><td>₹<%= totalSales.toLocaleString() %></td><th>Total Orders</th><td><%= totalOrders %></td></tr>
+          <tr><th>Products Sold</th><td><%= totalProducts %></td><th>Discounts Given</th><td>₹<%= totalDiscounts.toLocaleString() %></td></tr>
+          <tr><th>Net Revenue</th><td>₹<%= netRevenue.toLocaleString() %></td><th>Avg. Order Value</th><td>₹<%= averageOrderValue.toFixed(2) %></td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="mb-4">
+      <h5 class="mb-3">Order Details</h5>
+      <table class="table table-striped table-bordered">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Date</th>
+            <th>Payment</th>
+            <th>Status</th>
+            <th>Discount</th>
+            <th>Total (₹)</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% orders.forEach(order => { %>
+            <tr>
+              <td class="order-id"><%= order.orderId %></td>
+              <td><%= order.user?.name || '-' %></td>
+              <td><%= new Date(order.createdOn).toLocaleDateString() %></td>
+              <td><%= order.paymentMethod ? order.paymentMethod.toUpperCase() : '-' %></td>
+              <td><%= order.status ? order.status.toUpperCase() : '-' %></td>
+              <td>₹<%= order.totalDiscount ?? 0 %></td>
+              <td>₹<%= order.finalAmount ?? 0 %></td>
+            </tr>
+          <% }) %>
+          <tr class="table-dark fw-bold">
+            <td colspan="5" class="text-end">Grand Total</td>
+            <td>₹<%= totalDiscounts.toLocaleString() %></td>
+            <td>₹<%= totalSales.toLocaleString() %></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="text-center mt-5">
+      <p>Generated by Glam Deck</p>
+      <p class="text-muted">© <%= new Date().getFullYear() %> All Rights Reserved</p>
+    </div>
+  </div>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+  <script>
+   function generatePDF() {
+  const element = document.getElementById("salesReport");
+  html2pdf().from(element).set({
+    margin: 0.5,
+    filename: 'sales-report.pdf',
+    image: { type: 'jpeg', quality: 0.98 },
+    html2canvas: {
+      scale: 1.2,
+      scrollY: 0,     // 👈 fixes scroll-cut and misalignment
+      useCORS: true   // 👈 helpful if you use external images/fonts
+    },
+    jsPDF: {
+      unit: 'in',
+      format: 'a4',
+      orientation: 'landscape'
+    }
+  }).save();
+}
+
+
+    function downloadExcel() {
+      const wb = XLSX.utils.book_new();
+      const ws_data = [
+        ["BookMart"],
+        ["Sales Report"],
+        [`Report Range: ${new Date("<%= startDate %>").toLocaleDateString()} - ${new Date("<%= endDate %>").toLocaleDateString()}`],
+        [`Generated On: ${new Date().toLocaleDateString()}`],
+        [],
+        ["Total Sales", `₹<%= totalSales.toLocaleString() %>`, "Total Orders", "<%= totalOrders %>"],
+        ["Products Sold", "<%= totalProducts %>", "Discounts Given", `₹<%= totalDiscounts.toLocaleString() %>`],
+        ["Net Revenue", `₹<%= netRevenue.toLocaleString() %>`, "Avg. Order Value", `₹<%= averageOrderValue.toFixed(2) %>`],
+        [],
+        ["Order ID", "Customer", "Date", "Payment", "Status", "Discount", "Total (₹)"]
+      ];
+      <% orders.forEach(order => { %>
+        ws_data.push([
+          "<%= order.orderId %>",
+          "<%= order.user?.name || '-' %>",
+          "<%= new Date(order.createdOn).toLocaleDateString() %>",
+          "<%= order.paymentMethod ? order.paymentMethod.toUpperCase() : '-' %>",
+          "<%= order.status ? order.status.toUpperCase() : '-' %>",
+          "<%= order.discount ?? 0 %>",
+          "₹<%= order.finalAmount ?? 0 %>"
+        ]);
+      <% }); %>
+      ws_data.push(["", "", "", "", "Grand Total", `₹<%= totalDiscounts.toLocaleString() %>`, `₹<%= totalSales.toLocaleString() %>`]);
+      const ws = XLSX.utils.aoa_to_sheet(ws_data);
+      XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
+      XLSX.writeFile(wb, "sales-report.xlsx");
+    }
+
+    function handleRangeChange(autoLoad = false) {
+      const range = document.getElementById('range').value;
+      const from = document.getElementById('fromDate');
+      const to = document.getElementById('toDate');
+      const btn = document.getElementById('applyBtn');
+      const error = document.getElementById('dateError');
+      if (range === 'custom') {
+        from.style.display = 'block';
+        to.style.display = 'block';
+        btn.style.display = 'inline-block';
+      } else {
+        from.style.display = 'none';
+        to.style.display = 'none';
+        btn.style.display = 'none';
+        if (!autoLoad) document.getElementById('filterForm').submit();
+      }
+    }
+
+    document.getElementById('applyBtn').addEventListener('click', function (e) {
+      const from = document.getElementById('fromDate').value;
+      const to = document.getElementById('toDate').value;
+      const error = document.getElementById('dateError');
+      if (!from || !to) {
+        e.preventDefault();
+        error.textContent = 'Please select both From and To dates.';
+        error.style.display = 'block';
+      } else {
+        error.style.display = 'none';
+      }
+    });
+
+    window.addEventListener('DOMContentLoaded', () => handleRangeChange(true));
+  </script>
+</body>
+</html>

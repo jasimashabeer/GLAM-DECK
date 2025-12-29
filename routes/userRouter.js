@@ -4,11 +4,13 @@ const path = require('path');
 const userController=require('../controllers/user/userControllers')
 const ProductController=require('../controllers/user/ProductController')
 const profileController=require('../controllers/user/profileController')
-const wishlistController=require('../controllers/user/wishlistController')
+
 const cartControllers=require('../controllers/user/cartControllers')
 const userProfileControllers=require('../controllers/user/userProfileControllers')
 const checkoutController= require('../controllers/user/checkoutController')
 const orderController=require('../controllers/user/orderController')
+const walletController=require('../controllers/user/walletController')
+const wishlistController=require('../controllers/user/wishlistController')
 const passport = require('passport')
 const {userAuth}=require('../middlewares/auth')
 
@@ -103,8 +105,10 @@ router.get("/cart/check-blocked", cartControllers.checkBlockedCart);
 router.get('/checkout',userAuth,checkoutController.checkoutPage)
 router.post('/place-order',userAuth,checkoutController.placeOrder)
 router.get('/order-success',userAuth,checkoutController.orderSuccess)
-
-
+router.get('/payment-failure',userAuth,checkoutController. paymentFailure);
+router.post('/verify-payment',userAuth,checkoutController.verifyPayment);
+router.post('/apply-coupon', userAuth, checkoutController.applyCoupon);
+router.delete('/remove-coupon', userAuth, checkoutController.removeCoupon);
 
 
 // order management
@@ -119,6 +123,27 @@ router.patch('/cancel-product/:orderId/:itemId', userAuth, orderController.cance
 router.patch('/return-product/:orderId/:itemId', userAuth, upload.array('images', 3), orderController.returnProduct);
 router.get('/retry-payment/:orderId',userAuth,orderController.getretryPayment);
 
+
+// retry payment
+router.put('/retry-payment/cod/:orderId', userAuth, orderController.retryCOD);
+router.put('/retry-payment/wallet/:orderId', userAuth, orderController.retryWallet);
+router.post('/retry-payment/razorpay', userAuth, orderController.retryRazorpay);
+router.post('/retry-payment/verify', userAuth, orderController.verifyRetryPayment);
+
+
+
+// Wallet Management
+router.get('/wallet',userAuth,walletController.loadWalletPage)
+router.post('/wallet/createOrder',userAuth,walletController.createOrder)
+router.post("/wallet/verifyPayment",userAuth, walletController.verifyPayment);
+router.put("/wallet/withdrawMoney",userAuth,walletController.withdrawMoney);
+
+
+
+// Wishlist Management
+router.get('/wishlist',userAuth,wishlistController.loadWishlist);
+router.post('/toggleWishlist', userAuth,wishlistController.toggleWishlist);
+router.get('/removeFromWishlist',userAuth,wishlistController.removeProduct)
 
 
 

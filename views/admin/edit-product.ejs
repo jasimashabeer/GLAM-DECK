@@ -75,7 +75,7 @@
             </div>
 
             <div class="mb-4">
-              <label for="author" class="form-label">Author</label>
+              <label for="author" class="form-label">Material</label>
               <input type="text" name="author" class="form-control" id="author" value="<%= product.author %>">
               <div id="author-error" class="error-message"></div>
             </div>
@@ -172,69 +172,6 @@
 
    
 
-//     let cropper;
-
-//     function handleImageUpload(event) {
-//   const previewContainer = document.getElementById('imagePreviewContainer');
-//   previewContainer.innerHTML = '';
-//   const file = event.target.files[0];
-//   if (!file) return;
-
-//   const reader = new FileReader();
-//   reader.onload = function () {
-//     const image = document.createElement('img');
-//     image.src = reader.result;
-//     image.style.maxWidth = '300px';
-//     image.id = 'newImagePreview';
-
-//     const cropArea = document.createElement('div');
-//     cropArea.className = 'image-cropper';
-//     cropArea.appendChild(image);
-
-//     const saveBtn = document.createElement('button');
-//     saveBtn.innerText = 'Crop & Save';
-//     saveBtn.type = 'button';
-//     saveBtn.className = 'btn btn-sm btn-success mt-2';
-//     cropArea.appendChild(saveBtn);
-
-//     previewContainer.appendChild(cropArea);
-//     cropArea.style.display = 'flex';
-
-//     cropper = new Cropper(image, {
-//       aspectRatio: 1,
-//       viewMode: 1
-//     });
-
-//     saveBtn.addEventListener('click', () => {
-//       const canvas = cropper.getCroppedCanvas();
-//       canvas.toBlob(blob => {
-//         const dt = new DataTransfer();
-//         const fileInput = document.getElementById('uploadInput');
-
-//         // Create a new File object with cropped image
-//         const croppedFile = new File([blob], file.name, { type: file.type });
-//         dt.items.add(croppedFile);
-
-//         // Set the file input to the cropped image
-//         fileInput.files = dt.files;
-
-//         // Show preview of the cropped image
-//         const croppedImagePreview = document.createElement('img');
-//         croppedImagePreview.src = URL.createObjectURL(croppedFile);
-//         croppedImagePreview.style.maxWidth = '150px';
-//         previewContainer.innerHTML = ''; // Clear old stuff
-//         previewContainer.appendChild(croppedImagePreview);
-//       });
-
-//       // Hide cropper
-//       cropArea.style.display = 'none';
-//       cropper.destroy();
-//     });
-//   };
-
-//   // THIS WAS MISSING / WRONG PLACE
-//   reader.readAsDataURL(file);
-// }
 
 
 let cropper;
@@ -377,47 +314,7 @@ document.getElementById('editProductForm').addEventListener('submit', async func
   }
 });
 
-// function validateForm() {
-//   let isValid = true;
-//   const requiredFields = ["productName", "author", "description", "regularPrice", "salePrice", "quantity", "category"];
 
-//   requiredFields.forEach(field => {
-//     const value = document.getElementsByName(field)[0].value.trim();
-//     const errorEl = document.getElementById(field + "-error");
-//     if (!value) {
-//       errorEl.innerText = `${field} is required`;
-//       isValid = false;
-//     } else {
-//       errorEl.innerText = "";
-//     }
-//   });
-
-//   const regularPriceValue = document.getElementsByName("regularPrice")[0].value.trim();
-
-//   const price = parseFloat(regularPriceValue);
-
-
-//   if (regularPriceValue && (isNaN(price) || price <= 1)) {
-//     document.getElementById("regularPrice-error").innerText = "Regular price must be greater than ₹1";
-//     isValid = false;
-//   }
-
-
-
-//   // Image validation: at least 1 image (either existing or newly uploaded)
-//   const uploadedImages = document.getElementById('uploadInput').files;
-//   const existingImages = document.querySelectorAll('.thumbnail-wrapper img');
-//   const totalImages = uploadedImages.length + existingImages.length;
-
-//   if (totalImages < 3) {
-//     document.getElementById("images-error").innerText = "At least 3 images are required";
-//     isValid = false;
-//   } else {
-//     document.getElementById("images-error").innerText = "";
-//   }
-
-//   return isValid;
-// }
 
 
 function validateForm() {
@@ -467,8 +364,18 @@ function validateForm() {
 
   //  Image validation (must have at least 3 total images)
   const uploadedImages = document.getElementById("uploadInput").files;
-  const existingImages = document.querySelectorAll(".thumbnail-wrapper img");
-  const totalImages = uploadedImages.length + existingImages.length;
+  
+  // Count existing images that are NOT marked for deletion
+  const existingImageBoxes = document.querySelectorAll(".existing-images .image-box");
+  let existingImagesCount = 0;
+  existingImageBoxes.forEach(box => {
+    const checkbox = box.querySelector('input[name="imagesToDelete"]');
+    if (!checkbox || !checkbox.checked) {
+      existingImagesCount++;
+    }
+  });
+  
+  const totalImages = uploadedImages.length + existingImagesCount;
 
   if (totalImages < 3) {
     document.getElementById("images-error").innerText =
@@ -484,7 +391,7 @@ function validateForm() {
 
 
 
-    // ⬅ Make sure your HTML uses `onsubmit="return validateForm()"`, etc.
+    // Make sure your HTML uses `onsubmit="return validateForm()"`, etc.
     //  Expose functions to window so onclick="..." works
     window.handleImageUpload = handleImageUpload;
     window.deleteExistingImage = deleteExistingImage;

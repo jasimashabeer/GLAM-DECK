@@ -1,150 +1,240 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Wishlist</title>
-  <link rel="stylesheet" href="/css/wishlist.css">
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-  
-  <%- include("../../views/partials/user/header") %>
-</head>
-<body>
 
-<div class="container wishlist-container">
-  <h2 class="wishlist-title">Your Wishlist</h2>
 
-  <% if (wishlist.length === 0) { %>
-    <p class="text-center">Your wishlist is empty.</p>
-  <% } else { %>
-    <div class="row">
-      <% wishlist.forEach(product => { %>
-        <div class="col-md-4 d-flex">
-          <div class="product-card w-100">
-            <!-- <button class="remove-icon remove-from-wishlist" data-product-id="<%= product._id %>">&times;</button> -->
-            <form action="/wishlist/remove/<%= product._id %>" method="POST">
-              <button type="submit" class="remove-icon">&times;</button>
-            </form>
-            
-          
+<%- include('../partials/user/header') %>
 
-            <a href="/productdetail/<%= product._id %>">
-              <img src="<%= product.image[0] %>" alt="<%= product.name %>">
-            </a>
 
-            <div class="product-name"><%= product.name %></div>
-
-            <div class="product-price">
-              <% if (product.discountPrice < product.price) { %>
-                <del>₹<%= product.price %></del>
-                ₹<%= product.discountPrice %>
-              <% } else { %>
-                ₹<%= product.price %>
-              <% } %>
-            </div>
-
-            <button class="add-to-cart-btn" data-product-id="<%= product._id %>">Add to Cart</button>
-          </div>
-        </div>
-      <% }) %>
-    </div>
-  <% } %>
+<main class="main">
+  <!-- ───── Breadcrumb / Page-title ───── -->
+<div class="page-header breadcrumb-wrap py-3 bg-light border-bottom">
+  <div class="container">
+    <nav aria-label="breadcrumb">
+      <ol class="breadcrumb mb-0">
+        <li class="breadcrumb-item">
+          <a href="/" class="text-decoration-none text-primary">Home</a>
+        </li>
+        <li class="breadcrumb-item">
+          <a href="/shop" class="text-decoration-none text-primary">Shop</a>
+        </li>
+        <li class="breadcrumb-item active text-dark" aria-current="page">
+          Wishlist
+        </li>
+      </ol>
+    </nav>
+  </div>
 </div>
+
+  <!-- ───── Wishlist Table ───── -->
+  
+<section class="mt-5 mb-5">
+  <div class="container">
+    <div class="row">
+      <div class="col-12">
+
+        <h2 class="text-center mb-4">My Wishlist</h2>
+
+        <div class="table-responsive">
+          <table class="table shopping-summery text-center align-middle" >
+            <thead class="table-light">
+              <tr class="main-heading">
+                <th scope="col">Image</th>
+                <th scope="col">Name</th>
+                <th scope="col">Category</th>
+                <th scope="col">Price</th>
+                <th scope="col">Add&nbsp;to&nbsp;Cart</th>
+                <th scope="col">Remove</th>
+              </tr>
+            </thead>
+            <tbody style="vertical-align: middle;">
+
+                <%if(wishlist.length>0){%>
+
+                    <%for(let product of wishlist){%>
+
+              <!-- Wishlist Item Row Example -->
+              <tr>
+                <td class="product-thumbnail">
+                  <img src="/uploads/images/<%=product.image[0]%>"
+                      
+                       class="img-fluid"
+                       style="width: 80px; height: 80px; object-fit: cover;" />
+                </td>
+                <td>
+                  <h5 class="mb-0"><a href=""><%=product.productName%></a></h5>
+                </td>
+
+                <td>
+                  <h5 class="mb-0"><a href=""><%=product.category.name%></a></h5>
+                </td>
+
+                <td>₹<%=product.salePrice%></td>
+                <td>
+  
+    <!-- <button class="btn btn-sm btn-outline-primary" style="height: 40px;">Add to Cart</button> -->
+ <button onclick="addToCart('<%= product._id %>')" class="btn btn-sm btn-outline-primary" style="height: 40px;">Add to Cart</button>
+
+</td>
+<td>
+  
+    <button class="btn btn-sm btn-outline-danger" style="height: 40px;" onclick="confirmRemove('<%=product._id%>')">Remove</button>
+
+</td>
+
+              </tr>
+
+              <%}%>
+              <%}else{%>
+              <!-- Example empty row (optional) -->
+              
+              <tr>
+                <td colspan="6">
+                  <div class="alert alert-info text-center mb-0">
+                    Your wishlist is empty. <a href="/shop">Continue Shopping</a>
+                  </div>
+                </td>
+              </tr>
+              <%}%>
+             
+            </tbody>
+          </table>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</section>
+
+
+</main>
+
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-<!-- Working script -->
 <script>
-  console.log(" Test script running");
+//   function addToCart(productId) {
+//     document.getElementById(`addForm-${productId}`).submit();
+//   }
 
-  document.addEventListener('DOMContentLoaded', () => {
-    console.log(" JS loaded");
-
-    document.querySelectorAll('.add-to-cart-btn').forEach(button => {
-      button.addEventListener('click', async () => {
-        const productId = button.getAttribute('data-product-id');
-
-        try {
-          const res = await fetch('/add-to-cart', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({ productId, quantity: 1 })
-          });
-
-          const data = await res.json();
-
-          if (res.ok) {
-  Swal.fire('Success!', data.message, 'success');
-} else {
-  Swal.fire('Error', data.message || 'Something went wrong', 'error');
-}
-
-        } catch (err) { 
-          console.error('❌ Error adding to cart:', err);
-          alert('Error adding to cart');
-        }
-      });
+  function confirmRemove(productId) {
+    Swal.fire({
+      title: 'Are you sure?',
+      text: "Do you want to remove this item from your wishlist?",
+      icon: 'warning',
+      showCancelButton: true,
+      confirmButtonColor: '#d33',
+      cancelButtonColor: '#999',
+      confirmButtonText: 'Yes, remove it!'
+    }).then((result) => {
+      if (result.isConfirmed) {
+        window.location.href=`/removeFromWishlist?productId=${productId}`
+      }
     });
-  });
+  }
 
+  
+//   function addToCart(productId){
+//   $.ajax({
+//     url: '/addToCart',
+//     method: 'POST',
+//     data: { productId },
+//     success: (response) => {
+      
+//       if (response.status) {
+//         Swal.fire({
+//           title: "Added to Cart",
+//           text: response.message, // Always shows same
+//           icon: 'success',
+//           timer: 2000
+//         });
+//       } else {
+//         Swal.fire({
+//           title: "Failed",
+//           text: response.message,
+//           icon: 'info',
+//           timer: 2000
+//         });
+//       }
+//     },
+//     error: () => {
+//       Swal.fire({
+//         title: 'Error',
+//         text: 'Something went wrong. Please try again.',
+//         icon: 'error',
+//         timer: 2000
+//       });
+//     }
+//   });
+// }
 
+function addToCart(productId) {
+  $.ajax({
+    url: '/addToCart',
+    method: 'POST',
+    data: { productId, quantity: 1 },
+    success: (response) => {
+      if (response.status) {
+        // ✅ Update cart badge
+        const cartBadge = $("#cartCount");
+        cartBadge.text(response.cartCount);
+        if (response.cartCount > 0) {
+          cartBadge.removeClass("d-none");
+        } else {
+          cartBadge.addClass("d-none");
+        }
 
+        // ✅ Update wishlist badge
+        const wishlistBadge = $("#wishlistCount");
+        wishlistBadge.text(response.wishlistCount);
+        if (response.wishlistCount > 0) {
+          wishlistBadge.removeClass("d-none");
+        } else {
+          wishlistBadge.addClass("d-none");
+        }
 
-  document.querySelectorAll('.remove-icon').forEach(button => {
-      button.addEventListener('click', async (e) => {
-        e.preventDefault(); // Prevent form submission
+        // ✅ Remove product row from wishlist table
+        $(`button[onclick="addToCart('${productId}')"]`)
+          .closest("tr")
+          .remove();
 
-        // Show confirmation SweetAlert
-        const result = await Swal.fire({
-          title: 'Are you sure?',
-          text: "You won't be able to undo this action!",
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonText: 'Yes, remove it!',
-          cancelButtonText: 'Cancel',
+        // ✅ If no rows left → show empty message
+        if ($("tbody tr").length === 0) {
+          $("tbody").html(`
+            <tr>
+              <td colspan="6">
+                <div class="alert alert-info text-center mb-0">
+                  Your wishlist is empty. <a href="/shop">Continue Shopping</a>
+                </div>
+              </td>
+            </tr>
+          `);
+        }
+
+        Swal.fire({
+          title: "Added to Cart",
+          text: response.message,
+          icon: 'success',
+          timer: 2000
         });
 
-        if (result.isConfirmed) {
-          // Send the request to remove the item from the wishlist
-          const productId = button.closest('form').getAttribute('action').split('/').pop(); // Get product ID from form action URL
-
-          try {
-            const res = await fetch(`/wishlist/remove/${productId}`, {
-              method: 'POST',
-            });
-
-            const data = await res.json();
-
-            if (data.success) {
-              // Show success SweetAlert
-              Swal.fire(
-                'Removed!',
-                'The product has been removed from your wishlist.',
-                'success'
-              );
-
-              // Optionally, remove the product from the page
-              button.closest('.product-card').remove();
-            } else {
-              // Show error SweetAlert
-              Swal.fire(
-                'Error!',
-                data.message || 'Something went wrong.',
-                'error'
-              );
-            }
-          } catch (err) {
-            console.error('Error removing from wishlist:', err);
-            Swal.fire(
-              'Error!',
-              'There was an issue removing the product.',
-              'error'
-            );
-          }
-        }
+      } else {
+        Swal.fire({
+          title: "Failed",
+          text: response.message,
+          icon: 'info',
+          timer: 2000
+        });
+      }
+    },
+    error: () => {
+      Swal.fire({
+        title: 'Error',
+        text: 'Something went wrong. Please try again.',
+        icon: 'error',
+        timer: 2000
       });
-    });
+    }
+  });
+}
+
 </script>
 
-</body>
-</html>
+
+<%- include('../partials/user/footer') %>
