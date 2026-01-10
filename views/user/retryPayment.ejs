@@ -215,6 +215,35 @@ h3.mb-3.text-primary:after {
   overflow: hidden;
 }
 
+/* Ensure wallet modal becomes visible when BS5 adds .show */
+#walletPaymentModal.modal.show {
+  display: block !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+#walletPaymentModal.modal.fade:not(.show) {
+  opacity: 0 !important;
+}
+
+#walletPaymentModal .modal-dialog {
+  transform: translate(0, 0) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+#walletPaymentModal.modal.show .modal-dialog {
+  transform: translate(0, 0) !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* Backdrop visibility */
+.modal-backdrop.show {
+  opacity: 0.5 !important;
+  display: block !important;
+}
+
 .modal-header {
   background-color: #f0f7ff;
   border-bottom: 1px solid #dee2e6;
@@ -481,24 +510,70 @@ h3.mb-3.text-primary:after {
     </div>
   </div>
 <!-- Bootstrap 5 JS Bundle (includes Popper) -->
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-...your-integrity-key..." crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 <script>
-  // ✅ Wallet modal balance check
-  const modal = document.getElementById("walletPaymentModal");
-  modal.addEventListener("shown.bs.modal", () => {
-    const balance = parseFloat(document.getElementById("walletBalance").textContent);
-    const payable = parseFloat(document.getElementById("payableAmount").textContent);
-    const insufficient = document.getElementById("insufficientFunds");
-    const confirmBtn = document.getElementById("confirmWalletPayment");
+  // ✅ Wallet modal initialization and visibility fix
+  document.addEventListener('DOMContentLoaded', function() {
+    const modalEl = document.getElementById("walletPaymentModal");
+    const triggerBtn = document.querySelector('[data-bs-target="#walletPaymentModal"]');
+    
+    if (modalEl && triggerBtn) {
+      // Handle button click to ensure modal opens properly
+      triggerBtn.addEventListener('click', function(e) {
+        e.preventDefault();
+        try {
+          let modal = bootstrap.Modal.getInstance(modalEl);
+          if (!modal) {
+            modal = new bootstrap.Modal(modalEl, { backdrop: true, keyboard: true });
+          }
+          modal.show();
+          
+          // Ensure modal is visible after showing
+          setTimeout(() => {
+            modalEl.classList.add('show');
+            modalEl.style.display = 'block';
+            modalEl.style.opacity = '1';
+            modalEl.style.visibility = 'visible';
+          }, 10);
+        } catch (err) {
+          console.error('Error showing wallet modal:', err);
+        }
+      });
+    }
 
-    if (balance < payable) {
-      insufficient.style.display = "block";
-      confirmBtn.disabled = true;
-    } else {
-      insufficient.style.display = "none";
-      confirmBtn.disabled = false;
+    // Ensure modal is visible when shown
+    if (modalEl) {
+      modalEl.addEventListener("show.bs.modal", () => {
+        setTimeout(() => {
+          modalEl.classList.add('show');
+          modalEl.style.display = 'block';
+          modalEl.style.opacity = '1';
+          modalEl.style.visibility = 'visible';
+        }, 10);
+      });
+
+      modalEl.addEventListener("shown.bs.modal", () => {
+        const balance = parseFloat(document.getElementById("walletBalance").textContent);
+        const payable = parseFloat(document.getElementById("payableAmount").textContent);
+        const insufficient = document.getElementById("insufficientFunds");
+        const confirmBtn = document.getElementById("confirmWalletPayment");
+
+        // Ensure modal is still visible
+        modalEl.classList.add('show');
+        modalEl.style.display = 'block';
+        modalEl.style.opacity = '1';
+        modalEl.style.visibility = 'visible';
+
+        if (balance < payable) {
+          insufficient.style.display = "block";
+          confirmBtn.disabled = true;
+        } else {
+          insufficient.style.display = "none";
+          confirmBtn.disabled = false;
+        }
+      });
     }
   });
 

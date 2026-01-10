@@ -101,9 +101,8 @@ const checkoutPage = async (req, res) => {
 
 const placeOrder = async (req, res) => {
   try {
-    // Handle both object and string/ID formats for userId
-    const sessionUser = req.session.user;
-    const userId = (typeof sessionUser === 'object' && sessionUser._id) ? sessionUser._id : sessionUser;
+    // Session now stores only user ID
+    const userId = req.session.user;
     const { selectedAddress, paymentMethod } = req.body;
 
     if (!userId || !selectedAddress || !paymentMethod) {
@@ -345,9 +344,8 @@ const paymentFailure = async (req, res) => {
 const verifyPayment = async (req, res) => {
   try {
     const { razorpay_payment_id, razorpay_order_id, razorpay_signature, orderId } = req.body;
-    // Handle both object and string/ID formats for userId
-    const sessionUser = req.session.user;
-    const userId = (typeof sessionUser === 'object' && sessionUser._id) ? sessionUser._id : sessionUser;
+    // Session now stores only user ID
+    const userId = req.session.user;
 
     const hmac = crypto.createHmac("sha256", process.env.RAZORPAY_KEY_SECRET);
     hmac.update(razorpay_order_id + "|" + razorpay_payment_id);
@@ -408,7 +406,7 @@ if (req.session.appliedCoupon) {
 };
 const applyCoupon = async (req, res) => {
   const { code } = req.body;
-  const userId   = req.session.user?._id;  // FIXED
+  const userId   = req.session.user; // Session now stores just the ID
 
   try {
 

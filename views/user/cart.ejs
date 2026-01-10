@@ -203,40 +203,65 @@ async function updateQuantity(itemId, action) {
   }
 }
 </script>
-
 <script>
 document.getElementById("checkoutBtn").addEventListener("click", async function (e) {
   e.preventDefault();
 
   try {
-    const res = await fetch("/cart/check-blocked");
-    const data = await res.json();
+    /* 1️⃣ CHECK BLOCKED PRODUCTS */
+    const blockedRes = await fetch("/cart/check-blocked");
+    const blockedData = await blockedRes.json();
 
-    if (data.blockedProducts.length > 0) {
-      // Show alert
-      Swal.fire("Blocked Items", "Some products in your cart are blocked. Please remove them.", "error");
+    if (blockedData.blockedProducts.length > 0) {
+      Swal.fire(
+        "Blocked Items",
+        "Some products in your cart are blocked. Please remove them.",
+        "error"
+      );
 
-      // Highlight blocked products in cart table
-      data.blockedProducts.forEach(id => {
+      blockedData.blockedProducts.forEach(id => {
         const row = document.querySelector(`[data-product-id='${id}']`);
-        if (row) {
-          row.classList.add("table-danger"); // Bootstrap class → red background
-          const nameCell = row.querySelector(".product-name");
-          if (nameCell && !nameCell.querySelector(".blocked-label")) {
-            nameCell.insertAdjacentHTML("beforeend", 
-              " <span class='text-danger fw-bold blocked-label'>(Blocked Product)</span>");
-          }
-        }
+        if (row) row.classList.add("table-danger");
       });
-    } else {
-      window.location.href = "/checkout";
+
+      return; // STOP checkout
     }
+
+    /* 2️⃣ CHECK STOCK ONLY */
+    const stockRes = await fetch("/cart/check-stock");
+    const stockData = await stockRes.json();
+
+    if (!stockData.ok) {
+      const list = stockData.products
+        .map(p => `${p.name} (Available: ${p.available})`)
+        .join("<br>");
+
+      const result = await Swal.fire({
+        title: "Stock Changed",
+        html: `
+          <p>Some items exceed available stock:</p>
+          <div style="text-align:left">${list}</div>
+          <br>
+          <p>Quantities will be adjusted at checkout.</p>
+          <b>Do you want to continue?</b>
+        `,
+        icon: "warning",
+        showCancelButton: true,
+        confirmButtonText: "Continue to Checkout",
+        cancelButtonText: "Stay on Cart"
+      });
+
+      if (!result.isConfirmed) return;
+    }
+
+    /* 3️⃣ ALL GOOD → GO CHECKOUT */
+    window.location.href = "/checkout";
+
   } catch (err) {
-    console.error("Error:", err);
-    Swal.fire("Error", "Something went wrong while checking cart", "error");
+    console.error(err);
+    Swal.fire("Error", "Something went wrong", "error");
   }
 });
-
 </script>
 
 <%- include('../partials/user/footer') %>

@@ -1,33 +1,40 @@
-const express=require('express')
-const app=express()
-const path= require('path')
-const env=require('dotenv').config()
-const db=require('./config/db')
-const userRouter=require('./routes/userRouter')
-const adminRouter=require('./routes/adminRouter')
+const express = require('express')
+const app = express()
+const path = require('path')
+const env = require('dotenv').config()
+const db = require('./config/db')
+const userRouter = require('./routes/userRouter')
+const adminRouter = require('./routes/adminRouter')
 const session = require('express-session')
-const passport=require('./config/passport')
+const passport = require('./config/passport')
 const setUser = require("./middlewares/setUserMiddleware")
 
 db()
 
 app.use(express.json())
-app.use(express.urlencoded({extended:true}))
+app.use(express.urlencoded({ extended: true }))
+const MongoStore = require('connect-mongo').MongoStore;
+
 app.use(session({
-    secret:process.env.SESSION_SECRET,
-    resave:false,
-    saveUninitialized:true,
-    cookie:{
-        secure:false,
-        httpOnly:true,
-        maxAge:72 * 60 * 60 * 1000
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
+    store: MongoStore.create({
+        mongoUrl: process.env.MONGODB_URI,
+        ttl: 72 * 60 * 60 // 3 days
+    }),
+    cookie: {
+        secure: process.env.NODE_ENV === 'production',
+        httpOnly: true,
+        sameSite: 'lax',
+        maxAge: 72 * 60 * 60 * 1000
     }
 }))
 
 
 app.use((req, res, next) => {
-  res.set('Cache-Control', 'no-store');  // prevents browser cache
-  next();
+    res.set('Cache-Control', 'no-store');  // prevents browser cache
+    next();
 });
 
 app.use(passport.initialize())
@@ -35,18 +42,18 @@ app.use(passport.session())
 
 
 
-app.set("view engine","ejs")
-app.set("views",[path.join(__dirname,'views/user'),path.join(__dirname,'views/admin')])
-app.use(express.static(path.join(__dirname,'public')))
+app.set("view engine", "ejs")
+app.set("views", [path.join(__dirname, 'views/user'), path.join(__dirname, 'views/admin')])
+app.use(express.static(path.join(__dirname, 'public')))
 
 
 //app.use('/',userRouter)
-app.use("/",setUser,userRouter)
-app.use('/admin',adminRouter)
+app.use("/", setUser, userRouter)
+app.use('/admin', adminRouter)
 
-app.listen(process.env.PORT,()=>{
+app.listen(process.env.PORT, () => {
     console.log('Server Running...')
 })
 
 
-module.exports=app
+module.exports = app

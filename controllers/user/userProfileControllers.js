@@ -235,10 +235,8 @@ const updateEmail = async (req, res) => {
       { new: true }
     );
 
-    // Update session email
-    if (req.session.user) {
-      req.session.user.email = updatedUser.email;
-    }
+    // Session stores only user ID, no need to update session object
+    // User data is available via res.locals.user (set by setUserMiddleware)
 
     res.render('profile');
   } catch (error) {
@@ -285,9 +283,14 @@ const getResetPasswordPage = async (req, res) => {
   }
 };
 
-const getChangeNamePage = (req, res) => {
+const getChangeNamePage = async (req, res) => {
   try {
-    const userName = req.session.user.name;
+    // Fetch user from DB since session only stores ID
+    const user = await User.findById(req.session.user);
+    if (!user) {
+      return res.redirect('/pageNotFound');
+    }
+    const userName = user.name;
     res.render('changeName', { currentName: userName });
   } catch (err) {
     res.redirect('/pageNotFound');
@@ -298,12 +301,18 @@ const getChangeNamePage = (req, res) => {
 
 const updateName = async (req, res) => {
   try {
-    const userId = req.session.user._id;
+    const userId = req.session.user; // Session now stores just the ID
     const newName = req.body.newName.trim();
+
+    // Fetch current user to get current name
+    const currentUser = await User.findById(userId);
+    if (!currentUser) {
+      return res.redirect('/pageNotFound');
+    }
 
     if (!newName || newName.length < 3) {
       return res.render('changeName', {
-        currentName: req.session.user.name,
+        currentName: currentUser.name,
         message: 'Name must be at least 3 characters long'
       });
     }
@@ -312,8 +321,8 @@ const updateName = async (req, res) => {
       name: newName
     }, { new: true });
 
-    // Update session
-    req.session.user.name = updatedUser.name;
+    // Session stores only ID, no need to update session object
+    // User data is available via res.locals.user (set by setUserMiddleware)
 
     res.render('profile');
   } catch (err) {

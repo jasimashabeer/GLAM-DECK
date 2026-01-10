@@ -144,7 +144,7 @@ const salePrice = product.regularPrice - (product.regularPrice * totalOffer / 10
   
   const toggleWishlist = async (req, res) => {
       try {
-          const userId = req.session.user._id;
+          const userId = req.session.user; // Session now stores just the ID
           const productId = req.params.id;
       
           // Check if the product is already in the wishlist

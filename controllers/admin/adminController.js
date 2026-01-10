@@ -36,34 +36,46 @@ const login = async (req, res) => {
             return res.render('admin-login', { message: 'Incorrect password' });
         }
 
+        // Clear any existing user session when admin logs in
+        if (req.session.user) {
+            delete req.session.user;
+        }
+        if (req.session.userId) {
+            delete req.session.userId;
+        }
+
         req.session.admin = admin._id; 
 
-        return res.render('dashboard');
+        return res.redirect('dashboard');
     } catch (error) {
         console.log('Login error:', error);
         return res.redirect('/admin/pageerror');
     }
 };
 
-const loadDashboard=async(req,res)=>{
-    if(req.session.admin){
-        try {
-            res.render('dashboard')
-        } catch (error) {
-            res.redirect('/admin/pageerror')
-        }
-    }
-}
+
 
 const logout=async(req,res)=>{
     try {
-        req.session.destroy(err=>{
-            if(err){
-                console.log('Error destroying session',err)
-                return res.redirect('/admin/pageerror')
-            }
-            res.redirect('/admin/login')
-        })
+        // Clear only admin session, preserve user session if exists
+        // (though in practice, user and admin sessions should be mutually exclusive)
+        if (req.session.admin) {
+            delete req.session.admin;
+        }
+
+        // If no user session exists, destroy the entire session
+        if (!req.session.user) {
+            req.session.destroy(err=>{
+                if(err){
+                    console.log('Error destroying session',err)
+                    return res.redirect('/admin/pageerror')
+                }
+                res.redirect('/admin/login')
+            })
+        } else {
+            // If user session exists, just redirect (shouldn't happen, but handle it)
+            return res.redirect('/admin/login');
+        }
     } catch (error) {
         console.log('unexpected error during logout',error);
         res.redirect('/admin/pageerror')       
@@ -73,7 +85,6 @@ const logout=async(req,res)=>{
 module.exports={
     loadLogin,
     login,
-    loadDashboard,
     pageerror,
     logout
 }

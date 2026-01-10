@@ -2,6 +2,40 @@
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
 
+<style>
+  /* Ensure modals become visible when BS5 adds .show */
+  #addBalanceModal.modal.show,
+  #withdrawModal.modal.show {
+    display: block !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  
+  #addBalanceModal.modal.fade:not(.show),
+  #withdrawModal.modal.fade:not(.show) {
+    opacity: 0 !important;
+  }
+  
+  #addBalanceModal .modal-dialog,
+  #withdrawModal .modal-dialog {
+    transform: translate(0, 0) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  
+  #addBalanceModal.modal.show .modal-dialog,
+  #withdrawModal.modal.show .modal-dialog {
+    transform: translate(0, 0) !important;
+    opacity: 1 !important;
+    visibility: visible !important;
+  }
+  
+  /* Backdrop visibility */
+  .modal-backdrop.show {
+    opacity: 0.5 !important;
+    display: block !important;
+  }
+</style>
 
 <div class="container mt-1">
   <!-- Wallet Header -->
@@ -151,6 +185,104 @@
 </div>
 
 <script>
+  // ✅ Modal initialization and visibility fix
+  // Wait for both DOM and Bootstrap to be ready
+  function initModals() {
+    // Check if Bootstrap is loaded
+    if (typeof bootstrap === 'undefined') {
+      setTimeout(initModals, 100);
+      return;
+    }
+
+    const addBalanceModalEl = document.getElementById("addBalanceModal");
+    const withdrawModalEl = document.getElementById("withdrawModal");
+    const addBalanceBtn = document.querySelector('[data-bs-target="#addBalanceModal"]');
+    const withdrawBtn = document.querySelector('[data-bs-target="#withdrawModal"]');
+    
+    // Ensure modals initialize properly - Bootstrap will handle showing via data attributes
+    if (addBalanceModalEl) {
+      // Initialize modal instance if not already done
+      if (!bootstrap.Modal.getInstance(addBalanceModalEl)) {
+        new bootstrap.Modal(addBalanceModalEl, { backdrop: true, keyboard: true });
+      }
+    }
+
+    if (withdrawModalEl) {
+      // Initialize modal instance if not already done
+      if (!bootstrap.Modal.getInstance(withdrawModalEl)) {
+        new bootstrap.Modal(withdrawModalEl, { backdrop: true, keyboard: true });
+      }
+    }
+
+    // Ensure modals are visible when Bootstrap shows them
+    if (addBalanceModalEl) {
+      addBalanceModalEl.addEventListener("show.bs.modal", () => {
+        setTimeout(() => {
+          addBalanceModalEl.classList.add('show');
+          addBalanceModalEl.style.display = 'block';
+          addBalanceModalEl.style.opacity = '1';
+          addBalanceModalEl.style.visibility = 'visible';
+          const modalDialog = addBalanceModalEl.querySelector('.modal-dialog');
+          if (modalDialog) {
+            modalDialog.style.transform = 'translate(0, 0)';
+            modalDialog.style.opacity = '1';
+            modalDialog.style.visibility = 'visible';
+          }
+        }, 10);
+      });
+
+      addBalanceModalEl.addEventListener("shown.bs.modal", () => {
+        addBalanceModalEl.classList.add('show');
+        addBalanceModalEl.style.display = 'block';
+        addBalanceModalEl.style.opacity = '1';
+        addBalanceModalEl.style.visibility = 'visible';
+        const modalDialog = addBalanceModalEl.querySelector('.modal-dialog');
+        if (modalDialog) {
+          modalDialog.style.transform = 'translate(0, 0)';
+          modalDialog.style.opacity = '1';
+          modalDialog.style.visibility = 'visible';
+        }
+      });
+    }
+
+    if (withdrawModalEl) {
+      withdrawModalEl.addEventListener("show.bs.modal", () => {
+        setTimeout(() => {
+          withdrawModalEl.classList.add('show');
+          withdrawModalEl.style.display = 'block';
+          withdrawModalEl.style.opacity = '1';
+          withdrawModalEl.style.visibility = 'visible';
+          const modalDialog = withdrawModalEl.querySelector('.modal-dialog');
+          if (modalDialog) {
+            modalDialog.style.transform = 'translate(0, 0)';
+            modalDialog.style.opacity = '1';
+            modalDialog.style.visibility = 'visible';
+          }
+        }, 10);
+      });
+
+      withdrawModalEl.addEventListener("shown.bs.modal", () => {
+        withdrawModalEl.classList.add('show');
+        withdrawModalEl.style.display = 'block';
+        withdrawModalEl.style.opacity = '1';
+        withdrawModalEl.style.visibility = 'visible';
+        const modalDialog = withdrawModalEl.querySelector('.modal-dialog');
+        if (modalDialog) {
+          modalDialog.style.transform = 'translate(0, 0)';
+          modalDialog.style.opacity = '1';
+          modalDialog.style.visibility = 'visible';
+        }
+      });
+    }
+  }
+
+  // Initialize when DOM is ready
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initModals);
+  } else {
+    initModals();
+  }
+
   function setAmount(amount) {
     document.getElementById("amount").value = amount;
   }

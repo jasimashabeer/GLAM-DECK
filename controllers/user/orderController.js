@@ -1,5 +1,3 @@
-
-
 const Order    = require('../../models/orderSchema');
 const Product  = require('../../models/productSchema');
 const Address  = require('../../models/addressSchema');
@@ -45,7 +43,7 @@ const getItemRefund = (item) => {
 
 const loadOrders = async (req, res) => {
   try {
-    const userId = req.session.user._id;
+    const userId = req.session.user; // Session now stores just the ID
     const q      = req.query.search || '';
     const page   = +req.query.page || 1;
     const limit  = 3;
@@ -72,7 +70,7 @@ const loadOrders = async (req, res) => {
 
 const viewOrderDetails = async (req, res) => {
   try {
-    const userId = req.session.user._id;
+    const userId = req.session.user; // Session now stores just the ID
     const order  = await Order.findOne({ _id: req.params.id, user: userId })
                      .populate('orderedItems.product');
     if (!order) return res.status(404).render('404', { message: 'Order not found' });
@@ -89,7 +87,7 @@ const viewOrderDetails = async (req, res) => {
       order,
       
       selectedAddress,
-      user: req.session.user,
+      user: res.locals.user, // Use res.locals.user instead of req.session.user
       shippingCharge: 50,
     
     });
@@ -100,7 +98,7 @@ const viewOrderDetails = async (req, res) => {
 
 const getInvoice = async (req, res) => {
   try {
-    const userId = req.session.user._id;
+    const userId = req.session.user; // Session now stores just the ID
     const order  = await Order.findOne({ _id: req.params.id, user: userId })
                      .populate('orderedItems.product');
     if (!order) return res.status(404).render('404', { message: 'Order not found' });

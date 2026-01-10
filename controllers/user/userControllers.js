@@ -1,4 +1,3 @@
-
 const { text } = require('express');
 const User=require('../../models/userSchema')
 const Product=require('../../models/productSchema')
@@ -160,16 +159,16 @@ const verifyOtp= async(req,res)=>{
         phone:user.phone
       })
       await saveUserData.save()
-      // req.session.user=saveUserData._id
-
-     req.session.user = {
-  _id: saveUserData._id,
-  name: saveUserData.name,
-  email: saveUserData.email
-}
-
-
-      req.session.userId = saveUserData._id; 
+      
+      // Clear any existing admin session when user signs up
+      if (req.session.admin) {
+          delete req.session.admin;
+      }
+      
+      // Store only user ID in session (consistent with login)
+      req.session.user = saveUserData._id;
+      req.session.userId = saveUserData._id; // Keep for backward compatibility if needed
+      
       res.json({success:true,redirectUrl:'/'})
     }else{
       res.json({success:false,message:"Invalied OTP, please try again"})
@@ -212,7 +211,8 @@ const loadlogin= async (req,res)=>{
     if(!req.session.user){
       return res.render('login')
     }
-    const user = await User.findById(req.session.user._id);
+    // req.session.user is now just the ID, not an object
+    const user = await User.findById(req.session.user);
     console.log(user)
 
         if (user && user.isBlocked) {
@@ -232,7 +232,7 @@ const loadlogin= async (req,res)=>{
 const login = async(req,res)=>{
   try {
       const {email,password} = req.body
-      const findUser = await User.findOne({isAdmin:0, email:email});
+      const findUser = await User.findOne({isAdmin: false, email: email});
       if(!findUser){
           return res.render('login',{message:'User not found'});
       }
@@ -246,14 +246,15 @@ const login = async(req,res)=>{
       if(!passwordMatch){
           return res.render('login',{message:'Incorrect password'});
       }
-      req.session.userId = findUser._id; 
-      req.session.user = {
-        _id: findUser._id,
-        name: findUser.name,
-        email: findUser.email,
-        isAdmin: findUser.isAdmin
-        // Add other fields like phone, etc. if needed
-      };
+      
+      // Clear any existing admin session when user logs in
+      if (req.session.admin) {
+          delete req.session.admin;
+      }
+      
+      // Store only user ID in session (consistent with admin session)
+      req.session.user = findUser._id;
+      req.session.userId = findUser._id; // Keep for backward compatibility if needed
       
       // res.render('home')
       res.redirect('/')
@@ -284,19 +285,26 @@ const showproducts= async (req,res)=>{
 
 const logout=async(req,res)=>{
   try{
- // req.session.destroy()
+    // Clear only user session, preserve admin session if exists
+    // (though in practice, user and admin sessions should be mutually exclusive)
+    if (req.session.user) {
+        delete req.session.user;
+        delete req.session.userId;
+    }
 
-  req.session.destroy((err) => {
-  if (err) {
-console.log(err);
-  res.redirect('/pageNotFound');
-  }
- // res.clearCookie('connect.sid');
-return res.redirect('/login')
-});
-
-
-  
+    // If no admin session exists, destroy the entire session
+    if (!req.session.admin) {
+        req.session.destroy((err) => {
+            if (err) {
+                console.log(err);
+                return res.redirect('/pageNotFound');
+            }
+            return res.redirect('/login');
+        });
+    } else {
+        // If admin session exists, just redirect (shouldn't happen, but handle it)
+        return res.redirect('/login');
+    }
   }catch(error){
     console.log('Unexpected logout error:', error);
     res.redirect('/pageNotFound');

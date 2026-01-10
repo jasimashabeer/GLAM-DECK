@@ -230,7 +230,44 @@ const updateQuantity = async (req, res) => {
 };
 
 
+const checkStockOnly = async (req, res) => {
+  try {
+    const userId = req.session.user;
+
+    const cart = await Cart.findOne({ userId }).populate('items.productId');
+
+    if (!cart || !cart.items.length) {
+      return res.json({ ok: true });
+    }
+
+    const stockIssues = cart.items.filter(item =>
+      item.productId && item.quantity > item.productId.quantity
+    );
+
+    if (stockIssues.length > 0) {
+      return res.json({
+        ok: false,
+        products: stockIssues.map(i => ({
+          name: i.productId.productName,
+          available: i.productId.quantity
+        }))
+      });
+    }
+
+    return res.json({ ok: true });
+  } catch (err) {
+    console.error("Stock check error:", err);
+    res.status(500).json({ ok: false });
+  }
+};
+
+
+
+
+
+
+
 module.exports = {
-  loadCartPage,addToCart,checkBlockedCart,removeProduct,updateQuantity
+  loadCartPage,addToCart,checkBlockedCart,removeProduct,updateQuantity,checkStockOnly
 
 };

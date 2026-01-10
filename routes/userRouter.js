@@ -100,6 +100,11 @@ router.post('/update-quantity',userAuth,cartControllers.updateQuantity)
 router.get("/cart/check-blocked", cartControllers.checkBlockedCart);
 
 
+router.get('/cart/check-stock', cartControllers.checkStockOnly);
+
+
+
+
 // checkout management
 
 router.get('/checkout',userAuth,checkoutController.checkoutPage)
