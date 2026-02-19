@@ -10,20 +10,20 @@ const userAuth = async (req, res, next) => {
             return res.redirect("/login"); 
         }
 
-        // Ensure no admin session exists (prevent cross-access)
-        if (req.session.admin) {
-            // Clear admin session if user session exists
-            delete req.session.admin;
-        }
-
         const user = await User.findById(req.session.user);
 
         // Verify user exists, is not blocked, and is NOT an admin
         if (user && !user.isBlocked && !user.isAdmin) {
+            // Allow access - both user and admin sessions can coexist
+            // We don't check or modify admin session here to prevent interference
+            // Sessions are separate and should not affect each other during normal operations
             next(); 
         } else {
-            // Clear invalid session
+            // Clear invalid user session only - preserve admin session if it exists
             req.session.user = null;
+            if (req.session.userId) {
+                delete req.session.userId;
+            }
             res.redirect("/login"); 
         }
     } catch (error) {
@@ -43,20 +43,16 @@ const adminAuth = async (req, res, next) => {
             return res.redirect("/admin/login");  
         }
 
-        // Ensure no user session exists (prevent cross-access)
-        if (req.session.user) {
-            // Clear user session if admin session exists
-            delete req.session.user;
-            delete req.session.userId;
-        }
-
         const adminUser = await User.findById(req.session.admin);
         
         // Verify admin exists and is actually an admin
         if (adminUser && adminUser.isAdmin) {
+            // Allow access - both user and admin sessions can coexist
+            // We don't check or modify user session here to prevent interference
+            // Sessions are separate and should not affect each other during normal operations
             return next(); 
         } else {
-            // Clear invalid session
+            // Clear invalid admin session only - preserve user session if it exists
             req.session.admin = null;
             console.log("admin not found or not authorized...")
             return res.redirect("/admin/login"); 

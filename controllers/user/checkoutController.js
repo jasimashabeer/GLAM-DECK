@@ -14,6 +14,11 @@ const rzp = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
+
+
+
+
+
 const getCartTotal = (cartItems) => {
   return cartItems.reduce((total, item) => {
     return total + item.quantity * item.product.salePrice;
@@ -155,6 +160,22 @@ const placeOrder = async (req, res) => {
     const totalPrice  = cart.items.reduce((sum, i) => sum + i.totalPrice, 0);
     const finalAmount = totalPrice + SHIPPING - couponDiscount;
 
+    // ───── COUPON SNAPSHOT  ─────>>>>>>>>>>>
+let couponCode = null;
+let couponMinimumPrice = 0;
+
+if (req.session.appliedCoupon) {
+  const coupon = await Coupon.findOne({
+    couponName: req.session.appliedCoupon
+  });
+
+  if (coupon) {
+    couponCode = coupon.couponName;
+    couponMinimumPrice = coupon.minimumPrice;
+  }
+}
+
+
 if (paymentMethod === 'Cash On Delivery' && finalAmount > 1000) {
   return res.status(400).json({ status: false, message: 'COD is only available for orders up to ₹1000.' });
 }
@@ -210,8 +231,14 @@ if (paymentMethod === 'Wallet') {
         }
       }
     }
+    // Preserve admin session before deleting coupon data
+    const walletAdminSession = req.session.admin;
     delete req.session.appliedCoupon;
     delete req.session.discountAmount;
+    // Restore admin session if it existed
+    if (walletAdminSession) {
+      req.session.admin = walletAdminSession;
+    }
   }
 
   for (const i of cart.items) {
@@ -237,6 +264,10 @@ if (paymentMethod === 'Wallet') {
       address: selectedAddress,
       status : paymentMethod === 'Cash On Delivery' ? 'Confirmed' : 'Pending',
       paymentMethod,
+      couponCode,
+couponMinimumPrice,
+couponStatus: !!couponCode,
+
       createdOn: new Date(),
       couponStatus: !!couponDiscount          // just a flag
     });
@@ -280,8 +311,14 @@ if (req.session.appliedCoupon) {
       }
     }
   }
+  // Preserve admin session before deleting coupon data
+  const codAdminSession = req.session.admin;
   delete req.session.appliedCoupon;
   delete req.session.discountAmount;
+  // Restore admin session if it existed
+  if (codAdminSession) {
+    req.session.admin = codAdminSession;
+  }
 }
 
 
@@ -380,8 +417,14 @@ if (req.session.appliedCoupon) {
       }
     }
   }
+  // Preserve admin session before deleting coupon data
+  const razorpayAdminSession = req.session.admin;
   delete req.session.appliedCoupon;
   delete req.session.discountAmount;
+  // Restore admin session if it existed
+  if (razorpayAdminSession) {
+    req.session.admin = razorpayAdminSession;
+  }
 }
 
 
@@ -484,9 +527,14 @@ const removeCoupon = async (req, res) => {
       0
     );
 
-    // wipe session
+    // wipe session - preserve admin session before deleting coupon data
+    const removeCouponAdminSession = req.session.admin;
     delete req.session.appliedCoupon;
     delete req.session.discountAmount;
+    // Restore admin session if it existed
+    if (removeCouponAdminSession) {
+      req.session.admin = removeCouponAdminSession;
+    }
 
     res.json({
       ok: true,

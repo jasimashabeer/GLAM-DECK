@@ -1,96 +1,957 @@
-<!DOCTYPE html> 
-<html>
+<!DOCTYPE html>
+<html lang="en">
 <head>
-	
-		<link rel="icon" type="image/jpeg" href="images/favicon.jpg">
-	
-	
-<title>Gems Of Elegance</title>
-<!-- for-mobile-apps -->
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<meta name="keywords" content="Pendent Store Responsive web template, Bootstrap Web Templates, Flat Web Templates, Andriod Compatible web template, 
-Smartphone Compatible web template, free webdesigns for Nokia, Samsung, LG, SonyErricsson, Motorola web design" />
-<meta http-equiv="Cache-Control" content="no-store, no-cache, must-revalidate, max-age=0">
-<meta http-equiv="Pragma" content="no-cache">
-<meta http-equiv="Expires" content="0">
-<script type="application/x-javascript"> addEventListener("load", function() { setTimeout(hideURLbar, 0); }, false);
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sales Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
+    body {
+      font-family: 'Inter', sans-serif;
+      background: #f5f3f0;
+      color: #2d3748;
+      font-size: 14px;
+    }
 
-		function hideURLbar(){ window.scrollTo(0,1); } </script>
-<!-- //for-mobile-apps -->
-<link href="/css/bootstrap.css" rel="stylesheet" type="text/css" media="all" />
-<link href="/css/style.css" rel="stylesheet" type="text/css" media="all" /> 
-<link href="/css/userheader.css" rel="stylesheet" type="text/css">
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    .dashboard-wrapper {
+      display: flex;
+      min-height: 100vh;
+      background: #f5f3f0;
+    }
 
-<!-- js -->
-<script src="js/jquery-1.11.1.min.js"></script>
-<!-- //js -->
-<!-- start-smoth-scrolling -->
-<script type="text/javascript" src="js/move-top.js"></script>
-<script type="text/javascript" src="js/easing.js"></script>
-<script type="text/javascript">
-	jQuery(document).ready(function($) {
-		$(".scroll").click(function(event){		
-			event.preventDefault();
-			$('html,body').animate({scrollTop:$(this.hash).offset().top},1000);
-		});
-	});
-</script>
-<!-- start-smoth-scrolling -->
-<!-- start menu -->
-<link href="/css/megamenu.css" rel="stylesheet" type="text/css" media="all" />
-<script type="text/javascript" src="js/megamenu.js"></script>
-<script>$(document).ready(function(){$(".megamenu").megamenu();});</script>
-<script src="js/menu_jquery.js"></script>
-<script src="js/simpleCart.min.js"> </script>
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-<link href='//fonts.googleapis.com/css?family=Monda:400,700' rel='stylesheet' type='text/css'>
+    .sidebar {
+      width: 240px;
+      background: #fef6f0;
+      padding: 2rem 0;
+      flex-shrink: 0;
+    }
 
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0 1.5rem;
+      margin-bottom: 2rem;
+    }
 
+    .logo-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #ff8c42 0%, #ff6b35 100%);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      color: white;
+      font-size: 18px;
+    }
+
+    .logo-text {
+      font-size: 20px;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .nav-menu {
+      list-style: none;
+    }
+
+    .nav-item {
+      margin-bottom: 0.25rem;
+    }
+
+    .nav-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      color: #718096;
+      text-decoration: none;
+      transition: all 0.2s;
+      font-size: 14px;
+      font-weight: 500;
+    }
+
+    .nav-link.active {
+      background: #ff8c42;
+      color: white;
+      border-radius: 0;
+    }
+
+    .nav-link.active .nav-icon {
+      color: white;
+    }
+
+    .nav-link:hover {
+      background: rgba(255, 140, 66, 0.1);
+    }
+
+    .nav-icon {
+      width: 18px;
+      height: 18px;
+      color: #a0aec0;
+    }
+
+    .nav-submenu {
+      padding-left: 2rem;
+    }
+
+    .logout-link {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      padding: 0.75rem 1.5rem;
+      color: #ff8c42;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      margin-top: 2rem;
+    }
+
+    .main-content {
+      flex: 1;
+      background: #fef6f0;
+      padding: 1.5rem 2rem;
+      overflow-x: hidden;
+    }
+
+    .top-bar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 2rem;
+      padding-bottom: 1.5rem;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .page-title {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .top-bar-right {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+    }
+
+    .search-box {
+      position: relative;
+    }
+
+    .search-input {
+      width: 280px;
+      padding: 0.6rem 1rem 0.6rem 2.5rem;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      font-size: 14px;
+      background: white;
+      outline: none;
+    }
+
+    .search-icon {
+      position: absolute;
+      left: 0.75rem;
+      top: 50%;
+      transform: translateY(-50%);
+      color: #a0aec0;
+      width: 16px;
+      height: 16px;
+    }
+
+    .user-profile {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+    }
+
+    .user-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+    }
+
+    .user-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .stat-card {
+      background: white;
+      padding: 1.5rem;
+      border-radius: 16px;
+      border: 1px solid #e8e8e8;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .stat-icon {
+      width: 60px;
+      height: 60px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+
+    .stat-icon.green {
+      background: linear-gradient(135deg, #4ecca3 0%, #2ecc71 100%);
+      color: white;
+    }
+
+    .stat-icon.blue {
+      background: linear-gradient(135deg, #56ccf2 0%, #2d9cdb 100%);
+      color: white;
+    }
+
+    .stat-icon.red {
+      background: linear-gradient(135deg, #ff6b9d 0%, #ee5a6f 100%);
+      color: white;
+    }
+
+    .stat-content {
+      flex: 1;
+    }
+
+    .stat-label {
+      font-size: 13px;
+      color: #718096;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-value {
+      font-size: 24px;
+      font-weight: 700;
+      color: #2d3748;
+      margin-bottom: 0.25rem;
+    }
+
+    .stat-change {
+      font-size: 12px;
+      color: #ff8c42;
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .stat-date {
+      font-size: 12px;
+      color: #a0aec0;
+      text-align: right;
+    }
+
+    .dashboard-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .card {
+      background: white;
+      border-radius: 16px;
+      border: 1px solid #e8e8e8;
+      overflow: hidden;
+    }
+
+    .card-header {
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid #e8e8e8;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .card-title {
+      font-size: 16px;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .card-legend {
+      display: flex;
+      gap: 1.5rem;
+      font-size: 12px;
+    }
+
+    .legend-item {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .legend-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .legend-dot.orange {
+      background: #ff8c42;
+    }
+
+    .legend-dot.green {
+      background: #4ecca3;
+    }
+
+    .card-body {
+      padding: 1.5rem;
+    }
+
+    .revenue-chart {
+      position: relative;
+      height: 280px;
+    }
+
+    .chart-tooltip {
+      position: absolute;
+      top: 20px;
+      left: 80px;
+      background: #1a202c;
+      color: white;
+      padding: 0.5rem 0.75rem;
+      border-radius: 8px;
+      font-size: 12px;
+    }
+
+    .chart-label {
+      font-size: 10px;
+      color: #a0aec0;
+      margin-bottom: 0.25rem;
+    }
+
+    .chart-value {
+      font-size: 16px;
+      font-weight: 600;
+    }
+
+    .chart-svg {
+      width: 100%;
+      height: 100%;
+    }
+
+    .visitors-chart {
+      height: 180px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .donut-chart {
+      width: 150px;
+      height: 150px;
+      position: relative;
+    }
+
+    .donut-center {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+    }
+
+    .donut-value {
+      font-size: 32px;
+      font-weight: 700;
+      color: #2d3748;
+    }
+
+    .visitor-stats {
+      margin-top: 2rem;
+    }
+
+    .visitor-stat-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 1rem;
+    }
+
+    .visitor-stat-label {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 13px;
+      color: #718096;
+    }
+
+    .visitor-stat-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+    }
+
+    .visitor-stat-dot.orange {
+      background: #ff8c42;
+    }
+
+    .visitor-stat-dot.green {
+      background: #4ecca3;
+    }
+
+    .visitor-stat-dot.blue {
+      background: #56ccf2;
+    }
+
+    .visitor-stat-dot.red {
+      background: #ff6b9d;
+    }
+
+    .visitor-stat-value {
+      font-size: 14px;
+      font-weight: 600;
+      color: #2d3748;
+    }
+
+    .bottom-grid {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1.5rem;
+    }
+
+    .products-table {
+      width: 100%;
+    }
+
+    .products-table thead th {
+      text-align: left;
+      padding: 1rem;
+      font-size: 13px;
+      font-weight: 600;
+      color: #2d3748;
+      border-bottom: 1px solid #e8e8e8;
+    }
+
+    .products-table tbody td {
+      padding: 1rem;
+      font-size: 13px;
+      color: #718096;
+      border-bottom: 1px solid #f7fafc;
+    }
+
+    .product-cell {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .product-icon {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      flex-shrink: 0;
+    }
+
+    .product-icon.yellow {
+      background: #fff9e6;
+    }
+
+    .product-icon.cyan {
+      background: #e6f7ff;
+    }
+
+    .product-icon.green {
+      background: #e6f9f0;
+    }
+
+    .product-icon.lime {
+      background: #f0ffe6;
+    }
+
+    .product-icon.red {
+      background: #ffe6eb;
+    }
+
+    .product-info {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .product-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 0.15rem;
+    }
+
+    .product-desc {
+      font-size: 12px;
+      color: #a0aec0;
+    }
+
+    .table-footer {
+      padding: 1rem 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      border-top: 1px solid #e8e8e8;
+    }
+
+    .table-info {
+      font-size: 13px;
+      color: #718096;
+    }
+
+    .pagination {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .page-btn {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: #718096;
+      cursor: pointer;
+      font-size: 13px;
+      font-weight: 500;
+    }
+
+    .page-btn.active {
+      background: #ff8c42;
+      color: white;
+    }
+
+    .side-panel-grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .customer-list {
+      margin-top: 1rem;
+    }
+
+    .customer-item {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0.75rem 0;
+    }
+
+    .customer-info {
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .customer-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      flex-shrink: 0;
+    }
+
+    .customer-avatar.pink {
+      background: linear-gradient(135deg, #ff6b9d 0%, #c44569 100%);
+    }
+
+    .customer-avatar.yellow {
+      background: linear-gradient(135deg, #f7b731 0%, #f79f1f 100%);
+    }
+
+    .customer-avatar.green {
+      background: linear-gradient(135deg, #4ecca3 0%, #2ecc71 100%);
+    }
+
+    .customer-avatar.peach {
+      background: linear-gradient(135deg, #ff9a76 0%, #ee5a6f 100%);
+    }
+
+    .customer-details {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .customer-name {
+      font-size: 14px;
+      font-weight: 600;
+      color: #2d3748;
+      margin-bottom: 0.15rem;
+    }
+
+    .customer-location {
+      font-size: 12px;
+      color: #a0aec0;
+    }
+
+    .customer-action {
+      width: 32px;
+      height: 32px;
+      border-radius: 8px;
+      background: #fff4e6;
+      color: #ff8c42;
+      border: none;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 16px;
+    }
+
+    .buyers-chart {
+      height: 160px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      margin: 1.5rem 0;
+    }
+
+    .card-actions {
+      cursor: pointer;
+      color: #a0aec0;
+      font-size: 18px;
+    }
+  </style>
 </head>
-	
 <body>
+  <div class="dashboard-wrapper">
+    <aside class="sidebar">
+      <div class="logo">
+        <div class="logo-icon">≡</div>
+        <span class="logo-text">Elegent</span>
+      </div>
+      <ul class="nav-menu">
+        <li class="nav-item">
+          <a href="#" class="nav-link active">
+            <span class="nav-icon">🏠</span>
+            <span>Home</span>
+          </a>
+          <ul class="nav-submenu">
+            <li class="nav-item">
+              <a href="#" class="nav-link">Dashboard</a>
+            </li>
+            <li class="nav-item">
+              <a href="#" class="nav-link">Sales</a>
+            </li>
+          </ul>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <span class="nav-icon">📄</span>
+            <span>Pages</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <span class="nav-icon">▦</span>
+            <span>Applications</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <span class="nav-icon">🛒</span>
+            <span>Ecommerce</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <span class="nav-icon">🔒</span>
+            <span>Authentication</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <span class="nav-icon">🔔</span>
+            <span>Notification</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <span class="nav-icon">📅</span>
+            <span>Calendar</span>
+          </a>
+        </li>
+        <li class="nav-item">
+          <a href="#" class="nav-link">
+            <span class="nav-icon">💬</span>
+            <span>Message</span>
+          </a>
+        </li>
+      </ul>
+      <a href="#" class="logout-link">
+        <span>⎋</span>
+        <span>Logout</span>
+      </a>
+    </aside>
 
-<div class="top_bg">
-	<div class="container">
-		<div class="header_top-sec">
-			<div class="top_right">
-				<ul>
-					<li><a href="contact.html"></a></li>
-					<li><a href="login.html"></a></li>
-                      <div class="logo">
-            <a style="color: aliceblue;" href="/">Glam Deck</a>			 
+    <main class="main-content">
+      <div class="top-bar">
+        <h1 class="page-title">Sales</h1>
+        <div class="top-bar-right">
+          <div class="search-box">
+            <span class="search-icon">🔍</span>
+            <input type="text" class="search-input" placeholder="Search...">
+          </div>
+          <div class="user-profile">
+            <div class="user-avatar"></div>
+            <span class="user-name">Aiden Max</span>
+            <span>▼</span>
+          </div>
         </div>
-				</ul>
-			</div>
-			
-			<div class="clearfix"> </div>
-		</div>
-	</div>
-</div>
+      </div>
 
-<div class="header_top">
-    <div class="container">
-      
-        <div class="header_right">
-           
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon green">🏷️</div>
+          <div class="stat-content">
+            <div class="stat-label">Sales</div>
+            <div class="stat-value">$230,220</div>
+            <div class="stat-change">↗ +55% last month</div>
+          </div>
+          <div class="stat-date">May 2022</div>
         </div>
-        <div class="clearfix"></div>	
-    </div>
-</div>
+        <div class="stat-card">
+          <div class="stat-icon blue">👥</div>
+          <div class="stat-content">
+            <div class="stat-label">Customers</div>
+            <div class="stat-value">3,200</div>
+            <div class="stat-change">↗ +12% last month</div>
+          </div>
+          <div class="stat-date">May 2022</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red">💲</div>
+          <div class="stat-content">
+            <div class="stat-label">Avg Revenue</div>
+            <div class="stat-value">$2,300</div>
+            <div class="stat-change">↗ +210% last month</div>
+          </div>
+          <div class="stat-date">May 2022</div>
+        </div>
+      </div>
 
-		
-	
-<div class="mega_nav">
-	 <div class="container">
-		 <div class="menu_sec">
-		 
-		
-	
-		
-			<div class="clearfix"></div>
-		 </div>
-	  </div>
-</div>
+      <div class="dashboard-grid">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Revenue</h3>
+            <div class="card-legend">
+              <div class="legend-item">
+                <span class="legend-dot orange"></span>
+                <span>Facebook ads</span>
+              </div>
+              <div class="legend-item">
+                <span class="legend-dot green"></span>
+                <span>Google ads</span>
+              </div>
+            </div>
+          </div>
+          <div class="card-body">
+            <div class="revenue-chart">
+              <div class="chart-tooltip">
+                <div class="chart-label">Feb</div>
+                <div class="chart-value">$210</div>
+              </div>
+              <svg class="chart-svg" viewBox="0 0 600 250">
+                <line x1="50" y1="220" x2="550" y2="220" stroke="#e8e8e8" stroke-width="1"/>
+                <text x="30" y="30" font-size="10" fill="#a0aec0">400</text>
+                <text x="30" y="110" font-size="10" fill="#a0aec0">200</text>
+                <text x="40" y="230" font-size="10" fill="#a0aec0">0</text>
+                <text x="60" y="240" font-size="10" fill="#a0aec0">Jan</text>
+                <text x="140" y="240" font-size="10" fill="#a0aec0">Feb</text>
+                <text x="220" y="240" font-size="10" fill="#a0aec0">Mar</text>
+                <text x="300" y="240" font-size="10" fill="#a0aec0">Apr</text>
+                <text x="380" y="240" font-size="10" fill="#a0aec0">May</text>
+                <text x="460" y="240" font-size="10" fill="#a0aec0">Jun</text>
+                <text x="520" y="240" font-size="10" fill="#a0aec0">Jul</text>
+                <text x="570" y="240" font-size="10" fill="#a0aec0">Aug</text>
+                <path d="M 60,180 Q 100,120 140,100 T 220,140 T 300,160 T 380,190 T 460,200 T 520,180" fill="none" stroke="#4ecca3" stroke-width="3"/>
+                <path d="M 60,200 Q 100,160 140,130 T 220,80 T 300,120 T 380,140 T 460,160 T 520,120" fill="none" stroke="#ff8c42" stroke-width="3"/>
+                <line x1="140" y1="30" x2="140" y2="220" stroke="#e8e8e8" stroke-width="1" stroke-dasharray="4"/>
+              </svg>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Website Visitors</h3>
+          </div>
+          <div class="card-body">
+            <div class="visitors-chart">
+              <svg width="150" height="150" viewBox="0 0 150 150">
+                <circle cx="75" cy="75" r="60" fill="none" stroke="#4ecca3" stroke-width="20" stroke-dasharray="113 377" transform="rotate(-90 75 75)"/>
+                <circle cx="75" cy="75" r="60" fill="none" stroke="#56ccf2" stroke-width="20" stroke-dasharray="102 377" stroke-dashoffset="-113" transform="rotate(-90 75 75)"/>
+                <circle cx="75" cy="75" r="60" fill="none" stroke="#ff8c42" stroke-width="20" stroke-dasharray="60 377" stroke-dashoffset="-215" transform="rotate(-90 75 75)"/>
+                <circle cx="75" cy="75" r="60" fill="none" stroke="#ff6b9d" stroke-width="20" stroke-dasharray="102 377" stroke-dashoffset="-275" transform="rotate(-90 75 75)"/>
+              </svg>
+              <div class="donut-center">
+                <div class="donut-value">18K</div>
+              </div>
+            </div>
+            <div class="visitor-stats">
+              <div class="visitor-stat-item">
+                <div class="visitor-stat-label">
+                  <span class="visitor-stat-dot orange"></span>
+                  <span>Direct</span>
+                </div>
+                <span class="visitor-stat-value">43%</span>
+              </div>
+              <div class="visitor-stat-item">
+                <div class="visitor-stat-label">
+                  <span class="visitor-stat-dot green"></span>
+                  <span>Organic</span>
+                </div>
+                <span class="visitor-stat-value">27%</span>
+              </div>
+              <div class="visitor-stat-item">
+                <div class="visitor-stat-label">
+                  <span class="visitor-stat-dot blue"></span>
+                  <span>Paid</span>
+                </div>
+                <span class="visitor-stat-value">16%</span>
+              </div>
+              <div class="visitor-stat-item">
+                <div class="visitor-stat-label">
+                  <span class="visitor-stat-dot red"></span>
+                  <span>Social</span>
+                </div>
+                <span class="visitor-stat-value">33%</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="bottom-grid">
+        <div class="card">
+          <div class="card-header">
+            <h3 class="card-title">Top Selling Product</h3>
+          </div>
+          <div class="card-body" style="padding: 0;">
+            <table class="products-table">
+              <thead>
+                <tr>
+                  <th>Product</th>
+                  <th>Orders</th>
+                  <th>Price</th>
+                  <th>Ads spent</th>
+                  <th>Refunds</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>
+                    <div class="product-cell">
+                      <div class="product-icon yellow">👟</div>
+                      <div class="product-info">
+                        <div class="product-name">Nike v22</div>
+                        <div class="product-desc">Running Shoes</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>8000</td>
+                  <td>$130</td>
+                  <td>$9,500</td>
+                  <td>> 13</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="product-cell">
+                      <div class="product-icon cyan">📷</div>
+                      <div class="product-info">
+                        <div class="product-name">Instax Camera</div>
+                        <div class="product-desc">Portable camera</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>3000</td>
+                  <td>$45</td>
+                  <td>$4,500</td>
+                  <td>> 18</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="product-cell">
+                      <div class="product-icon green">🪑</div>
+                      <div class="product-info">
+                        <div class="product-name">Chair</div>
+                        <div class="product-desc">Relaxing chair</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>6000</td>
+                  <td>$80</td>
+                  <td>$5,800</td>
+                  <td>< 11</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="product-cell">
+                      <div class="product-icon lime">💻</div>
+                      <div class="product-info">
+                        <div class="product-name">Laptop</div>
+                        <div class="product-desc">Macbook pro 13</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>4000</td>
+                  <td>$500</td>
+                  <td>$4,700</td>
+                  <td>> 18</td>
+                </tr>
+                <tr>
+                  <td>
+                    <div class="product-cell">
+                      <div class="product-icon red">⌚</div>
+                      <div class="product-info">
+                        <div class="product-name">Watch</div>
+                        <div class="product-desc">Digital watch</div>
+                      </div>
+                    </div>
+                  </td>
+                  <td>2000</td>
+                  <td>$15</td>
+                  <td>$2,500</td>
+                  <td>< 10</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="table-footer">
+            <div class="table-info">Showing 5 of 5 products</div>
+            <div class="pagination">
+              <button class="page-btn">Prev</button>
+              <button class="page-btn active">1</button>
+              <button class="page-btn">2</button>
+              <button class="page-btn">Next</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="side-panel-grid">
+          <div class="card">
+            <div class="card-header">
+              <h3 class="card-title">New Customers</h3>
+              <span class="card-actions">⋯</span>
+            </div>
+            <div class

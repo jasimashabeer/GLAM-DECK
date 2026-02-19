@@ -8,8 +8,8 @@ const productSchema = new Schema({
     trim: true
   },
   author: {
-    type: String,
-    required: true
+    type: String
+   
   },
   description: {
     type: String,

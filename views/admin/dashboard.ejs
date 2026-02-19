@@ -1,24 +1,300 @@
 <%- include("../../views/partials/admin/header") %>
 <style>
-  /* ---------- colours / base ---------- */
+  /* ---------- Soft Peach/Cream Color Palette ---------- */
   :root{
-    --primary:#4e73df;--secondary:#f8f9fc;--text:#5a5c69;
-    --success:#1cc88a;--warning:#f6c23e;--danger:#e74a3b;--info:#36b9cc;
+    --primary: #FF8C42;
+    --primary-light: #FFB27D;
+    --secondary: #FFF5E6;
+    --accent-green: #4ECDC4;
+    --accent-blue: #45B7D1;
+    --accent-pink: #FF6B9D;
+    --accent-red: #FF5757;
+    --text-dark: #2C3E50;
+    --text-light: #95A5A6;
+    --bg-cream: #FFF8F0;
+    --bg-white: #FFFFFF;
+    --card-shadow: 0 2px 20px rgba(0, 0, 0, 0.08);
+    --card-shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
   }
-  body{background:#f8f9fc;color:var(--text);font-family:'Nunito',sans-serif;}
-  /* ---------- cards ---------- */
-  .card{border:none;border-radius:.5rem;box-shadow:0 .15rem 1.75rem rgba(58,59,69,.1);margin-bottom:1.5rem}
-  .card-header{background:#fff;border-bottom:1px solid #e3e6f0;padding:1rem 1.25rem}
-  .chart-container{position:relative;height:18rem;margin-bottom:1rem}
-  .dashboard-header{color:#2e59d9;font-weight:700}
-  /* ---------- filter badge ---------- */
-  .filter-card{border:none;border-radius:.5rem;box-shadow:0 .15rem 1.75rem rgba(58,59,69,.1);background:#fff;padding:1rem}
-  .period-indicator{font-size:.85rem;color:#858796}
+  
+  /* ---------- Clean Background ---------- */
+  body{
+    background: #F5F0E8;
+    color: var(--text-dark);
+    font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  #page-top {
+    padding: 2rem 1.5rem;
+    position: relative;
+    z-index: 1;
+  }
+
+  /* ---------- Dashboard Header ---------- */
+  .dashboard-header-wrapper {
+    background: var(--bg-white);
+    padding: 1.5rem 2rem;
+    border-radius: 1.25rem;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 1.5rem;
+    animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  @keyframes slideDown {
+    from {
+      opacity: 0;
+      transform: translateY(-30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .dashboard-header{
+    color: var(--text-dark);
+    font-weight: 700;
+    font-size: 2rem;
+    margin: 0;
+    letter-spacing: -0.5px;
+  }
+
+  /* ---------- Clean Filter Form ---------- */
+  .input-group {
+    background: var(--bg-white);
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+    border: 1px solid #E8E8E8;
+    transition: all 0.3s ease;
+  }
+
+  .input-group:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    border-color: var(--primary-light);
+  }
+
+  .input-group-text {
+    background: var(--primary) !important;
+    border: none;
+    padding: 0.7rem 1rem;
+    transition: all 0.3s ease;
+  }
+
+  .form-select {
+    border: none;
+    padding: 0.7rem 1rem;
+    font-weight: 600;
+    background: transparent;
+    color: var(--text-dark);
+    transition: all 0.3s ease;
+    cursor: pointer;
+  }
+
+  .form-select:focus {
+    box-shadow: none;
+    outline: none;
+  }
+
+  /* ---------- Filter Badge Card ---------- */
+  .filter-card{
+    border: none;
+    border-radius: 12px;
+    box-shadow: var(--card-shadow);
+    background: var(--bg-white);
+    padding: 1.25rem 1.5rem;
+    position: relative;
+    overflow: hidden;
+    animation: fadeInScale 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s backwards;
+    border-left: 4px solid var(--primary);
+  }
+
+  @keyframes fadeInScale {
+    from {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  .period-indicator{
+    font-size: 0.95rem;
+    color: var(--text-dark);
+    font-weight: 600;
+    margin: 0;
+  }
+
+  .period-indicator strong {
+    color: var(--primary);
+    font-weight: 700;
+  }
+
+  .period-indicator i {
+    color: var(--primary);
+  }
+
+  /* ---------- Clean Modern Cards ---------- */
+  .card{
+    border: none;
+    border-radius: 1.25rem;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 1.5rem;
+    overflow: hidden;
+    transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    animation: fadeInUp 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+    background: var(--bg-white);
+    position: relative;
+  }
+
+  .card:hover {
+    transform: translateY(-6px);
+    box-shadow: var(--card-shadow-hover);
+  }
+
+  .card:nth-child(1) { animation-delay: 0.2s; }
+  .card:nth-child(2) { animation-delay: 0.3s; }
+
+  .card-header{
+    background: var(--bg-white);
+    border-bottom: 1px solid #F0F0F0;
+    padding: 1.25rem 1.5rem;
+    position: relative;
+  }
+
+  .card-header h6 {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin: 0;
+    letter-spacing: -0.3px;
+    color: var(--text-dark);
+  }
+
+  .card-body {
+    background: var(--bg-white);
+    padding: 1.5rem;
+  }
+
+  .chart-container{
+    position: relative;
+    height: 18rem;
+    margin-bottom: 1rem;
+    padding: 0.5rem;
+    animation: chartFadeIn 0.8s ease-out 0.4s backwards;
+  }
+
+  @keyframes chartFadeIn {
+    from {
+      opacity: 0;
+      transform: scale(0.98);
+    }
+    to {
+      opacity: 1;
+      transform: scale(1);
+    }
+  }
+
+  /* ---------- Animations ---------- */
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translateY(30px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  /* ---------- Scroll to Top Button ---------- */
+  .scroll-to-top {
+    position: fixed;
+    right: 2rem;
+    bottom: 2rem;
+    width: 3rem;
+    height: 3rem;
+    background: var(--primary);
+    color: #fff;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 4px 20px rgba(255, 140, 66, 0.3);
+    transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+    z-index: 1000;
+    cursor: pointer;
+  }
+
+  .scroll-to-top:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 25px rgba(255, 140, 66, 0.4);
+    background: var(--primary-light);
+  }
+
+  .scroll-to-top i {
+    color: #fff;
+    font-size: 1.1rem;
+  }
+
+  /* ---------- Responsive ---------- */
+  @media (max-width: 768px) {
+    #page-top {
+      padding: 1rem;
+    }
+
+    .dashboard-header-wrapper {
+      flex-direction: column;
+      gap: 1.5rem;
+      padding: 1.5rem;
+    }
+
+    .dashboard-header {
+      font-size: 1.75rem;
+      text-align: center;
+    }
+
+    .chart-container {
+      height: 14rem;
+    }
+
+    .card {
+      margin-bottom: 1.25rem;
+    }
+
+    .scroll-to-top {
+      right: 1rem;
+      bottom: 1rem;
+      width: 2.75rem;
+      height: 2.75rem;
+    }
+  }
+
+  /* ---------- Custom Chart Styling ---------- */
+  canvas {
+    border-radius: 0.75rem;
+    transition: transform 0.3s ease;
+  }
+
+  /* ---------- Text Utilities ---------- */
+  .text-primary {
+    color: var(--primary) !important;
+  }
+
+  .text-success {
+    color: var(--accent-green) !important;
+  }
 </style>
 
 <div class="container-fluid px-4 py-4" id="page-top">
   <!-- HEADER + FILTER -->
-  <div class="d-sm-flex align-items-center justify-content-between mb-4">
+  <div class="dashboard-header-wrapper d-sm-flex align-items-center justify-content-between mb-4">
     <h1 class="dashboard-header">Sales Overview</h1>
     <form method="GET" action="/admin/dashboard" class="ms-auto">
       <div class="input-group">
@@ -37,8 +313,8 @@
     <div class="col-12">
       <div class="filter-card">
         <p class="period-indicator mb-0">
-          <i class="fas fa-info-circle me-1"></i>
-          Showing data for <strong><%= filter.charAt(0).toUpperCase()+filter.slice(1) %></strong> period
+          <i class="fas fa-info-circle me-2"></i>
+          Showing data for <strong><%= filter.charAt(0).toUpperCase()+filter.slice(1) %></strong> period
         </p>
       </div>
     </div>
@@ -76,43 +352,141 @@
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
-  /* ---------------- colours ---------------- */
+  /* ---------------- Soft Palette Chart Colors ---------------- */
   const chartColors = {
-    products  : {bg:'rgba(78,115,223,.6)',   border:'rgba(78,115,223,1)'},
-    categories: {bg:'rgba(28,200,138,.6)',   border:'rgba(28,200,138,1)'}
+    products: {
+      bg: 'rgba(255, 140, 66, 0.7)',
+      border: 'rgba(255, 140, 66, 1)',
+      hover: 'rgba(255, 178, 125, 1)'
+    },
+    categories: {
+      bg: 'rgba(78, 205, 196, 0.7)',
+      border: 'rgba(78, 205, 196, 1)',
+      hover: 'rgba(69, 183, 209, 1)'
+    }
   };
 
-  /* ---------------- data from backend ---------------- */
+  /* ---------------- Data from Backend ---------------- */
   const productLabels   = <%- JSON.stringify(topProducts.map(p => p.name       )) %>;
   const productData     = <%- JSON.stringify(topProducts.map(p => p.totalSold )) %>;
   const categoryLabels  = <%- JSON.stringify(topCategories.map(c => c.name    )) %>;
   const categoryData    = <%- JSON.stringify(topCategories.map(c => c.totalSold)) %>;
 
+  /* ---------------- Clean Chart Options ---------------- */
   const baseOptions = {
-    responsive:true,maintainAspectRatio:false,
-    plugins:{legend:{display:true,position:'top'}},
-    scales:{
-      y:{beginAtZero:true,grid:{drawBorder:false,color:'rgba(0,0,0,.05)'}},
-      x:{grid:{display:false}}
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: true,
+        position: 'top',
+        labels: {
+          font: {
+            size: 12,
+            weight: '600',
+            family: 'Nunito'
+          },
+          padding: 12,
+          usePointStyle: true,
+          pointStyle: 'circle',
+          color: '#2C3E50'
+        }
+      },
+      tooltip: {
+        backgroundColor: 'rgba(44, 62, 80, 0.95)',
+        padding: 12,
+        titleFont: {
+          size: 13,
+          weight: '700'
+        },
+        bodyFont: {
+          size: 12
+        },
+        cornerRadius: 8,
+        displayColors: true,
+        callbacks: {
+          label: function(context) {
+            return ' ' + context.dataset.label + ': ' + context.parsed.y.toLocaleString() + ' units';
+          }
+        }
+      }
+    },
+    scales: {
+      y: {
+        beginAtZero: true,
+        grid: {
+          drawBorder: false,
+          color: 'rgba(0, 0, 0, 0.04)',
+          lineWidth: 1
+        },
+        ticks: {
+          font: {
+            size: 11,
+            weight: '600'
+          },
+          padding: 8,
+          color: '#95A5A6'
+        }
+      },
+      x: {
+        grid: {
+          display: false
+        },
+        ticks: {
+          font: {
+            size: 11,
+            weight: '600'
+          },
+          padding: 8,
+          color: '#95A5A6'
+        }
+      }
+    },
+    animation: {
+      duration: 1200,
+      easing: 'easeInOutQuart'
     }
   };
 
-  new Chart(document.getElementById('productChart'),{
-    type:'bar',
-    data:{labels:productLabels,datasets:[{label:'Units Sold',data:productData,
-      backgroundColor:chartColors.products.bg,borderColor:chartColors.products.border,borderWidth:1}]},
-    options:baseOptions
+
+  /* ---------------- Product Chart ---------------- */
+  new Chart(document.getElementById('productChart'), {
+    type: 'bar',
+    data: {
+      labels: productLabels,
+      datasets: [{
+        label: 'Units Sold',
+        data: productData,
+        backgroundColor: chartColors.products.bg,
+        borderColor: chartColors.products.border,
+        borderWidth: 0,
+        borderRadius: 8,
+        hoverBackgroundColor: chartColors.products.hover
+      }]
+    },
+    options: baseOptions
   });
 
-  new Chart(document.getElementById('categoryChart'),{
-    type:'bar',
-    data:{labels:categoryLabels,datasets:[{label:'Units Sold',data:categoryData,
-      backgroundColor:chartColors.categories.bg,borderColor:chartColors.categories.border,borderWidth:1}]},
-    options:baseOptions
+  /* ---------------- Category Chart ---------------- */
+  new Chart(document.getElementById('categoryChart'), {
+    type: 'bar',
+    data: {
+      labels: categoryLabels,
+      datasets: [{
+        label: 'Units Sold',
+        data: categoryData,
+        backgroundColor: chartColors.categories.bg,
+        borderColor: chartColors.categories.border,
+        borderWidth: 0,
+        borderRadius: 8,
+        hoverBackgroundColor: chartColors.categories.hover
+      }]
+    },
+    options: baseOptions
   });
 </script>
 
-<!-- Sidebar / scroll‑to‑top behaviour (unchanged) -->
+<!-- Sidebar / scroll‑to‑top behaviour -->
 <script>
   $(function(){
     $("#sidebarToggle,#sidebarToggleTop").on('click',e=>{

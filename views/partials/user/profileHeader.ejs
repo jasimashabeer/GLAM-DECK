@@ -234,12 +234,12 @@
         <div class="profile-picture-container">
         
 
-          <% if (user.image) { %>
+          <% if (user && user.image) { %>
   <img src="<%= user.image %>" alt="User Avatar" class="user-avatar" id="profileImage">
 <% } else { %>
   <div class="user-avatar default-avatar d-flex justify-content-center align-items-center"
        style="width: 90px; height: 90px; border-radius: 50%; background-color: #204056; color: white; font-size: 36px; font-weight: bold;">
-    <%= user.email.charAt(0).toUpperCase() %>
+    <%= (user && user.email) ? user.email.charAt(0).toUpperCase() : 'U' %>
   </div>
 <% } %>
 
@@ -323,12 +323,12 @@
         <div class="user-info">
           <div class="profile-picture-container">
            <!-- <img src="<%= user.image || '/images/default.png' %>" class="user-avatar" /> -->
-                      <% if (user.image) { %>
+                      <% if (user && user.image) { %>
   <img src="<%= user.image %>" alt="User Avatar" class="user-avatar" id="profileImage">
 <% } else { %>
   <div class="user-avatar default-avatar d-flex justify-content-center align-items-center"
        style="width: 90px; height: 90px; border-radius: 50%; background-color: #204056; color: white; font-size: 36px; font-weight: bold;">
-    <%= user.email.charAt(0).toUpperCase() %>
+    <%= (user && user.email) ? user.email.charAt(0).toUpperCase() : 'U' %>
   </div>
 <% } %>
 
@@ -383,3 +383,39 @@
         </ul>
       </div>
     </div>
+
+    <script>
+      (function(){
+        function markActive() {
+          try {
+            var path = (window.location.pathname || '/').replace(/\/$/, '') || '/';
+            // select links in both desktop sidebar and offcanvas
+            var links = document.querySelectorAll('#profileSidebar a.profile-nav-link, #offcanvasProfileSidebar a.profile-nav-link');
+            links.forEach(function(a){
+              try {
+                var href = a.getAttribute('href') || '';
+                var url = new URL(href, window.location.origin);
+                var aPath = (url.pathname || '/').replace(/\/$/, '') || '/';
+                a.classList.remove('active');
+                if (aPath === path) {
+                  a.classList.add('active');
+                }
+              } catch(e){}
+            });
+            // fallback: if none matched, try prefix matching
+            var anyActive = Array.from(links).some(l => l.classList.contains('active'));
+            if (!anyActive) {
+              links.forEach(function(a){
+                try {
+                  var href = a.getAttribute('href') || '';
+                  var url = new URL(href, window.location.origin);
+                  var aPath = (url.pathname || '/').replace(/\/$/, '') || '/';
+                  if (aPath !== '/' && path.indexOf(aPath) === 0) a.classList.add('active');
+                } catch(e){}
+              });
+            }
+          } catch (e) { console.error('profile sidebar highlight error', e); }
+        }
+        document.addEventListener('DOMContentLoaded', markActive);
+      })();
+    </script>

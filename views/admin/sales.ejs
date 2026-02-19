@@ -1,236 +1,548 @@
 <%- include("../../views/partials/admin/header") %>
-<style>
-    .shadow-yellow {
-    box-shadow: 0 0.15rem 1rem 0 rgba(255, 193, 7, 0.5); /* Bootstrap warning color with opacity */
-  }
-  .shadow-green {
-    box-shadow: 0 0.15rem 1rem 0 rgba(40, 167, 69, 0.5); /* Bootstrap success color with opacity */
-  }
-    .shadow-blue {
-    box-shadow: 0 0.15rem 1rem 0 rgba(0, 123, 255, 0.5); /* Bootstrap primary blue with opacity */
-  }
-    .shadow-red {
-    box-shadow: 0 0.15rem 1rem 0 rgba(220, 53, 69, 0.5); /* Bootstrap danger red with opacity */
-  }
-    .shadow-black {
-    box-shadow: 0 0.15rem 1rem 0 rgba(0, 0, 0, 0.5); /* Black shadow with 50% opacity */
-  }
-</style>
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-mQ93GZ0I1kW+WjAp9vR+N2ZV6VuHkZUcF1Yk9lVuCAnbZoCv4jV0uv1zxquB6FUZ" crossorigin="anonymous">
 
+  <style>
+    /* ---------- Soft Elegant Color Palette ---------- */
+    :root {
+      --primary-orange: #FF8C42;
+      --primary-green: #4ECDC4;
+      --primary-blue: #45B7D1;
+      --primary-pink: #FF6B9D;
+      --primary-red: #FF5757;
+      --bg-cream: #FFF8F0;
+      --bg-white: #FFFFFF;
+      --text-dark: #2C3E50;
+      --text-light: #95A5A6;
+      --shadow-soft: 0 2px 20px rgba(0, 0, 0, 0.08);
+      --shadow-hover: 0 8px 30px rgba(0, 0, 0, 0.12);
+    }
 
-<div class="container my-5">
-  
-  <div class="container-fluid">
-    <div class="row justify-content-end mb-2">
-      <div class="col-auto d-flex flex-wrap align-items-center gap-2">
-        <a href="/admin/salesReport" class="btn btn-success" style="margin-right: 10px;">View Report</a>
-  
-        <form method="GET" action="/admin/sales" class="d-flex align-items-center bg-light p-2 rounded shadow-sm flex-wrap gap-2" id="filterForm">
-          <label for="range" class="form-label mb-0 me-2 fw-semibold text-primary">
-            Sort By:
-          </label>
-          <select 
-            name="range" 
-            id="range" 
-            class="form-select form-select-sm w-auto border-primary me-2" 
-            onchange="handleRangeChange()"
-          >
-            <option value="daily" <%= range === 'daily' ? 'selected' : '' %>>Daily</option>
-            <option value="weekly" <%= range === 'weekly' ? 'selected' : '' %>>Weekly</option>
-            <option value="monthly" <%= range === 'monthly' ? 'selected' : '' %>>Monthly</option>
-            <option value="yearly" <%= range === 'yearly' ? 'selected' : '' %>>Yearly</option>
-            <option value="custom" <%= range === 'custom' ? 'selected' : '' %>>Custom</option>
+    body {
+      background: #F5F0E8;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    }
+
+    .dashboard-wrapper {
+      padding: 2rem 1rem;
+    }
+
+    /* ---------- Top Controls ---------- */
+    .top-controls {
+      background: var(--bg-white);
+      padding: 1.5rem;
+      border-radius: 1.25rem;
+      box-shadow: var(--shadow-soft);
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: flex-end;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1rem;
+      animation: slideDown 0.6s ease-out;
+    }
+
+    @keyframes slideDown {
+      from {
+        opacity: 0;
+        transform: translateY(-20px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .btn-success {
+      background: var(--primary-green);
+      border: none;
+      color: #fff;
+      font-weight: 600;
+      padding: 0.7rem 1.75rem;
+      border-radius: 12px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(78, 205, 196, 0.3);
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-success:hover {
+      background: #3db8af;
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(78, 205, 196, 0.4);
+      color: #fff;
+    }
+
+    #filterForm {
+      background: var(--bg-white);
+      padding: 1rem 1.5rem;
+      border-radius: 12px;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      border: 1px solid #E8E8E8;
+    }
+
+    .form-label {
+      color: var(--text-dark);
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .form-select {
+      border: 2px solid var(--primary-orange);
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+      color: var(--text-dark);
+    }
+
+    .form-select:focus {
+      box-shadow: 0 0 0 0.25rem rgba(255, 140, 66, 0.15);
+      border-color: var(--primary-orange);
+    }
+
+    .form-control {
+      border: 2px solid #dee2e6;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: var(--primary-orange);
+      box-shadow: 0 0 0 0.25rem rgba(255, 140, 66, 0.15);
+    }
+
+    .btn-primary {
+      background: var(--primary-orange);
+      border: none;
+      font-weight: 600;
+      border-radius: 10px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(255, 140, 66, 0.3);
+    }
+
+    .btn-primary:hover {
+      background: #FF7A2E;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(255, 140, 66, 0.4);
+    }
+
+    #customDateBlock {
+      margin-left: 0.5rem;
+    }
+
+    #dateError {
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    /* ---------- Enhanced Card Styles ---------- */
+    .card {
+      border: none;
+      border-radius: 1.25rem;
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+      overflow: hidden;
+      position: relative;
+      background: var(--bg-white);
+      box-shadow: var(--shadow-soft);
+    }
+
+    .card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 5px;
+      height: 100%;
+      transition: width 0.3s ease;
+    }
+
+    .card:hover {
+      transform: translateY(-8px);
+      box-shadow: var(--shadow-hover);
+    }
+
+    .card:hover::before {
+      width: 8px;
+    }
+
+    /* Card Color Themes */
+    .shadow-green::before {
+      background: var(--primary-green);
+    }
+
+    .shadow-yellow::before {
+      background: var(--primary-orange);
+    }
+
+    .shadow-blue::before {
+      background: var(--primary-blue);
+    }
+
+    .shadow-red::before {
+      background: var(--primary-red);
+    }
+
+    .shadow-black::before {
+      background: var(--text-dark);
+    }
+
+    .shadow-pink::before {
+      background: var(--primary-pink);
+    }
+
+    .card-body {
+      background: var(--bg-white);
+      padding: 1.75rem;
+      position: relative;
+      z-index: 1;
+    }
+
+    .text-xs {
+      font-size: 0.75rem;
+      letter-spacing: 0.5px;
+      font-weight: 700;
+    }
+
+    .h5 {
+      font-size: 1.75rem;
+      font-weight: 700;
+      margin-top: 0.5rem;
+      color: var(--text-dark);
+    }
+
+    .fa-2x {
+      font-size: 2.5rem;
+      opacity: 0.12;
+    }
+
+    /* Text Colors */
+    .text-success {
+      color: var(--primary-green) !important;
+    }
+
+    .text-warning {
+      color: var(--primary-orange) !important;
+    }
+
+    .text-primary {
+      color: var(--primary-blue) !important;
+    }
+
+    .text-danger {
+      color: var(--primary-red) !important;
+    }
+
+    .text-info {
+      color: var(--primary-green) !important;
+    }
+
+    .text-secondary {
+      color: var(--text-dark) !important;
+    }
+
+    /* ---------- Chart Container ---------- */
+    .chart-container {
+      background: var(--bg-white);
+      border-radius: 1.25rem;
+      padding: 2.5rem;
+      box-shadow: var(--shadow-soft);
+      position: relative;
+      overflow: hidden;
+      animation: fadeInUp 0.8s ease-out 0.4s backwards;
+    }
+
+    .chart-container::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: linear-gradient(90deg, var(--primary-orange) 0%, var(--primary-green) 50%, var(--primary-blue) 100%);
+    }
+
+    .chart-container h5 {
+      font-weight: 700;
+      color: var(--text-dark);
+      font-size: 1.5rem;
+      margin-bottom: 2rem;
+      letter-spacing: -0.5px;
+    }
+
+    canvas {
+      max-height: 350px;
+    }
+
+    /* ---------- Animations ---------- */
+    @keyframes fadeInUp {
+      from {
+        opacity: 0;
+        transform: translateY(30px);
+      }
+
+      to {
+        opacity: 1;
+        transform: translateY(0);
+      }
+    }
+
+    .card {
+      animation: fadeInUp 0.6s ease-out;
+      opacity: 0;
+      animation-fill-mode: forwards;
+    }
+
+    .card:nth-child(1) {
+      animation-delay: 0.1s;
+    }
+
+    .card:nth-child(2) {
+      animation-delay: 0.15s;
+    }
+
+    .card:nth-child(3) {
+      animation-delay: 0.2s;
+    }
+
+    .card:nth-child(4) {
+      animation-delay: 0.25s;
+    }
+
+    .card:nth-child(5) {
+      animation-delay: 0.3s;
+    }
+
+    .card:nth-child(6) {
+      animation-delay: 0.35s;
+    }
+
+    /* ---------- Responsive ---------- */
+    @media (max-width: 768px) {
+      .dashboard-wrapper {
+        padding: 1rem 0.5rem;
+      }
+
+      .top-controls {
+        flex-direction: column;
+        align-items: stretch;
+        padding: 1rem;
+      }
+
+      #filterForm {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .chart-container {
+        padding: 1.5rem;
+      }
+
+      .h5 {
+        font-size: 1.5rem;
+      }
+
+      .card-body {
+        padding: 1.25rem;
+      }
+    }
+  </style>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+    integrity="sha384-mQ93GZ0I1kW+WjAp9vR+N2ZV6VuHkZUcF1Yk9lVuCAnbZoCv4jV0uv1zxquB6FUZ" crossorigin="anonymous">
+
+  <div class="dashboard-wrapper">
+    <div class="container my-5">
+
+      <div class="top-controls">
+        <a href="/admin/salesReport" class="btn btn-success">View Report</a>
+
+        <form method="GET" action="/admin/sales" id="filterForm">
+          <label for="range" class="form-label">Sort By:</label>
+          <select name="range" id="range" class="form-select form-select-sm w-auto border-primary"
+            onchange="handleRangeChange()">
+            <option value="daily" <%=range==='daily' ? 'selected' : '' %>>Daily</option>
+            <option value="weekly" <%=range==='weekly' ? 'selected' : '' %>>Weekly</option>
+            <option value="monthly" <%=range==='monthly' ? 'selected' : '' %>>Monthly</option>
+            <option value="yearly" <%=range==='yearly' ? 'selected' : '' %>>Yearly</option>
+            <option value="custom" <%=range==='custom' ? 'selected' : '' %>>Custom</option>
           </select>
-        
+
           <div id="customDateBlock" class="d-flex flex-column" style="display: none;">
             <div class="d-flex flex-row gap-2">
-              <input type="date" name="from" id="fromDate" class="form-control form-control-sm" value="<%= from || '' %>">
+              <input type="date" name="from" id="fromDate" class="form-control form-control-sm"
+                value="<%= from || '' %>">
               <input type="date" name="to" id="toDate" class="form-control form-control-sm" value="<%= to || '' %>">
               <button type="submit" class="btn btn-primary btn-sm" id="applyBtn">Apply</button>
             </div>
             <p id="dateError" class="text-danger mt-1 mb-0" style="display: none;"></p>
           </div>
         </form>
-
       </div>
-    </div>
-  </div>
 
-    <div class="row g-4 text-center">
-  
+      <div class="row g-4 text-center">
         <div class="col-xl-4 col-md-6 mb-4">
-            <div class="card border-left-success shadow-green h-100 py-2">
-              <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                  <div class="col mr-2">
-                    <div
-                      class="text-xs font-weight-bold text-success text-uppercase mb-1"
-                    >
-                      Total Sales
-                    </div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">
-                      ₹<%= totalSales.toLocaleString() %>
-                    </div>
+          <div class="card border-left-success shadow-green h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="text-xs font-weight-bold text-success text-uppercase mb-1">
+                    Total Sales
                   </div>
-                  <div class="col-auto">
-                    <i class="fas fa-rupee-sign fa-2x text-gray-300"></i>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">
+                    ₹<%= totalSales.toLocaleString() %>
                   </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-rupee-sign fa-2x text-gray-300"></i>
                 </div>
               </div>
             </div>
           </div>
-  
-          <div class="col-xl-4 col-md-6 mb-4">
-            <div  class="card border-left-warning shadow-yellow h-100 py-2">
-              <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                  <div class="col mr-2">
-                    <div
-                      class="text-xs font-weight-bold text-warning text-uppercase mb-1"
-                    >
-                      Total Orders
-                    </div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">
-                        <%= totalOrders %>
-                    </div>
-                  </div>
-                  <div class="col-auto">
-                    <i class="fas fa-truck fa-2x text-gray-300"></i>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
+        </div>
 
-          <div class="col-xl-4 col-md-6 mb-4">
-            <div class="card border-left-primary shadow-blue h-100 py-2">
-              <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                  <div class="col mr-2">
-                    <div
-                      class="text-xs font-weight-bold text-primary text-uppercase mb-1"
-                    >
-                      Products Sold
-                    </div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">
-                        <%= totalProducts %>
-                    </div>
+        <div class="col-xl-4 col-md-6 mb-4">
+          <div class="card border-left-warning shadow-yellow h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="text-xs font-weight-bold text-warning text-uppercase mb-1">
+                    Total Orders
                   </div>
-                  <div class="col-auto">
-                    <i class="fas fa-store fa-2x text-gray-300"></i>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">
+                    <%= totalOrders %>
                   </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-truck fa-2x text-gray-300"></i>
                 </div>
               </div>
             </div>
           </div>
-  
-      
-          
-          <div class="col-xl-4 col-md-6 mb-4">
-            <div class="card border-left-danger shadow-red h-100 py-2">
-              <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                  <div class="col mr-2">
-                    <div
-                      class="text-xs font-weight-bold text-danger text-uppercase mb-1"
-                    >
+        </div>
+
+        <div class="col-xl-4 col-md-6 mb-4">
+          <div class="card border-left-primary shadow-blue h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="text-xs font-weight-bold text-primary text-uppercase mb-1">
+                    Products Sold
+                  </div>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">
+                    <%= totalProducts %>
+                  </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-store fa-2x text-gray-300"></i>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="col-xl-4 col-md-6 mb-4">
+          <div class="card border-left-danger shadow-red h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="text-xs font-weight-bold text-danger text-uppercase mb-1">
                     Discounts Given
-                    </div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">
-                        ₹<%= totalDiscounts.toLocaleString() %>
-                    </div>
                   </div>
-                  <div class="col-auto">
-                    <i class="fas fa-tag fa-2x text-gray-300"></i>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">
+                    ₹<%= totalDiscounts.toLocaleString() %>
                   </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-tag fa-2x text-gray-300"></i>
                 </div>
               </div>
             </div>
           </div>
-  
-          <div class="col-xl-4 col-md-6 mb-4">
-            <div class="card border-left-info shadow-blue h-100 py-2">
-              <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                  <div class="col mr-2">
-                    <div
-                      class="text-xs font-weight-bold text-info text-uppercase mb-1"
-                    >
+        </div>
+
+        <div class="col-xl-4 col-md-6 mb-4">
+          <div class="card border-left-info shadow-green h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="text-xs font-weight-bold text-info text-uppercase mb-1">
                     Net Revenue
-                    </div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">
-                        ₹<%= netRevenue.toLocaleString() %>
-                    </div>
                   </div>
-                  <div class="col-auto">
-                    <i class="fas fa-rupee-sign fa-2x text-gray-300"></i>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">
+                    ₹<%= netRevenue.toLocaleString() %>
                   </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-rupee-sign fa-2x text-gray-300"></i>
                 </div>
               </div>
             </div>
           </div>
-          <div class="col-xl-4 col-md-6 mb-4">
-            <div class="card border-left-secondary shadow-black h-100 py-2">
-              <div class="card-body">
-                <div class="row no-gutters align-items-center">
-                  <div class="col mr-2">
-                    <div
-                      class="text-xs font-weight-bold text-secondary text-uppercase mb-1"
-                    >
+        </div>
+
+        <div class="col-xl-4 col-md-6 mb-4">
+          <div class="card border-left-secondary shadow-black h-100 py-2">
+            <div class="card-body">
+              <div class="row no-gutters align-items-center">
+                <div class="col mr-2">
+                  <div class="text-xs font-weight-bold text-secondary text-uppercase mb-1">
                     Avg. Order Value
-                    </div>
-                    <div class="h5 mb-0 font-weight-bold text-gray-800">
-                        ₹<%= averageOrderValue.toFixed(2) %>
-                    </div>
                   </div>
-                  <div class="col-auto">
-                    <i class="fas fa-rupee-sign fa-2x text-gray-300"></i>
+                  <div class="h5 mb-0 font-weight-bold text-gray-800">
+                    ₹<%= averageOrderValue.toFixed(2) %>
                   </div>
+                </div>
+                <div class="col-auto">
+                  <i class="fas fa-rupee-sign fa-2x text-gray-300"></i>
                 </div>
               </div>
             </div>
           </div>
+        </div>
+      </div>
 
-
-    </div>
-    <div class="container my-5">
-        <div class="card shadow-lg p-4 rounded-4">
+      <div class="container my-5">
+        <div class="chart-container">
           <h5 class="text-center mb-4 fw-bold">Sales Trend</h5>
           <canvas id="salesChart" height="350"></canvas>
         </div>
       </div>
-      
-      
 
+    </div>
   </div>
-  
+
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js" integrity="sha384-W7Ff1DhJ6+t4T9ZGH9YfMPG3p1pN+9KEe3KfG/m7sGn5i9cuG5XLwIob9BwvSldH" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"
+    integrity="sha384-W7Ff1DhJ6+t4T9ZGH9YfMPG3p1pN+9KEe3KfG5XLwIob9BwvSldH" crossorigin="anonymous"></script>
 
   <script>
     const ctx = document.getElementById('salesChart').getContext('2d');
-  
-    // Create a gradient for the line fill
+
+    // Create elegant gradient
     const gradient = ctx.createLinearGradient(0, 0, 0, 400);
-    gradient.addColorStop(0, 'rgba(54, 162, 235, 0.4)');
+    gradient.addColorStop(0, 'rgba(69, 183, 209, 0.3)');
     gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-  
-  
-    
 
     const salesChart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: <%- JSON.stringify(salesData.months) %>,
+        labels: <% - JSON.stringify(salesData.months) %>,
         datasets: [
           {
             label: 'Sales (₹)',
-            data: <%-JSON.stringify(salesData.sales) %>,
+            data: <% -JSON.stringify(salesData.sales) %>,
             fill: true,
             backgroundColor: gradient,
-            borderColor: 'rgba(54, 162, 235, 1)',
-            pointBackgroundColor: 'rgba(54, 162, 235, 1)',
+            borderColor: '#45B7D1',
+            pointBackgroundColor: '#45B7D1',
+            pointBorderColor: '#fff',
+            pointBorderWidth: 2,
+            pointRadius: 5,
+            pointHoverRadius: 7,
             tension: 0.4,
             borderWidth: 3
           }
@@ -242,12 +554,26 @@
           legend: {
             labels: {
               font: {
-                size: 14,
-                weight: 'bold'
-              }
+                size: 13,
+                weight: '600',
+                family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto'
+              },
+              color: '#2C3E50',
+              usePointStyle: true,
+              pointStyle: 'circle'
             }
           },
           tooltip: {
+            backgroundColor: 'rgba(44, 62, 80, 0.95)',
+            padding: 12,
+            cornerRadius: 8,
+            titleFont: {
+              size: 13,
+              weight: '700'
+            },
+            bodyFont: {
+              size: 12
+            },
             callbacks: {
               label: function (context) {
                 return '₹ ' + context.formattedValue;
@@ -262,69 +588,73 @@
             },
             ticks: {
               font: {
-                size: 13
-              }
+                size: 12,
+                weight: '600'
+              },
+              color: '#95A5A6'
             }
           },
           y: {
             beginAtZero: true,
+            grid: {
+              color: 'rgba(0, 0, 0, 0.04)',
+              drawBorder: false
+            },
             ticks: {
               callback: (value) => '₹' + value,
               font: {
-                size: 13
-              }
+                size: 12,
+                weight: '600'
+              },
+              color: '#95A5A6'
             }
           }
         }
       }
     });
-    
-    
   </script>
-<script>
-  function handleRangeChange(autoLoad = false) {
-    const range = document.getElementById('range').value;
-    const from = document.getElementById('fromDate');
-    const to = document.getElementById('toDate');
-    const btn = document.getElementById('applyBtn');
-    const error = document.getElementById('dateError');
 
-    if (range === 'custom') {
-      from.style.display = 'block';
-      to.style.display = 'block';
-      btn.style.display = 'inline-block';
-      error.style.display = 'none';
-    } else {
-      from.style.display = 'none';
-      to.style.display = 'none';
-      btn.style.display = 'none';
-      error.style.display = 'none';
-      if (!autoLoad) {
-        document.getElementById('filterForm').submit();
+  <script>
+    function handleRangeChange(autoLoad = false) {
+      const range = document.getElementById('range').value;
+      const from = document.getElementById('fromDate');
+      const to = document.getElementById('toDate');
+      const btn = document.getElementById('applyBtn');
+      const error = document.getElementById('dateError');
+
+      if (range === 'custom') {
+        from.style.display = 'block';
+        to.style.display = 'block';
+        btn.style.display = 'inline-block';
+        error.style.display = 'none';
+      } else {
+        from.style.display = 'none';
+        to.style.display = 'none';
+        btn.style.display = 'none';
+        error.style.display = 'none';
+        if (!autoLoad) {
+          document.getElementById('filterForm').submit();
+        }
       }
     }
-  }
 
-  // Validate custom date before submitting
-  document.getElementById('applyBtn').addEventListener('click', function (e) {
-    const from = document.getElementById('fromDate').value;
-    const to = document.getElementById('toDate').value;
-    const error = document.getElementById('dateError');
+    // Validate custom date before submitting
+    document.getElementById('applyBtn').addEventListener('click', function (e) {
+      const from = document.getElementById('fromDate').value;
+      const to = document.getElementById('toDate').value;
+      const error = document.getElementById('dateError');
 
-    if (!from || !to) {
-      e.preventDefault();
-      error.textContent = 'Please select both From and To dates.';
-      error.style.display = 'block';
-    } else {
-      error.style.display = 'none';
-    }
-  });
+      if (!from || !to) {
+        e.preventDefault();
+        error.textContent = 'Please select both From and To dates.';
+        error.style.display = 'block';
+      } else {
+        error.style.display = 'none';
+      }
+    });
 
-  // Trigger UI setup on initial page load
-  window.addEventListener('DOMContentLoaded', () => {
-    handleRangeChange(true);
-  });
-</script>
-
-  
-
+    // Trigger UI setup on initial page load
+    window.addEventListener('DOMContentLoaded', () => {
+      handleRangeChange(true);
+    });
+  </script>

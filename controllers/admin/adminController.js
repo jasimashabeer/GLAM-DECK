@@ -36,14 +36,7 @@ const login = async (req, res) => {
             return res.render('admin-login', { message: 'Incorrect password' });
         }
 
-        // Clear any existing user session when admin logs in
-        if (req.session.user) {
-            delete req.session.user;
-        }
-        if (req.session.userId) {
-            delete req.session.userId;
-        }
-
+        // Set admin session - user session remains independent
         req.session.admin = admin._id; 
 
         return res.redirect('dashboard');
@@ -57,13 +50,12 @@ const login = async (req, res) => {
 
 const logout=async(req,res)=>{
     try {
-        // Clear only admin session, preserve user session if exists
-        // (though in practice, user and admin sessions should be mutually exclusive)
+        // Clear only admin session - preserve user session completely
         if (req.session.admin) {
             delete req.session.admin;
         }
 
-        // If no user session exists, destroy the entire session
+        // Only destroy session if no user session exists
         if (!req.session.user) {
             req.session.destroy(err=>{
                 if(err){
@@ -73,7 +65,7 @@ const logout=async(req,res)=>{
                 res.redirect('/admin/login')
             })
         } else {
-            // If user session exists, just redirect (shouldn't happen, but handle it)
+            // User session exists, just redirect to admin login
             return res.redirect('/admin/login');
         }
     } catch (error) {

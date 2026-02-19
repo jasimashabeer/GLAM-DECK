@@ -82,6 +82,8 @@ body {
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background-color: #f8f9fa;
   color: #333;
+  overflow-x: hidden;
+  max-width: 100vw;
 }
 
 a {
@@ -117,7 +119,17 @@ a {
    SIDEBAR STYLES
    ======================================== */
 .col-md-3 {
-  padding-right: 2rem;
+  padding-right: 1.5rem;
+  padding-left: 0.75rem;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.col-md-9 {
+  padding-left: 1rem;
+  padding-right: 0.75rem;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .card {
@@ -227,7 +239,30 @@ a {
    PRODUCT GRID SECTION
    ======================================== */
 #product-listing {
-  padding: 2rem 0;
+  /* Remove extra top padding so sidebar and grid start at the same level */
+  padding: 0 0 2rem 0;
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+.product-list {
+  width: 100%;
+  max-width: 100%;
+  overflow-x: hidden;
+}
+
+/* Equal-height cards per row (prevents uneven gaps) */
+.product-list > .row {
+  align-items: stretch;
+}
+
+.product-list > .row > [class*="col-"] {
+  display: flex;
+}
+
+.product-list > .row > [class*="col-"] > .product-item {
+  flex: 1 1 auto;
 }
 
 .product-item {
@@ -240,6 +275,9 @@ a {
   height: 100%;
   display: flex;
   flex-direction: column;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .product-item:hover {
@@ -284,11 +322,19 @@ a {
   border-radius: 8px;
 }
 
+.product-style {
+  width: 100%;
+  max-width: 100%;
+  overflow: hidden;
+}
+
 .product-style img {
   width: 100%;
+  max-width: 100%;
   height: 280px;
   object-fit: cover;
   transition: transform 0.4s ease;
+  display: block;
 }
 
 .product-item:hover .product-style img {
@@ -308,7 +354,9 @@ figcaption h3 {
   color: #2c2c2c;
   margin-bottom: 0.4rem;
   line-height: 1.4;
-  min-height: 2.8rem;
+  /* Force consistent title height (2 lines), so cards align even when names wrap */
+  min-height: 3.1rem;
+  max-height: 3.1rem;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
@@ -406,13 +454,25 @@ figcaption h6 {
    RESPONSIVE DESIGN
    ======================================== */
 @media (max-width: 768px) {
+  .container-fluid {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
+  }
+
   .col-md-3 {
-    padding-right: 1rem;
+    padding-right: 0.75rem;
+    padding-left: 0.75rem;
     margin-bottom: 2rem;
+  }
+
+  .col-md-9 {
+    padding-left: 0.75rem;
+    padding-right: 0.75rem;
   }
 
   .product-item {
     margin-bottom: 1.5rem;
+    padding: 1rem;
   }
 
   figcaption h3 {
@@ -423,6 +483,28 @@ figcaption h6 {
   .product-style img {
     height: 220px;
   }
+
+  #product-listing {
+    padding: 1rem 0;
+  }
+}
+
+/* Prevent horizontal overflow at all zoom levels */
+@media (min-width: 769px) {
+  .container-fluid {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+  
+  .col-md-9 {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+}
+
+/* Ensure no overflow at any zoom level */
+* {
+  box-sizing: border-box;
 }
 
 /* ========================================
@@ -472,12 +554,8 @@ figcaption h6 {
   </div>
 </div>
 
-<div class="container-fluid my-5">
-
-
-  
-
-  <div class="row">
+<div class="container-fluid my-5 px-3 px-md-4" style="max-width: 100%; overflow-x: hidden;">
+  <div class="row g-3 g-md-4">
 
     <!-- Sidebar -->
     <div class="col-md-3">
@@ -495,13 +573,13 @@ figcaption h6 {
 
 
                             <form method="GET" action="/shop">
-  <input type="text" name="search" value="<%= search || '' %>" class="form-control" placeholder="Search for books">
+  <input type="text" name="search" value="<%= search || '' %>" class="form-control" placeholder="Search for jwelry">
   
   <!-- Hidden fields to preserve filters and sorting -->
-  <input type="hidden" name="category" value="<%= selectedCategory || '' %>">
-  <input type="hidden" name="sort" value="<%= sort || '' %>">
-  <input type="hidden" name="gt" value="<%= gt || '' %>">
-  <input type="hidden" name="lt" value="<%= lt || '' %>">
+  <input type="hidden" name="category" value="<%= (typeof selectedCategory !== 'undefined' && selectedCategory !== null) ? selectedCategory : '' %>">
+  <input type="hidden" name="sort" value="<%= (typeof sort !== 'undefined' && sort !== null) ? sort : '' %>">
+  <input type="hidden" name="gt" value="<%= (typeof gt !== 'undefined' && gt !== null) ? gt : '' %>">
+  <input type="hidden" name="lt" value="<%= (typeof lt !== 'undefined' && lt !== null) ? lt : '' %>">
 
   <button type="submit" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1" style="height: 40px;">Search</button>
   <button type="button" onclick="window.location.href='/shop'" class="btn btn-outline-secondary btn-sm rounded-pill px-3 py-1" style="height: 40px;">Clear</button>
@@ -515,12 +593,15 @@ figcaption h6 {
           <% if (category && category.length > 0) { %>
             <% category.forEach(cat => { %>
               <li class="filter-item">
-                <!-- <a href="/filter?category=<%= cat._id %>"><%= cat.name %></a> -->
-
-                <a href="/shop?category=<%= cat._id %>&search=<%= search || '' %>&sort=<%= sort || '' %>&gt=<%= gt || '' %>&lt=<%= lt || '' %>">
-  <%= cat.name %>
-</a>
-
+                <% 
+                  const catSearchQ = search ? `&search=${encodeURIComponent(search)}` : '';
+                  const catSortQ = sort ? `&sort=${sort}` : '';
+                  const catGtQ = (typeof gt !== 'undefined' && gt !== null && gt !== '') ? `&gt=${gt}` : '';
+                  const catLtQ = (typeof lt !== 'undefined' && lt !== null && lt !== '') ? `&lt=${lt}` : '';
+                %>
+                <a href="/shop?category=<%= cat._id %><%= catSearchQ %><%= catSortQ %><%= catGtQ %><%= catLtQ %>">
+                  <%= cat.name %>
+                </a>
               </li>
             <% }); %>
           <% } else { %>
@@ -535,19 +616,21 @@ figcaption h6 {
   <h5>Filter by Price</h5>
   <form id="price-filter-form" method="GET" action="/shop">
     <div class="d-flex flex-column gap-2">
-      <!-- <a href="/filterPrice?gt=0&lt=500" class="btn btn-outline-secondary rounded-pill price-btn">Under ₹500</a>
-      <a href="/filterPrice?gt=500&lt=1000" class="btn btn-outline-secondary rounded-pill price-btn">₹500 - ₹1000</a>
-      <a href="/filterPrice?gt=1000&lt=1000000" class="btn btn-outline-secondary rounded-pill price-btn">Above ₹1000</a> -->
+      <% 
+        const pfSearchQ = search ? `&search=${encodeURIComponent(search)}` : '';
+        const pfCategoryQ = (typeof selectedCategory !== 'undefined' && selectedCategory !== null && selectedCategory !== '') 
+          ? `&category=${selectedCategory}` 
+          : '';
+        const pfSortQ = sort ? `&sort=${sort}` : '';
+      %>
+      <a href="/shop?gt=0&lt=500<%= pfSearchQ %><%= pfCategoryQ %><%= pfSortQ %>" 
+         class="btn btn-outline-secondary rounded-pill price-btn">Under ₹500</a>
 
-      <a href="/shop?gt=0&lt=500&search=<%= search || '' %>&category=<%= selectedCategory || '' %>&sort=<%= sort || '' %>" 
-   class="btn btn-outline-secondary rounded-pill price-btn">Under ₹500</a>
+      <a href="/shop?gt=500&lt=1000<%= pfSearchQ %><%= pfCategoryQ %><%= pfSortQ %>" 
+         class="btn btn-outline-secondary rounded-pill price-btn">₹500 - ₹1000</a>
 
-<a href="/shop?gt=500&lt=1000&search=<%= search || '' %>&category=<%= selectedCategory || '' %>&sort=<%= sort || '' %>" 
-   class="btn btn-outline-secondary rounded-pill price-btn">₹500 - ₹1000</a>
-
-<a href="/shop?gt=1000&lt=1000000&search=<%= search || '' %>&category=<%= selectedCategory || '' %>&sort=<%= sort || '' %>" 
-   class="btn btn-outline-secondary rounded-pill price-btn">Above ₹1000</a>
-
+      <a href="/shop?gt=1000&lt=1000000<%= pfSearchQ %><%= pfCategoryQ %><%= pfSortQ %>" 
+         class="btn btn-outline-secondary rounded-pill price-btn">Above ₹1000</a>
     </div>
   </form>
 </div>
@@ -555,24 +638,26 @@ figcaption h6 {
 <div class="card p-3 mb-3">
   <h5>Sort By</h5>
   <div class="d-flex flex-column gap-2">
-<!-- <a href="/sortProducts?sort=price-asc" class="btn btn-outline-secondary rounded-pill sort-btn">Price: Low to High</a>
-<a href="/sortProducts?sort=price-desc" class="btn btn-outline-secondary rounded-pill sort-btn">Price: High to Low</a>
-<a href="/sortProducts?sort=name-asc" class="btn btn-outline-secondary rounded-pill sort-btn">Name: A - Z</a>
-<a href="/sortProducts?sort=name-desc" class="btn btn-outline-secondary rounded-pill sort-btn">Name: Z - A</a> -->
+    <% 
+      const sSearchQ = search ? `&search=${encodeURIComponent(search)}` : '';
+      const sCategoryQ = (typeof selectedCategory !== 'undefined' && selectedCategory !== null && selectedCategory !== '') 
+        ? `&category=${selectedCategory}` 
+        : '';
+      const sGtQ = (typeof gt !== 'undefined' && gt !== null && gt !== '') ? `&gt=${gt}` : '';
+      const sLtQ = (typeof lt !== 'undefined' && lt !== null && lt !== '') ? `&lt=${lt}` : '';
+    %>
 
-<a href="/shop?sort=price-asc&search=<%= search || '' %>&category=<%= selectedCategory || '' %>&gt=<%= gt || '' %>&lt=<%= lt || '' %>" 
-   class="btn btn-outline-secondary rounded-pill sort-btn">Price: Low to High</a>
+    <a href="/shop?sort=price-asc<%= sSearchQ %><%= sCategoryQ %><%= sGtQ %><%= sLtQ %>" 
+       class="btn btn-outline-secondary rounded-pill sort-btn">Price: Low to High</a>
 
-<a href="/shop?sort=price-desc&search=<%= search || '' %>&category=<%= selectedCategory || '' %>&gt=<%= gt || '' %>&lt=<%= lt || '' %>" 
-   class="btn btn-outline-secondary rounded-pill sort-btn">Price: High to Low</a>
+    <a href="/shop?sort=price-desc<%= sSearchQ %><%= sCategoryQ %><%= sGtQ %><%= sLtQ %>" 
+       class="btn btn-outline-secondary rounded-pill sort-btn">Price: High to Low</a>
 
-<a href="/shop?sort=name-asc&search=<%= search || '' %>&category=<%= selectedCategory || '' %>&gt=<%= gt || '' %>&lt=<%= lt || '' %>" 
-   class="btn btn-outline-secondary rounded-pill sort-btn">Name: A - Z</a>
+    <a href="/shop?sort=name-asc<%= sSearchQ %><%= sCategoryQ %><%= sGtQ %><%= sLtQ %>" 
+       class="btn btn-outline-secondary rounded-pill sort-btn">Name: A - Z</a>
 
-<a href="/shop?sort=name-desc&search=<%= search || '' %>&category=<%= selectedCategory || '' %>&gt=<%= gt || '' %>&lt=<%= lt || '' %>" 
-   class="btn btn-outline-secondary rounded-pill sort-btn">Name: Z - A</a>
-
-
+    <a href="/shop?sort=name-desc<%= sSearchQ %><%= sCategoryQ %><%= sGtQ %><%= sLtQ %>" 
+       class="btn btn-outline-secondary rounded-pill sort-btn">Name: Z - A</a>
   </div>
 </div>
 
@@ -587,14 +672,11 @@ figcaption h6 {
     <!-- Product Listing -->
     <div class="col-md-9">
       <section id="product-listing" class="py-2 mt-0 mb-5">
-        <div class="container">
-          <div class="row">
-            <div class="col-md-12">
-              <div class="product-list">
-                <div class="row">
-                  <% if (products && products.length > 0) { %>
-                    <% for (let i = 0; i < products.length; i++) { %>
-                      <div class="col-md-4 mb-4">
+        <div class="product-list">
+          <div class="row g-3">
+            <% if (products && products.length > 0) { %>
+              <% for (let i = 0; i < products.length; i++) { %>
+                <div class="col-12 col-sm-6 col-md-4 mb-4">
                         					<div class="product-item border rounded p-3 text-center shadow-sm position-relative">
 
                                     
@@ -690,17 +772,12 @@ figcaption h6 {
                           </figcaption>
                         </div>
                       </div>
-                    <% } %>
-                  <% } else { %>
-                    <div class="col-12 text-center">
-                      <p>No products found.</p>
-                    </div>
-                  <% } %>
-                </div>
-
+              <% } %>
+            <% } else { %>
+              <div class="col-12 text-center">
+                <p>No products found.</p>
               </div>
-
-            </div>
+            <% } %>
           </div>
         </div>
       </section>
@@ -717,13 +794,20 @@ figcaption h6 {
 
 
 
-<div class="d-flex justify-content-center mt-4">
-  <ul class="pagination">
+<div class="d-flex justify-content-center w-100 mt-4">
+  <ul class="pagination mb-0">
 
     <% 
       const sortQuery = sort ? `&sort=${sort}` : ''; 
-      const filterQuery = (gt && lt) ? `&gt=${gt}&lt=${lt}` : '';
-      const extraQuery = `${sortQuery}${filterQuery}`;
+      // Treat a price filter as active whenever both gt & lt are set, even if gt is 0
+      const filterQuery = (typeof gt !== 'undefined' && gt !== null && typeof lt !== 'undefined' && lt !== null)
+        ? `&gt=${gt}&lt=${lt}`
+        : '';
+      const searchQuery = search ? `&search=${encodeURIComponent(search)}` : '';
+      const categoryQuery = (typeof selectedCategory !== 'undefined' && selectedCategory !== null && selectedCategory !== '')
+        ? `&category=${selectedCategory}`
+        : '';
+      const extraQuery = `${sortQuery}${filterQuery}${searchQuery}${categoryQuery}`;
     %>
 
     <!-- Previous button -->

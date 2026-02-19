@@ -10,242 +10,319 @@ body {
 .main {
   background-color: #f5f3ef;
   padding: 2rem 0;
+  min-height: 100vh;
 }
 
-.container {
-  max-width: 850px !important;
+.order-container {
+  max-width: 850px;
+  margin: 0 auto;
+  padding: 0 15px;
 }
 
 /* Card Styling */
-.card {
+.order-card {
   background: #ffffff;
   border: none;
   border-radius: 12px;
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
+  padding: 2rem;
 }
 
 /* Order Title */
-.card h4 {
+.order-title {
   color: #c4a574;
-  font-size: 1.1rem;
+  font-size: 1.3rem;
   font-weight: 600;
   margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #f0f0f0;
 }
 
-/* Order Status Steps */
-.d-flex.justify-content-between.align-items-center.mb-4 {
+/* Order Status Progress Bar */
+.order-progress-wrapper {
   position: relative;
-  padding: 0 1rem;
+  margin-bottom: 2.5rem;
+  padding: 0 2rem;
 }
 
-.d-flex.justify-content-between.align-items-center.mb-4::before {
-  content: '';
+.order-progress-line {
   position: absolute;
-  top: 14px;
-  left: 10%;
-  right: 10%;
-  height: 2px;
-  background: linear-gradient(to right, #198754 50%, #ced4da 50%);
-  z-index: 0;
-}
-
-.d-flex.justify-content-between.align-items-center.mb-4 .text-center {
+  top: 16px;
+  left: 12%;
+  right: 12%;
+  height: 3px;
+  background: #e0e0e0;
   z-index: 1;
-  background: #ffffff;
-  padding: 0 0.5rem;
 }
 
-.d-flex.justify-content-between.align-items-center.mb-4 .rounded-circle {
-  width: 32px !important;
-  height: 32px !important;
+.order-progress-line-active {
+  position: absolute;
+  top: 16px;
+  left: 12%;
+  height: 3px;
+  background: linear-gradient(90deg, #198754, #20c997);
+  z-index: 2;
+  transition: width 0.5s ease;
+}
+
+.order-progress-steps {
+  display: flex;
+  justify-content: space-between;
+  position: relative;
+  z-index: 3;
+}
+
+.progress-step {
+  flex: 1;
+  text-align: center;
+  position: relative;
+}
+
+.progress-circle {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  margin: 0 auto 0.75rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
   border: 3px solid #ffffff;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
-}
-
-.d-flex.justify-content-between.align-items-center.mb-4 small {
-  font-size: 0.7rem !important;
-  font-weight: 600;
-  color: #666;
-  text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-top: 0.5rem;
-}
-
-/* Product Details Section */
-h5 {
-  font-size: 1rem;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 1.5rem;
-}
-
-/* Product Cards */
-.d-flex.align-items-center.border.rounded {
-  border: 1px solid #e8e5df !important;
-  border-radius: 8px !important;
-  padding: 1rem !important;
-  background: #fafaf8;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
+  background: #e0e0e0;
   transition: all 0.3s ease;
 }
 
-.d-flex.align-items-center.border.rounded:hover {
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+.progress-circle.active {
+  background: linear-gradient(135deg, #198754, #20c997);
 }
 
-.d-flex.align-items-center.border.rounded img {
-  width: 70px !important;
-  height: 70px !important;
-  border-radius: 6px;
-  border: 1px solid #e0e0e0;
-}
-
-.d-flex.align-items-center.border.rounded strong {
-  color: #333;
-  font-size: 0.95rem;
+.progress-step-label {
+  font-size: 0.75rem;
   font-weight: 600;
-}
-
-/* Status Badges */
-.badge {
-  font-size: 0.7rem;
-  padding: 0.35rem 0.75rem;
-  font-weight: 600;
-  border-radius: 4px;
+  color: #666;
+  text-transform: uppercase;
   letter-spacing: 0.3px;
 }
 
-.badge.bg-success {
-  background-color: #2d8659 !important;
+.progress-step-label.active {
+  color: #198754;
 }
 
-.badge.bg-danger {
-  background-color: #dc3545 !important;
+/* Alert Boxes */
+.delivery-alert {
+  background-color: #e7f5ec;
+  border: 1px solid #c3e6cb;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  color: #155724;
 }
 
-.badge.bg-warning {
-  background-color: #ffc107 !important;
+.return-alert {
+  background-color: #fff9e6;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
 }
 
-.badge.bg-dark {
-  background-color: #495057 !important;
+/* Section Headers */
+.section-header {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1.25rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #f0f0f0;
 }
 
-/* Shipping Address Card */
-.card.p-3 {
+/* Product Cards */
+.product-item {
+  border: 1px solid #e8e5df;
+  border-radius: 10px;
+  padding: 1.25rem;
+  background: #fafaf8;
+  margin-bottom: 1rem;
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.product-item:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  transform: translateY(-2px);
+}
+
+.product-image {
+  width: 80px;
+  height: 80px;
+  border-radius: 8px;
+  object-fit: cover;
+  border: 1px solid #e0e0e0;
+  flex-shrink: 0;
+}
+
+.product-details {
+  flex-grow: 1;
+}
+
+.product-name {
+  color: #333;
+  font-size: 1rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+  display: block;
+}
+
+.product-meta {
+  color: #666;
+  font-size: 0.9rem;
+  margin-bottom: 0.5rem;
+}
+
+.product-actions {
+  margin-top: 0.5rem;
+}
+
+.product-action-link {
+  font-size: 0.85rem;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  display: inline-block;
+  margin-right: 1rem;
+}
+
+.product-action-link:hover {
+  text-decoration: underline;
+}
+
+/* Status Badges */
+.status-badge {
+  font-size: 0.7rem;
+  padding: 0.4rem 0.85rem;
+  font-weight: 600;
+  border-radius: 5px;
+  letter-spacing: 0.3px;
+  display: inline-block;
+}
+
+.badge-success {
+  background-color: #2d8659;
+  color: white;
+}
+
+.badge-danger {
+  background-color: #dc3545;
+  color: white;
+}
+
+.badge-warning {
+  background-color: #ffc107;
+  color: #333;
+}
+
+.badge-dark {
+  background-color: #495057;
+  color: white;
+}
+
+/* Address Card */
+.address-card {
   background: #fafaf8;
   border: 1px solid #e8e5df;
-  border-radius: 8px;
+  border-radius: 10px;
+  padding: 1.5rem;
+  margin-bottom: 1.5rem;
 }
 
-.card.p-3 h5 {
-  font-size: 0.95rem;
+.address-card h5 {
+  font-size: 1.1rem;
   font-weight: 600;
   color: #333;
   margin-bottom: 1rem;
 }
 
-.card.p-3 p {
-  margin-bottom: 0.4rem;
+.address-card p {
+  margin-bottom: 0.5rem;
   color: #555;
   font-size: 0.9rem;
   line-height: 1.6;
 }
 
-.card.p-3 strong {
-  color: #333;
-}
-
 /* Order Summary */
-.card.mt-3 {
+.summary-card {
   background: #fafaf8;
   border: 1px solid #e8e5df;
-  border-radius: 8px;
-  margin-top: 1.5rem !important;
-}
-
-.card.mt-3 .card-body {
+  border-radius: 10px;
   padding: 1.5rem;
 }
 
-.card.mt-3 .card-title {
-  font-size: 1rem;
+.summary-title {
+  font-size: 1.1rem;
   font-weight: 600;
   color: #333;
   margin-bottom: 1.25rem;
 }
 
-.list-group-item {
-  background: transparent;
-  border: none;
-  border-bottom: 1px solid #e8e5df !important;
+.summary-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.summary-item {
+  display: flex;
+  justify-content: space-between;
   padding: 0.75rem 0;
   color: #555;
   font-size: 0.9rem;
+  border-bottom: 1px solid #e8e5df;
 }
 
-.list-group-item:last-child {
-  border-bottom: none !important;
+.summary-item:last-child {
+  border-bottom: none;
 }
 
-.list-group-item.fw-bold {
-  font-weight: 600 !important;
-  color: #333;
-  font-size: 1rem;
-  padding-top: 1rem;
-}
-
-/* View Invoice Button */
-.btn-primary {
-  background-color: #c4a574 !important;
-  border: none !important;
-  border-radius: 6px;
-  padding: 0.75rem;
+.summary-total {
   font-weight: 600;
-  font-size: 0.9rem;
+  color: #333;
+  font-size: 1.05rem;
+  padding-top: 1rem;
+  margin-top: 0.5rem;
+  border-top: 2px solid #e8e5df;
+}
+
+/* Invoice Button */
+.invoice-btn {
+  background-color: #c4a574;
+  border: none;
+  border-radius: 8px;
+  padding: 0.85rem;
+  font-weight: 600;
+  font-size: 0.95rem;
   text-transform: uppercase;
   letter-spacing: 0.5px;
   transition: all 0.3s ease;
-}
-
-.btn-primary:hover {
-  background-color: #b39664 !important;
-  transform: translateY(-1px);
-  box-shadow: 0 4px 12px rgba(196, 165, 116, 0.3);
-}
-
-/* Alert Styling */
-.alert-secondary {
-  background-color: #f8f9fa;
-  border: 1px solid #e8e5df;
-  color: #555;
-  font-size: 0.9rem;
-}
-
-.alert-light {
-  background-color: #fafaf8;
-  border: 1px solid #e8e5df;
-}
-
-/* Links */
-a.text-warning,
-a.text-danger {
-  font-size: 0.85rem;
-  font-weight: 500;
+  width: 100%;
+  margin-top: 1.5rem;
+  color: white;
   text-decoration: none;
-  transition: all 0.2s ease;
+  display: block;
+  text-align: center;
 }
 
-a.text-warning:hover {
-  color: #e0a800 !important;
-}
-
-a.text-danger:hover {
-  color: #c82333 !important;
+.invoice-btn:hover {
+  background-color: #b39664;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(196, 165, 116, 0.3);
+  color: white;
 }
 
 /* Modal Styling */
 .modal-content {
-  border-radius: 10px;
+  border-radius: 12px;
   border: none;
   box-shadow: 0 5px 20px rgba(0, 0, 0, 0.2);
 }
@@ -253,13 +330,14 @@ a.text-danger:hover {
 .modal-header {
   background-color: #fafaf8;
   border-bottom: 1px solid #e8e5df;
-  border-radius: 10px 10px 0 0;
+  border-radius: 12px 12px 0 0;
+  padding: 1.25rem 1.5rem;
 }
 
 .modal-title {
   color: #333;
   font-weight: 600;
-  font-size: 1.1rem;
+  font-size: 1.15rem;
 }
 
 .modal-body {
@@ -300,49 +378,200 @@ a.text-danger:hover {
   background-color: #5a6268;
 }
 
+.btn-primary {
+  background-color: #c4a574;
+  border: none;
+  border-radius: 6px;
+  padding: 0.6rem 1.25rem;
+  font-weight: 500;
+}
+
+.btn-primary:hover {
+  background-color: #b39664;
+}
+
 /* Responsive Adjustments */
 @media (max-width: 768px) {
-  .container {
-    padding: 1rem;
+  .order-container {
+    padding: 0 10px;
   }
   
-  .card {
-    padding: 1.5rem !important;
+  .order-card {
+    padding: 1.5rem;
   }
   
-  .d-flex.align-items-center.border.rounded img {
-    width: 60px !important;
-    height: 60px !important;
+  .product-image {
+    width: 60px;
+    height: 60px;
+  }
+  
+  .order-progress-wrapper {
+    padding: 0 1rem;
+  }
+  
+  .progress-circle {
+    width: 30px;
+    height: 30px;
+  }
+  
+  .progress-step-label {
+    font-size: 0.65rem;
+  }
+}
+
+@media (max-width: 576px) {
+  .product-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  
+  .product-image {
+    width: 100%;
+    height: auto;
+    max-height: 200px;
   }
 }
 </style>
+
 <main class="main">
+  <div class="order-container">
+    <div class="order-card">
+      <h4 class="order-title">Order #<%= order.orderId %></h4>
 
-<div class="container py-4" style="max-width: 900px;">
-  <div class="card shadow p-4">
-    <h4 class="text-primary fw-bold mb-4">Order #<%= order.orderId %></h4>
+      <!-- ===== Order Status Progress ===== -->
+      <% const stages = ['Pending','Confirmed','Shipped','Delivered']; %>
+      <% const currentStageIndex = stages.indexOf(order.status); %>
+      
+      <div class="order-progress-wrapper">
+        <div class="order-progress-line"></div>
+        <div class="order-progress-line-active" style="width: <%= currentStageIndex >= 0 ? (currentStageIndex * 33.33) : 0 %>%;"></div>
+        
+        <div class="order-progress-steps">
+          <% stages.forEach((stage, index) => { %>
+            <div class="progress-step">
+              <div class="progress-circle <%= currentStageIndex >= index ? 'active' : '' %>">
+                <% if (currentStageIndex >= index) { %>
+                  <svg width="16" height="16" fill="white" viewBox="0 0 16 16">
+                    <path d="M13.854 3.646a.5.5 0 0 1 0 .708l-7 7a.5.5 0 0 1-.708 0l-3.5-3.5a.5.5 0 1 1 .708-.708L6.5 10.293l6.646-6.647a.5.5 0 0 1 .708 0z"/>
+                  </svg>
+                <% } %>
+              </div>
+              <small class="progress-step-label <%= currentStageIndex >= index ? 'active' : '' %>"><%= stage %></small>
+            </div>
+          <% }) %>
+        </div>
+      </div>
 
-    <!-- ===== Order Status Steps ===== -->
-    <% const stages = ['Pending','Confirmed','Shipped','Delivered']; %>
-    <div class="d-flex justify-content-between align-items-center mb-4 px-2">
-      <% stages.forEach((s,i)=>{ %>
-        <div class="text-center flex-fill">
-          <div class="rounded-circle mx-auto mb-1" style="width:28px;height:28px;background:<%= stages.indexOf(order.status)>=i?'#198754':'#ced4da' %>;"></div>
-          <small class="d-block text-uppercase" style="font-size:0.75rem"><%= s %></small>
+      <!-- ===== Delivered Date ===== -->
+      <% if (order.status === 'Delivered') { %>
+        <div class="delivery-alert">
+          <strong>✓ Delivered On:</strong> <%= order.deliveredDate?.toLocaleDateString() || 'N/A' %>
+        </div>
+      <% } %>
+
+      <!-- ===== Return Button ===== -->
+      <% if (order.status === 'Delivered') { %>
+        <div class="return-alert">
+          <p class="mb-2"><strong>Return Order</strong> <small class="text-muted">(Return window open for 15 days after delivery)</small></p>
+          <a href="#" class="text-warning product-action-link" onclick="openReturnModal('<%= order._id %>')">Request Return</a>
+        </div>
+      <% } %>
+
+      <!-- ===== Product Details ===== -->
+      <h5 class="section-header">Product Details</h5>
+      
+      <% order.orderedItems.forEach(item => {
+        const st = (item.status || '').toLowerCase();
+        let badgeClass = 'badge-secondary';
+        let statusText = '';
+
+        if (st === 'cancelled') {
+          badgeClass = 'badge-danger';
+          statusText = 'CANCELLED';
+        } else if (st === 'returned') {
+          badgeClass = 'badge-dark';
+          statusText = 'RETURNED';
+        } else if (st === 'return request' || st === 'return requested') {
+          badgeClass = 'badge-warning';
+          statusText = 'RETURN REQUESTED';
+        } else if (order.status === 'Delivered') {
+          badgeClass = 'badge-success';
+          statusText = 'DELIVERED';
+        } else {
+          badgeClass = 'badge-success';
+          statusText = order.status.toUpperCase();
+        }
+      %>
+        <div class="product-item">
+          <img src="/uploads/images/<%= item.product.image[0] || 'placeholder.png' %>" 
+               class="product-image" 
+               alt="<%= item.product.productName %>">
+          
+          <div class="product-details">
+            <strong class="product-name"><%= item.product.productName %></strong>
+            <div class="product-meta">
+              Quantity: <%= item.quantity %> | Price: ₹<%= item.price %>
+            </div>
+            <div class="mb-2">
+              Status: <span class="status-badge <%= badgeClass %>"><%= statusText %></span>
+            </div>
+            
+            <div class="product-actions">
+              <% if (!item.status && ['Pending','Confirmed','Shipped'].includes(order.status)) { %>
+                <a href="#" class="product-action-link text-danger" onclick="cancelItem('<%= order._id %>', '<%= item._id %>')">Cancel Product</a>
+              <% } %>
+              <% if (!item.status && order.status === 'Delivered') { %>
+                <a href="#" class="product-action-link text-warning" onclick="returnItem('<%= order._id %>', '<%= item._id %>')">Return Product</a>
+              <% } %>
+            </div>
+          </div>
         </div>
       <% }) %>
-    </div>
-    <!-- ===== Delivered Date (If delivered) ===== -->
-    <% if (order.status === 'Delivered') { %>
-    <div class="alert alert-secondary py-2">Delivered On: <strong><%= order.deliveredDate?.toLocaleDateString() || 'N/A' %></strong></div>
-    <% } %>
 
-    <!-- ===== Return Button (Only if Delivered) ===== -->
-    <% if (order.status === 'Delivered') { %>
-    <div class="alert alert-light border">
-      <p class="mb-2">Return Order <small class="text-muted">(Return Window will be open for Only 15 Days After delivered)</small></p>
-        <!-- Your Return Order Link -->
-<a href="#" class="text-warning" onclick="openReturnModal('<%= order._id %>')">Return Order</a>
+      <!-- ===== Shipping Address ===== -->
+      <% if (selectedAddress) { %>
+        <div class="address-card">
+          <h5>Shipping Address</h5>
+          <p><strong><%= selectedAddress.name %></strong> - <%= selectedAddress.addressType %></p>
+          <p><%= selectedAddress.locality %>, <%= selectedAddress.city %></p>
+          <p><%= selectedAddress.state %> - <%= selectedAddress.pincode %></p>
+          <p><small>Phone: <%= selectedAddress.mobile %></small></p>
+        </div>
+      <% } else { %>
+        <div class="alert alert-danger">Address not found.</div>
+      <% } %>
+
+      <!-- ===== Order Summary ===== -->
+      <div class="summary-card">
+        <h5 class="summary-title">Order Summary</h5>
+        <ul class="summary-list">
+          <li class="summary-item">
+            <span>Subtotal</span>
+            <span>₹<%= order.totalPrice %></span>
+          </li>
+          <li class="summary-item">
+            <span>Discount</span>
+            <span>- ₹<%= order.discount %></span>
+          </li>
+          <li class="summary-item">
+            <span>Delivery Charge</span>
+            <span>₹<%= shippingCharge || 0 %></span>
+          </li>
+          <li class="summary-item summary-total">
+            <span>Total Amount</span>
+            <span>₹<%= order.finalAmount %></span>
+          </li>
+          <li class="summary-item">
+            <span>Payment Method</span>
+            <span><%= order.paymentMethod || 'Cash On Delivery' %></span>
+          </li>
+        </ul>
+        <a href="/download-invoice/<%= order._id %>" class="invoice-btn">Download Invoice</a>
+      </div>
+
+    </div>
+  </div>
+</main>
 
 <!-- Return Modal -->
 <div class="modal fade" id="returnModal" tabindex="-1" aria-hidden="true">
@@ -355,7 +584,6 @@ a.text-danger:hover {
         </div>
 
         <div class="modal-body">
-          <!-- Reason Dropdown -->
           <div class="mb-3">
             <label for="reasonCategory" class="form-label">Return Reason Category</label>
             <select id="reasonCategory" name="reason" class="form-select" required>
@@ -367,13 +595,11 @@ a.text-danger:hover {
             </select>
           </div>
 
-          <!-- Description -->
           <div class="mb-3">
             <label for="description" class="form-label">Detailed Description</label>
             <textarea id="description" name="description" class="form-control" rows="3" required placeholder="Please describe the issue..."></textarea>
           </div>
 
-          <!-- Image Upload -->
           <div class="mb-3">
             <label for="images" class="form-label">Upload Images (optional)</label>
             <input type="file" name="images" id="images" class="form-control" accept="image/*" multiple>
@@ -390,169 +616,9 @@ a.text-danger:hover {
   </div>
 </div>
 
-    </div>
-    <% } %>
-
-    <!-- ===== Products ===== -->
-    <!-- ===== Products List ===== -->
-<div class="row gy-4">
-  <div class="col-12">
-    <h5 class="mb-3">Product Details</h5>
-
- <% order.orderedItems.forEach(item => {
-  /* normalise to lower‑case */
-  const st = (item.status || '').toLowerCase();
-  let badgeClass = 'bg-secondary';
-  let statusText = '';
-
-  if (st === 'cancelled') {
-    badgeClass = 'bg-danger';
-    statusText = 'CANCELLED';
-  } else if (st === 'returned') {
-    badgeClass = 'bg-dark text-white';
-    statusText = 'RETURNED';
-  } else if (st === 'return request' || st === 'return requested') {
-    badgeClass = 'bg-warning text-dark';
-    statusText = 'RETURN REQUESTED';
-  } else if (order.status === 'Delivered') {        /* fallback */
-    badgeClass = 'bg-success';
-    statusText = 'DELIVERED';
-  } else {
-    badgeClass = 'bg-success';
-    statusText = order.status.toUpperCase();
-  }
-%>
-  <!-- card markup stays the same -->
-  <div class="d-flex align-items-center border rounded p-2 mb-2">
-    <img src="/uploads/images/<%= item.product.image[0] || 'placeholder.png' %>"
-         class="me-3 rounded" style="width:60px;height:60px;object-fit:cover" />
-    <div class="flex-grow-1">
-      <strong><%= item.product.productName %></strong><br>
-      Qty <%= item.quantity %>   |   ₹<%= item.price %><br>
-      Status : <span class="badge <%= badgeClass %>"><%= statusText %></span>
-
-      <% /* buttons stay exactly as you had them */ %>
-      <% if (!item.status && ['Pending','Confirmed','Shipped'].includes(order.status)) { %>
-        <a href="#" class="d-block text-danger mt-1"
-           onclick="cancelItem('<%= order._id %>', '<%= item._id %>')">Cancel Product</a>
-      <% } %>
-      <% if (!item.status && order.status === 'Delivered') { %>
-        <a href="#" class="d-block text-warning mt-1"
-           onclick="returnItem('<%= order._id %>', '<%= item._id %>')">Return Product</a>
-      <% } %>
-    </div>
-  </div>
-<% }) %>
-
-  </div>
-</div>
-
-      <!-- Shipping Address -->
-<% if (selectedAddress) { %>
-<div class="col-12">
-  <div class="card p-3">
-    <h5>Shipping Address</h5>
-    <p class="mb-1"><strong><%= selectedAddress.name %></strong> <%= selectedAddress.addressType %></p>
-    <p class="mb-1"><%= selectedAddress.locality %>, <%= selectedAddress.city %></p>
-    <p class="mb-1"><%= selectedAddress.state %></p>
-    <p class="mb-1">Pin: <%= selectedAddress.pincode %></p>
-    <p class="mb-1"><small>Ph: <%= selectedAddress.mobile %></small></p>
-  </div>
-</div>
-<% } else { %>
-  <p class="text-danger">Address not found.</p>
-<% } %>
-
-
-      
-
-      <!-- Summary -->
-      <div class="col-12">
-        <div class="card mt-3">
-          <div class="card-body">
-            <h5 class="card-title">Order Summary</h5>
-            <ul class="list-group list-group-flush">
-              <li class="list-group-item d-flex justify-content-between">
-                <span>Subtotal</span>
-                <span>₹<%= order.totalPrice %></span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between">
-                <span>Discount</span>
-                <span>₹<%= order.discount %></span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between">
-                <span>Delivery Charge</span>
-                <span>₹<%= shippingCharge || 0 %></span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between fw-bold">
-                <span>Total</span>
-                <span>₹<%= order.finalAmount %></span>
-              </li>
-              <li class="list-group-item d-flex justify-content-between">
-                <span>Payment Method</span>
-                <span><%= order.paymentMethod || 'Cash On Delivery' %></span>
-              </li>
-            </ul>
-            <a href="/download-invoice/<%= order._id %>" class="btn btn-primary w-100 mt-3">View Invoice</a>
-          </div>
-        </div>
-      </div>
-    </div>
-
-   
-
-  </div>
-</div>
-</main>
-<!-- ===== SweetAlert2 JS ===== -->
+<!-- SweetAlert2 JS -->
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script>
-function openReturnPopup(orderId){
-  Swal.fire({
-    title:'Return Request',
-    html:`<select id="reason" class="swal2-input">
-            <option value="Damaged product">Damaged product</option>
-            <option value="Wrong item">Wrong item received</option>
-            <option value="Not needed">Not needed</option>
-            <option value="Other">Other</option>
-          </select>
-          <textarea id="desc" class="swal2-textarea" placeholder="Describe the issue" required></textarea>`,
-    showCancelButton:true,
-    confirmButtonText:'Submit',
-    preConfirm:()=>{
-      const reason=document.getElementById('reason').value;
-      const desc=document.getElementById('desc').value.trim();
-      if(!desc) return Swal.showValidationMessage('Description required');
-      return {reason,desc};
-    }
-  }).then(res=>{
-    if(res.isConfirmed){
-      fetch(`/return-order/${orderId}`,{
-        method:'POST',headers:{'Content-Type':'application/json'},
-        body:JSON.stringify(res.value)
-      }).then(r=>r.json()).then(d=>{
-        if(d.ok){Swal.fire('Success','Return request sent','success').then(()=>location.reload());}
-        else{Swal.fire('Error',d.msg||'Failed','error');}
-      });
-    }
-  })
-}
-
-function cancelOrderSwal(orderId){
-  Swal.fire({title:'Cancel Order?',showCancelButton:true,confirmButtonText:'Yes, cancel'}).then(r=>{
-    if(r.isConfirmed){
-      fetch(`/cancel-order/${orderId}`,{method:'PATCH'}).then(x=>x.json()).then(d=>{
-        if(d.ok) Swal.fire('Cancelled','Order cancelled','success').then(()=>location.reload());
-        else Swal.fire('Error',d.msg||'Failed','error');
-      })
-    }
-  })
-}
-</script>
-
-
-<script>
-
 let currentOrderId = '';
 
 function openReturnModal(orderId) {
@@ -577,7 +643,7 @@ document.getElementById('returnForm').addEventListener('submit', async function 
     const result = await res.json();
 
     if (result.ok) {
-      Swal.fire('Success', 'Return request submitted!', 'success');
+      Swal.fire('Success', 'Return request submitted!', 'success').then(() => location.reload());
       bootstrap.Modal.getInstance(document.getElementById('returnModal')).hide();
     } else {
       Swal.fire('Error', result.msg || 'Something went wrong', 'error');
@@ -587,8 +653,7 @@ document.getElementById('returnForm').addEventListener('submit', async function 
     Swal.fire('Error', 'Server error', 'error');
   }
 });
-</script>
-<script>
+
 function cancelItem(orderId, itemId) {
   Swal.fire({
     title: 'Cancel this product?',
@@ -655,7 +720,5 @@ function returnItem(orderId, itemId) {
   });
 }
 </script>
-
-
 
 <%- include('../partials/user/footer') %>

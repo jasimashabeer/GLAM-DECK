@@ -101,9 +101,17 @@ const getAllProducts = async (req, res) => {
 
     // Apply search filter
     if (search.trim() !== "") {
+
+ const matchedCategories = await Categoey.find({
+    name: { $regex: new RegExp(search, "i") }
+  }).select("_id");
+
+  const categoryIds = matchedCategories.map(cat => cat._id);
+
       filter.$or = [
         { productName: { $regex: new RegExp(".*" + search + ".*", "i") } },
-        { author: { $regex: new RegExp(".*" + search + ".*", "i") } }
+        { author: { $regex: new RegExp(".*" + search + ".*", "i") } },
+          { category: { $in: categoryIds } }
       ];
     }
 

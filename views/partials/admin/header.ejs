@@ -60,5 +60,38 @@
             </div>
           </div>
       
+          <script>
+            (function(){
+              try {
+                var path = window.location.pathname || '/';
+                var nav = document.querySelectorAll('nav#sidebar ul.nav li');
+                nav.forEach(function(li){ li.classList.remove('active'); });
+                var links = document.querySelectorAll('nav#sidebar a');
+                var matched = null;
+                links.forEach(function(a){
+                  try {
+                    var url = new URL(a.href, window.location.origin);
+                    var aPath = (url.pathname || '/').replace(/\/$/, '') || '/';
+                    var cur = path.replace(/\/$/, '') || '/';
+                    if (aPath === cur) matched = a;
+                  } catch(e){}
+                });
+                if (!matched) {
+                  links.forEach(function(a){
+                    try {
+                      var url = new URL(a.href, window.location.origin);
+                      var aPath = (url.pathname || '/').replace(/\/$/, '') || '/';
+                      if (aPath !== '/' && path.indexOf(aPath) === 0) matched = a;
+                    } catch(e){}
+                  });
+                }
+                if (matched) {
+                  var li = matched.closest('li');
+                  if (li) li.classList.add('active');
+                }
+              } catch(e){ console.error(e); }
+            })();
+          </script>
+
           <!-- Main content area -->
           <div class="flex-grow-1">

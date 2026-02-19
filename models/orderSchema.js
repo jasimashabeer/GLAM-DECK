@@ -101,7 +101,16 @@ paymentMethod: {
   couponStatus: {
     type: Boolean,
     default: false
-  }
+  },
+  couponCode: {
+  type: String,
+  default: null
+},
+couponMinimumPrice: {
+  type: Number,
+  default: 0
+}
+
 });
 
 const Order = mongoose.model('Order', orderSchema);

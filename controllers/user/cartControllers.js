@@ -91,9 +91,9 @@ const addToCart = async (req, res) => {
     if (!product || product.isBlocked || !product.isListed || !product.category || product.category.isBlocked) {
       return res.status(400).json({ status: false, message: 'Product is unavailable' });
     }
-if (product.quantity === 0) {
-  return res.status(200).json({ status: false, message: 'Product is out of stock' });
-}
+    if (product.quantity === 0) {
+      return res.status(200).json({ status: false, message: 'Product is out of stock' });
+    }
 
 
     let cart = await Cart.findOne({ userId });
@@ -185,21 +185,21 @@ const updateQuantity = async (req, res) => {
       // Remove item if completely out of stock
       item.remove();
       warning = "This product is out of stock.";
-    }else if (action === 'increase') {
-  if (item.quantity < product.quantity && item.quantity < 5) {
-    item.quantity += 1;
-  } else {
-    const maxAllowed = Math.min(product.quantity, 5);
-    item.quantity = maxAllowed;
+    } else if (action === 'increase') {
+      if (item.quantity < product.quantity && item.quantity < 5) {
+        item.quantity += 1;
+      } else {
+        const maxAllowed = Math.min(product.quantity, 5);
+        item.quantity = maxAllowed;
 
-    if (product.quantity < 5) {
-      warning = `Only ${product.quantity} items available in stock.`;  //  will trigger here
-    } else {
-      warning = "You can buy a maximum of 5 units.";
+        if (product.quantity < 5) {
+          warning = `Only ${product.quantity} items available in stock.`;  //  will trigger here
+        } else {
+          warning = "You can buy a maximum of 5 units.";
+        }
+      }
     }
-  }
-}
- else if (action === 'decrease') {
+    else if (action === 'decrease') {
       if (item.quantity > 1) {
         item.quantity -= 1;
       }
@@ -268,6 +268,6 @@ const checkStockOnly = async (req, res) => {
 
 
 module.exports = {
-  loadCartPage,addToCart,checkBlockedCart,removeProduct,updateQuantity,checkStockOnly
+  loadCartPage, addToCart, checkBlockedCart, removeProduct, updateQuantity, checkStockOnly
 
 };

@@ -623,7 +623,7 @@
                     <li>
                       <strong>Tags:</strong>
                       <a href="#" rel="tag">#Tag1</a>
-                      <a href="#" rel="tag"><%= category.name %></a>
+                      <a href="/shop?category=<%= category._id %>" rel="tag" class="<%= String(selectedCategory || '') === String(category._id) ? 'active-category' : '' %>"><%= category.name %></a>
                     </li>
                     <li>
                       <strong>Availability:</strong>
@@ -777,8 +777,10 @@
 </script>
 
 <script>
+  const maxQty = Math.min(<%= product.quantity %>, 5);
   const qtyDropdown = document.getElementById('quantity');
-  for (let i = 1; i <= 5; i++) {
+
+  for (let i = 1; i <= maxQty; i++) {
     const option = document.createElement('option');
     option.value = i;
     option.textContent = i;

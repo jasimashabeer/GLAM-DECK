@@ -160,12 +160,7 @@ const verifyOtp= async(req,res)=>{
       })
       await saveUserData.save()
       
-      // Clear any existing admin session when user signs up
-      if (req.session.admin) {
-          delete req.session.admin;
-      }
-      
-      // Store only user ID in session (consistent with login)
+      // Set user session - admin session remains independent
       req.session.user = saveUserData._id;
       req.session.userId = saveUserData._id; // Keep for backward compatibility if needed
       
@@ -247,12 +242,7 @@ const login = async(req,res)=>{
           return res.render('login',{message:'Incorrect password'});
       }
       
-      // Clear any existing admin session when user logs in
-      if (req.session.admin) {
-          delete req.session.admin;
-      }
-      
-      // Store only user ID in session (consistent with admin session)
+      // Set user session - admin session remains independent
       req.session.user = findUser._id;
       req.session.userId = findUser._id; // Keep for backward compatibility if needed
       
@@ -285,14 +275,13 @@ const showproducts= async (req,res)=>{
 
 const logout=async(req,res)=>{
   try{
-    // Clear only user session, preserve admin session if exists
-    // (though in practice, user and admin sessions should be mutually exclusive)
+    // Clear only user session - preserve admin session completely
     if (req.session.user) {
         delete req.session.user;
         delete req.session.userId;
     }
 
-    // If no admin session exists, destroy the entire session
+    // Only destroy session if no admin session exists
     if (!req.session.admin) {
         req.session.destroy((err) => {
             if (err) {
@@ -302,7 +291,7 @@ const logout=async(req,res)=>{
             return res.redirect('/login');
         });
     } else {
-        // If admin session exists, just redirect (shouldn't happen, but handle it)
+        // Admin session exists, just redirect to login
         return res.redirect('/login');
     }
   }catch(error){

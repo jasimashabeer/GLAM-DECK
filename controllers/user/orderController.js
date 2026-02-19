@@ -1,6 +1,7 @@
 const Order    = require('../../models/orderSchema');
 const Product  = require('../../models/productSchema');
 const Address  = require('../../models/addressSchema');
+const Coupon = require('../../models/couponSchema');
 const { creditWallet } = require('../user/walletController');
 const User=require('../../models/userSchema')
 const Razorpay = require('razorpay');
@@ -15,7 +16,7 @@ const rzp = new Razorpay({
   key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
-// Make sure this is NOT repeated anywhere
+
 
 
 const incStock = async (productId, qty) => {
@@ -27,6 +28,24 @@ const incStock = async (productId, qty) => {
 };
 
 
+const canModifyOrderWithCoupon = (order, excludeItemId = null) => {
+  // No coupon → always allowed
+  if (!order.couponStatus) return true;
+
+  let remainingSubtotal = 0;
+
+  for (const item of order.orderedItems) {
+    // Skip cancelled / returned / return-requested items
+    if (['Cancelled', 'returned', 'Return Request'].includes(item.status)) continue;
+
+    // Skip the item being cancelled/returned
+    if (excludeItemId && String(item._id) === String(excludeItemId)) continue;
+
+    remainingSubtotal += item.price * item.quantity;
+  }
+
+  return remainingSubtotal >= order.couponMinimumPrice;
+};
 
 
 
@@ -132,12 +151,12 @@ const cancelOrder = async (req, res) => {
     if (order.status === 'Cancelled')
       return res.status(400).json({ ok: false, msg: 'Already cancelled' });
 
-    let refundTotal = 0;
+    // Refund total is the order's final amount (whole-order cancel)
+    let refundTotal = order.finalAmount || 0;
 
     for (const it of order.orderedItems) {
       if (!['Cancelled', 'returned'].includes(it.status)) {
         await incStock(it.product, it.quantity);
-        refundTotal =order.finalAmount;
 
         it.status            = 'Cancelled';
         it.cancelReason      = reason;
@@ -149,6 +168,18 @@ const cancelOrder = async (req, res) => {
     order.cancelReason      = reason;
     order.cancelDescription = description;
     await order.save();
+    // If a coupon was applied to this order, remove this user from the coupon's usedUsers
+    try {
+      if (order.couponStatus && order.couponCode) {
+        const coupon = await Coupon.findOne({ couponName: order.couponCode });
+        if (coupon && Array.isArray(coupon.usedUsers) && coupon.usedUsers.length) {
+          coupon.usedUsers = coupon.usedUsers.filter(u => String(u) !== String(order.user));
+          await coupon.save();
+        }
+      }
+    } catch (e) {
+      console.error('coupon cleanup failed for cancelled order', e);
+    }
 if(order.paymentMethod!=='Cash On Delivery'){
     await creditWallet(
       order.user,
@@ -181,6 +212,13 @@ const cancelProduct = async (req, res) => {
     const item = order.orderedItems.id(itemId);
     if (!item)   return res.status(404).json({ ok: false, msg: 'Item not found' });
     if (item.status === 'Cancelled') return res.json({ ok: true }); // already done
+
+if (!canModifyOrderWithCoupon(order, itemId)) {
+  return res.status(400).json({
+    ok: false,
+    msg: 'This item cannot be cancelled because the coupon minimum order value will not be met.'
+  });
+}
 
     await incStock(item.product, item.quantity);
 
@@ -225,6 +263,12 @@ const returnProduct = async (req, res) => {
 
     const item = order.orderedItems.id(itemId);
     if (!item)  return res.status(404).json({ ok:false, msg:'Item not found' });
+    if (!canModifyOrderWithCoupon(order, itemId)) {
+  return res.status(400).json({
+    ok: false,
+    msg: 'This item cannot be returned because the coupon minimum order value will not be met.'
+  });
+}
     if (['Return Request','returned'].includes(item.status))
       return res.json({ ok:true });
 
@@ -280,6 +324,12 @@ const returnOrder = async (req, res) => {
     if (!order || order.status !== 'Delivered')
       return res.status(400).json({ ok: false, msg: 'Invalid return request' });
 
+    if (order.couponStatus) {
+  return res.status(400).json({
+    ok: false,
+    msg: 'This order cannot be returned because a coupon was applied.'
+  });
+}
     /* 1️⃣  flag every item as “Return Request” (unless already returned) */
     for (const it of order.orderedItems) {
       if (!['Return Request', 'returned'].includes(it.status)) {

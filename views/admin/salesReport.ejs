@@ -1,170 +1,521 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <title>Sales Report</title>
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
-
-
-
-<style>
-  #salesReport {
-    width: 100%;
-    font-size: 12px;  
-  }
-  table {
-    width: 100%;
-    border-collapse: collapse;
-  }
-  th, td {
-    padding: 6px;
-    word-wrap: break-word;
-    text-align: center;
-  }
-</style>
-
+<%- include("../../views/partials/admin/header") %>
 
   <style>
-    body { background-color: #f8f9fa; }
-    #salesReport {
-      background-color: white;
-      padding: 30px;
-      border-radius: 10px;
-      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    body {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
     }
-    h2, h4 { font-weight: bold; }
-    table th, table td { vertical-align: middle !important; page-break-inside: avoid; }
+
+    .page-wrapper {
+      padding: 2rem 1rem;
+    }
+
+    .top-controls {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(10px);
+      padding: 1.5rem;
+      border-radius: 1rem;
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+      margin-bottom: 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+    }
+
+    .action-buttons {
+      display: flex;
+      gap: 0.75rem;
+      flex-wrap: wrap;
+    }
+
+    .btn-warning {
+      background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+      border: none;
+      color: #000;
+      font-weight: 600;
+      padding: 0.65rem 1.5rem;
+      border-radius: 50px;
+      transition: all 0.3s ease;
+      box-shadow: 0 4px 12px rgba(255, 193, 7, 0.3);
+    }
+
+    .btn-warning:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(255, 193, 7, 0.4);
+    }
+
     .download-btn {
-      background-color: #0d6efd;
+      background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
       color: #fff;
       border: none;
-      padding: 6px 16px;
-      border-radius: 6px;
-      font-weight: 500;
-      transition: background-color 0.3s ease;
-      margin-right: 12px;
+      padding: 0.65rem 1.5rem;
+      border-radius: 50px;
+      font-weight: 600;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(13, 110, 253, 0.3);
     }
-    .download-btn:hover { background-color: #084298; }
-    td, th { word-break: break-word; white-space: normal; }
-    td.order-id { max-width: 150px; word-break: break-all; white-space: normal; }
-    table { table-layout: fixed; width: 100%; border-collapse: collapse; }
-    .table-bordered th, .table-bordered td { border: 1px solid #dee2e6; padding: 8px; }
+
+    .download-btn:hover {
+      background: linear-gradient(135deg, #0a58ca 0%, #084298 100%);
+      transform: translateY(-2px);
+      box-shadow: 0 6px 20px rgba(13, 110, 253, 0.4);
+    }
+
+    #filterForm {
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      padding: 1rem 1.25rem;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      display: flex;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 0.75rem;
+      border: 1px solid rgba(13, 110, 253, 0.1);
+    }
+
+    .form-label {
+      color: #0d6efd;
+      font-weight: 600;
+      margin: 0;
+    }
+
+    .form-select {
+      border: 2px solid #0d6efd;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      font-weight: 500;
+    }
+
+    .form-select:focus {
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+      border-color: #0a58ca;
+    }
+
+    .form-control {
+      border: 2px solid #dee2e6;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+    }
+
+    .form-control:focus {
+      border-color: #0d6efd;
+      box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.15);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #0d6efd 0%, #0a58ca 100%);
+      border: none;
+      font-weight: 600;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      box-shadow: 0 2px 8px rgba(13, 110, 253, 0.3);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(13, 110, 253, 0.4);
+    }
+
+    #customDateBlock {
+      margin-left: 0.5rem;
+    }
+
+    #dateError {
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    #salesReport {
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      padding: 3rem;
+      border-radius: 1.5rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+      width: 100%;
+      max-width: 1400px;
+      margin: 0 auto;
+      position: relative;
+      overflow: hidden;
+    }
+
+    #salesReport::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+    }
+
+    #salesReport h2 {
+      font-weight: 700;
+      color: #212529;
+      font-size: 2.5rem;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.5px;
+    }
+
+    #salesReport h4 {
+      font-weight: 600;
+      color: #495057;
+      font-size: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    #salesReport h5 {
+      font-weight: 600;
+      color: #343a40;
+      font-size: 1.25rem;
+      border-bottom: 3px solid #667eea;
+      padding-bottom: 0.5rem;
+      display: inline-block;
+    }
+
+    #salesReport p {
+      color: #6c757d;
+      font-size: 1rem;
+      line-height: 1.6;
+    }
+
+    .table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.95rem;
+      background-color: #fff;
+      border-radius: 0.75rem;
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+    }
+
+    .table th {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: #fff;
+      font-weight: 600;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+      letter-spacing: 0.5px;
+      padding: 1rem 0.75rem;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    .table td {
+      padding: 0.875rem 0.75rem;
+      vertical-align: middle;
+      text-align: center;
+      color: #495057;
+      border-bottom: 1px solid #e9ecef;
+      word-wrap: break-word;
+      word-break: break-word;
+    }
+
+    .table-bordered {
+      border: 2px solid #dee2e6;
+      border-radius: 0.75rem;
+    }
+
+    .table-bordered th,
+    .table-bordered td {
+      border: 1px solid #dee2e6;
+    }
+
+    .table-striped tbody tr:nth-of-type(odd) {
+      background-color: rgba(102, 126, 234, 0.03);
+    }
+
+    .table tbody tr {
+      transition: all 0.2s ease;
+    }
+
+    .table tbody tr:hover {
+      background-color: rgba(102, 126, 234, 0.08);
+      transform: scale(1.01);
+    }
+
+    .table-dark {
+      background: linear-gradient(135deg, #343a40 0%, #495057 100%) !important;
+      color: #fff !important;
+    }
+
+    .table-dark td {
+      color: #fff !important;
+      font-weight: 600;
+      border-bottom: none !important;
+    }
+
+    .order-id {
+      max-width: 150px;
+      word-break: break-all;
+      white-space: normal;
+      font-family: 'Courier New', monospace;
+      font-size: 0.85rem;
+      color: #0d6efd;
+      font-weight: 500;
+    }
+
+    tbody tr {
+      page-break-inside: avoid;
+    }
+
+    .text-center {
+      text-align: center;
+    }
+
+    .text-end {
+      text-align: right;
+    }
+
+    .text-muted {
+      color: #6c757d !important;
+    }
+
+    .mb-2 {
+      margin-bottom: 0.5rem;
+    }
+
+    .mb-3 {
+      margin-bottom: 1rem;
+    }
+
+    .mb-4 {
+      margin-bottom: 1.5rem;
+    }
+
+    .mt-5 {
+      margin-top: 3rem;
+    }
+
+    .summary-card {
+      background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+      border-radius: 1rem;
+      padding: 1.5rem;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+      margin-bottom: 2rem;
+    }
+
+    @media print {
+      body {
+        background: white;
+      }
+
+      .top-controls {
+        display: none;
+      }
+
+      #salesReport {
+        box-shadow: none;
+        padding: 1rem;
+      }
+
+      .table tbody tr:hover {
+        transform: none;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .top-controls {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .action-buttons {
+        justify-content: center;
+      }
+
+      #filterForm {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      #salesReport {
+        padding: 1.5rem;
+      }
+
+      #salesReport h2 {
+        font-size: 1.75rem;
+      }
+
+      #salesReport h4 {
+        font-size: 1.25rem;
+      }
+
+      .table {
+        font-size: 0.8rem;
+      }
+
+      .table th,
+      .table td {
+        padding: 0.5rem 0.25rem;
+      }
+
+      .download-btn,
+      .btn-warning {
+        padding: 0.5rem 1rem;
+        font-size: 0.875rem;
+      }
+    }
   </style>
-</head>
 
-<body>
-  <div class="col d-flex justify-content-end align-items-center mb-3 me-5 mt-3">
-    <div class="d-flex gap-2">
-      <a href="/admin/sales" class="btn btn-warning">Go Back</a>
-      <button onclick="generatePDF()" class="download-btn">Download PDF</button>
-      <button onclick="downloadExcel()" class="download-btn">Download ExcelSheet</button>
-    </div>
-    <form method="GET" action="/admin/salesReport" class="d-flex align-items-center bg-light p-2 rounded shadow-sm flex-wrap gap-2" id="filterForm">
-      <label for="range" class="form-label mb-0 me-2 fw-semibold text-primary">Sort By:</label>
-      <select name="range" id="range" class="form-select form-select-sm w-auto border-primary me-2" onchange="handleRangeChange()">
-        <option value="daily" <%= range === 'daily' ? 'selected' : '' %>>Daily</option>
-        <option value="weekly" <%= range === 'weekly' ? 'selected' : '' %>>Weekly</option>
-        <option value="monthly" <%= range === 'monthly' ? 'selected' : '' %>>Monthly</option>
-        <option value="yearly" <%= range === 'yearly' ? 'selected' : '' %>>Yearly</option>
-        <option value="custom" <%= range === 'custom' ? 'selected' : '' %>>Custom</option>
-      </select>
-      <div id="customDateBlock" class="d-flex flex-column" style="display: none;">
-        <div class="d-flex flex-row gap-2">
-          <input type="date" name="from" id="fromDate" class="form-control form-control-sm" value="<%= from || '' %>">
-          <input type="date" name="to" id="toDate" class="form-control form-control-sm" value="<%= to || '' %>">
-          <button type="submit" class="btn btn-primary btn-sm" id="applyBtn">Apply</button>
-        </div>
-        <p id="dateError" class="text-danger mt-1 mb-0" style="display: none;"></p>
+  <div class="page-wrapper">
+    <div class="top-controls">
+      <div class="action-buttons">
+        <a href="/admin/sales" class="btn btn-warning">Go Back</a>
+        <button onclick="generatePDF()" class="download-btn">Download PDF</button>
+        <button onclick="downloadExcel()" class="download-btn">Download ExcelSheet</button>
       </div>
-    </form>
-  </div>
-
-  <div id="salesReport" class="container p-4">
-    <div class="text-center mb-4">
-      <h2>Glam Deck</h2>
-      <h4 class="mb-2">Sales Report</h4>
-      <p><strong>Report Range:</strong> <%= new Date(startDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) %> – <%= new Date(endDate).toLocaleDateString('en-IN', { year: 'numeric', month: 'long', day: 'numeric' }) %></p>
-      <p><strong>Generated On:</strong> <%= new Date().toLocaleDateString() %></p>
+      <form method="GET" action="/admin/salesReport" id="filterForm">
+        <label for="range" class="form-label">Sort By:</label>
+        <select name="range" id="range" class="form-select form-select-sm w-auto border-primary"
+          onchange="handleRangeChange()">
+          <option value="daily" <%=range==='daily' ? 'selected' : '' %>>Daily</option>
+          <option value="weekly" <%=range==='weekly' ? 'selected' : '' %>>Weekly</option>
+          <option value="monthly" <%=range==='monthly' ? 'selected' : '' %>>Monthly</option>
+          <option value="yearly" <%=range==='yearly' ? 'selected' : '' %>>Yearly</option>
+          <option value="custom" <%=range==='custom' ? 'selected' : '' %>>Custom</option>
+        </select>
+        <div id="customDateBlock" class="d-flex flex-column" style="display: none;">
+          <div class="d-flex flex-row gap-2">
+            <input type="date" name="from" id="fromDate" class="form-control form-control-sm" value="<%= from || '' %>">
+            <input type="date" name="to" id="toDate" class="form-control form-control-sm" value="<%= to || '' %>">
+            <button type="submit" class="btn btn-primary btn-sm" id="applyBtn">Apply</button>
+          </div>
+          <p id="dateError" class="text-danger mt-1 mb-0" style="display: none;"></p>
+        </div>
+      </form>
     </div>
 
-    <div class="mb-4">
-      <table class="table table-bordered">
-        <tbody>
-          <tr><th>Total Sales</th><td>₹<%= totalSales.toLocaleString() %></td><th>Total Orders</th><td><%= totalOrders %></td></tr>
-          <tr><th>Products Sold</th><td><%= totalProducts %></td><th>Discounts Given</th><td>₹<%= totalDiscounts.toLocaleString() %></td></tr>
-          <tr><th>Net Revenue</th><td>₹<%= netRevenue.toLocaleString() %></td><th>Avg. Order Value</th><td>₹<%= averageOrderValue.toFixed(2) %></td></tr>
-        </tbody>
-      </table>
-    </div>
+    <div id="salesReport">
+      <div class="text-center mb-4">
+        <h2>Glam Deck</h2>
+        <h4 class="mb-2">Sales Report</h4>
+        <p><strong>Report Range:</strong>
+          <%= new Date(startDate).toLocaleDateString('en-IN', { year: 'numeric' , month: 'long' , day: 'numeric' }) %> –
+            <%= new Date(endDate).toLocaleDateString('en-IN', { year: 'numeric' , month: 'long' , day: 'numeric' }) %>
+        </p>
+        <p><strong>Generated On:</strong>
+          <%= new Date().toLocaleDateString() %>
+        </p>
+      </div>
 
-    <div class="mb-4">
-      <h5 class="mb-3">Order Details</h5>
-      <table class="table table-striped table-bordered">
-        <thead>
-          <tr>
-            <th>Order ID</th>
-            <th>Customer</th>
-            <th>Date</th>
-            <th>Payment</th>
-            <th>Status</th>
-            <th>Discount</th>
-            <th>Total (₹)</th>
-          </tr>
-        </thead>
-        <tbody>
-          <% orders.forEach(order => { %>
+      <div class="mb-4">
+        <table class="table table-bordered">
+          <tbody>
             <tr>
-              <td class="order-id"><%= order.orderId %></td>
-              <td><%= order.user?.name || '-' %></td>
-              <td><%= new Date(order.createdOn).toLocaleDateString() %></td>
-              <td><%= order.paymentMethod ? order.paymentMethod.toUpperCase() : '-' %></td>
-              <td><%= order.status ? order.status.toUpperCase() : '-' %></td>
-              <td>₹<%= order.totalDiscount ?? 0 %></td>
-              <td>₹<%= order.finalAmount ?? 0 %></td>
+              <th>Total Sales</th>
+              <td>₹<%= totalSales.toLocaleString() %>
+              </td>
+              <th>Total Orders</th>
+              <td>
+                <%= totalOrders %>
+              </td>
             </tr>
-          <% }) %>
-          <tr class="table-dark fw-bold">
-            <td colspan="5" class="text-end">Grand Total</td>
-            <td>₹<%= totalDiscounts.toLocaleString() %></td>
-            <td>₹<%= totalSales.toLocaleString() %></td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
+            <tr>
+              <th>Products Sold</th>
+              <td>
+                <%= totalProducts %>
+              </td>
+              <th>Discounts Given</th>
+              <td>₹<%= totalDiscounts.toLocaleString() %>
+              </td>
+            </tr>
+            <tr>
+              <th>Net Revenue</th>
+              <td>₹<%= netRevenue.toLocaleString() %>
+              </td>
+              <th>Avg. Order Value</th>
+              <td>₹<%= averageOrderValue.toFixed(2) %>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
 
-    <div class="text-center mt-5">
-      <p>Generated by Glam Deck</p>
-      <p class="text-muted">© <%= new Date().getFullYear() %> All Rights Reserved</p>
+      <div class="mb-4">
+        <h5 class="mb-3">Order Details</h5>
+        <table class="table table-striped table-bordered">
+          <thead>
+            <tr>
+              <th>Order ID</th>
+              <th>Customer</th>
+              <th>Date</th>
+              <th>Payment</th>
+              <th>Status</th>
+              <th>Discount</th>
+              <th>Total (₹)</th>
+            </tr>
+          </thead>
+          <tbody>
+            <% orders.forEach(order=> { %>
+              <tr>
+                <td class="order-id">
+                  <%= order.orderId %>
+                </td>
+                <td>
+                  <%= order.user?.name || '-' %>
+                </td>
+                <td>
+                  <%= new Date(order.createdOn).toLocaleDateString() %>
+                </td>
+                <td>
+                  <%= order.paymentMethod ? order.paymentMethod.toUpperCase() : '-' %>
+                </td>
+                <td>
+                  <%= order.status ? order.status.toUpperCase() : '-' %>
+                </td>
+                <td>₹<%= order.totalDiscount ?? 0 %>
+                </td>
+                <td>₹<%= order.finalAmount ?? 0 %>
+                </td>
+              </tr>
+              <% }) %>
+                <tr class="table-dark fw-bold">
+                  <td colspan="5" class="text-end">Grand Total</td>
+                  <td>₹<%= totalDiscounts.toLocaleString() %>
+                  </td>
+                  <td>₹<%= totalSales.toLocaleString() %>
+                  </td>
+                </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <div class="text-center mt-5">
+        <p>Generated by Glam Deck</p>
+        <p class="text-muted">© <%= new Date().getFullYear() %> All Rights Reserved</p>
+      </div>
     </div>
   </div>
 
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
   <script>
-   function generatePDF() {
-  const element = document.getElementById("salesReport");
-  html2pdf().from(element).set({
-    margin: 0.5,
-    filename: 'sales-report.pdf',
-    image: { type: 'jpeg', quality: 0.98 },
-    html2canvas: {
-      scale: 1.2,
-      scrollY: 0,     // 👈 fixes scroll-cut and misalignment
-      useCORS: true   // 👈 helpful if you use external images/fonts
-    },
-    jsPDF: {
-      unit: 'in',
-      format: 'a4',
-      orientation: 'landscape'
+    function generatePDF() {
+      const element = document.getElementById("salesReport");
+      html2pdf().from(element).set({
+        margin: 0.5,
+        filename: 'sales-report.pdf',
+        image: { type: 'jpeg', quality: 0.98 },
+        html2canvas: {
+          scale: 1.2,
+          scrollY: 0,
+          useCORS: true
+        },
+        jsPDF: {
+          unit: 'in',
+          format: 'a4',
+          orientation: 'landscape'
+        }
+      }).save();
     }
-  }).save();
-}
-
 
     function downloadExcel() {
       const wb = XLSX.utils.book_new();
       const ws_data = [
-        ["BookMart"],
+        ["Glam Deck"],
         ["Sales Report"],
         [`Report Range: ${new Date("<%= startDate %>").toLocaleDateString()} - ${new Date("<%= endDate %>").toLocaleDateString()}`],
         [`Generated On: ${new Date().toLocaleDateString()}`],
@@ -175,7 +526,7 @@
         [],
         ["Order ID", "Customer", "Date", "Payment", "Status", "Discount", "Total (₹)"]
       ];
-      <% orders.forEach(order => { %>
+    <% orders.forEach(order => { %>
         ws_data.push([
           "<%= order.orderId %>",
           "<%= order.user?.name || '-' %>",
@@ -185,8 +536,8 @@
           "<%= order.discount ?? 0 %>",
           "₹<%= order.finalAmount ?? 0 %>"
         ]);
-      <% }); %>
-      ws_data.push(["", "", "", "", "Grand Total", `₹<%= totalDiscounts.toLocaleString() %>`, `₹<%= totalSales.toLocaleString() %>`]);
+    <% }); %>
+        ws_data.push(["", "", "", "", "Grand Total", `₹<%= totalDiscounts.toLocaleString() %>`, `₹<%= totalSales.toLocaleString() %>`]);
       const ws = XLSX.utils.aoa_to_sheet(ws_data);
       XLSX.utils.book_append_sheet(wb, ws, "Sales Report");
       XLSX.writeFile(wb, "sales-report.xlsx");
@@ -225,5 +576,9 @@
 
     window.addEventListener('DOMContentLoaded', () => handleRangeChange(true));
   </script>
-</body>
-</html>
+
+  </div>
+  </div>
+  </body>
+
+  </html>

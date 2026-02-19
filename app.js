@@ -8,47 +8,53 @@ const adminRouter = require('./routes/adminRouter')
 const session = require('express-session')
 const passport = require('./config/passport')
 const setUser = require("./middlewares/setUserMiddleware")
+const preserveSessions = require("./middlewares/preserveSession")
 
 db()
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
-const MongoStore = require('connect-mongo').MongoStore;
-
 app.use(session({
     secret: process.env.SESSION_SECRET,
     resave: false,
-    saveUninitialized: false,
-    store: MongoStore.create({
-        mongoUrl: process.env.MONGODB_URI,
-        ttl: 72 * 60 * 60 // 3 days
-    }),
+    saveUninitialized: false, // Changed to false - only save sessions that have been modified
     cookie: {
-        secure: process.env.NODE_ENV === 'production',
+        secure: false,
         httpOnly: true,
-        sameSite: 'lax',
         maxAge: 72 * 60 * 60 * 1000
     }
 }))
 
 
+// Serve static files with caching BEFORE global no-cache middleware
+app.use(express.static(path.join(__dirname, 'public'), {
+    maxAge: '1y', // Cache static assets for 1 year
+    setHeaders: (res, path) => {
+        if (path.endsWith('.html')) {
+            // HTML files shouldn't be cached as aggressively if they change
+            res.setHeader('Cache-Control', 'no-cache');
+        }
+    }
+}));
+
+
 app.use((req, res, next) => {
-    res.set('Cache-Control', 'no-store');  // prevents browser cache
+    res.set('Cache-Control', 'no-store');  // prevents browser cache for dynamic routes
     next();
 });
 
 app.use(passport.initialize())
 app.use(passport.session())
 
-
+// Preserve sessions middleware - must be after session middleware but before routes
+app.use(preserveSessions)
 
 app.set("view engine", "ejs")
 app.set("views", [path.join(__dirname, 'views/user'), path.join(__dirname, 'views/admin')])
-app.use(express.static(path.join(__dirname, 'public')))
 
 
 //app.use('/',userRouter)
-app.use("/", setUser, userRouter)
+app.use("/",setUser, userRouter)
 app.use('/admin', adminRouter)
 
 app.listen(process.env.PORT, () => {

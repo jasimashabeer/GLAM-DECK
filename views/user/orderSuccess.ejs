@@ -1,47 +1,139 @@
 <style>
   body {
-    background-color: #f8f9fa;
+    background: linear-gradient(135deg, #dedfe4 0%, #eeecf0 100%);
     margin: 0;
     padding: 0;
-    height: 100vh;
+    min-height: 100vh;
     display: flex;
     align-items: center;
     justify-content: center;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
   }
 
   .order-success-box {
     background-color: #fff;
     width: 100%;
-    max-width: 500px;
-    padding: 2.5rem;
-    border-radius: 1rem;
-    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08);
+    max-width: 520px;
+    padding: 3rem 2.5rem;
+    border-radius: 1.25rem;
+    box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(0, 0, 0, 0.05);
     text-align: center;
     animation: fadeInUp 0.6s ease-in-out;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .order-success-box::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 5px;
+    background: linear-gradient(90deg, #28a745, #20c997);
+  }
+
+  .success-icon-wrapper {
+    width: 100px;
+    height: 100px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, #d4edda 0%, #c3e6cb 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: scaleIn 0.5s ease-in-out;
+    position: relative;
+  }
+
+  .success-icon-wrapper::after {
+    content: '';
+    position: absolute;
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 2px solid rgba(40, 167, 69, 0.2);
+    animation: ripple 2s ease-out infinite;
   }
 
   .order-success-icon {
     font-size: 3.5rem;
     color: #28a745;
+    position: relative;
+    z-index: 1;
+  }
+
+  h3 {
+    color: #212529;
+    font-weight: 700;
+    font-size: 1.75rem;
+    margin-bottom: 0.75rem;
+    letter-spacing: -0.5px;
+  }
+
+  .text-muted {
+    color: #6c757d !important;
+    font-size: 1.05rem;
+    line-height: 1.6;
   }
 
   .order-id-box {
     font-weight: 600;
-    background-color: #e6ffed;
+    background: linear-gradient(135deg, #e6ffed 0%, #d4f4dd 100%);
     border-left: 4px solid #28a745;
-    padding: 1rem;
-    margin-top: 1rem;
-    border-radius: 0.5rem;
+    padding: 1.25rem;
+    margin-top: 1.5rem;
+    border-radius: 0.75rem;
+    color: #495057;
+    font-size: 0.95rem;
+    box-shadow: 0 2px 8px rgba(40, 167, 69, 0.1);
+    transition: transform 0.2s ease;
+  }
+
+  .order-id-box:hover {
+    transform: translateY(-2px);
   }
 
   .btn-primary, .btn-outline-dark {
-    padding: 0.6rem 1.2rem;
-    border-radius: 30px;
-    font-weight: 500;
+    padding: 0.75rem 1.75rem;
+    border-radius: 50px;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    text-decoration: none;
+    display: inline-block;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  .btn-primary {
+    background: linear-gradient(135deg, #28a745 0%, #20c997 100%);
+    color: #fff;
+    border-color: #28a745;
   }
 
   .btn-primary:hover {
-    background-color: #1f7a38;
+    background: linear-gradient(135deg, #20c997 0%, #1f7a38 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(40, 167, 69, 0.3);
+  }
+
+  .btn-outline-dark {
+    background-color: #fff;
+    color: #343a40;
+    border-color: #343a40;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  }
+
+  .btn-outline-dark:hover {
+    background-color: #343a40;
+    color: #fff;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(52, 58, 64, 0.25);
+  }
+
+  .d-flex {
+    margin-top: 2rem;
   }
 
   @keyframes fadeInUp {
@@ -55,16 +147,64 @@
     }
   }
 
+  @keyframes scaleIn {
+    0% {
+      transform: scale(0);
+      opacity: 0;
+    }
+    50% {
+      transform: scale(1.1);
+    }
+    100% {
+      transform: scale(1);
+      opacity: 1;
+    }
+  }
+
+  @keyframes ripple {
+    0% {
+      transform: scale(1);
+      opacity: 0.6;
+    }
+    100% {
+      transform: scale(1.4);
+      opacity: 0;
+    }
+  }
+
   @media (max-width: 576px) {
     .order-success-box {
       margin: 0 1rem;
-      padding: 1.5rem;
+      padding: 2rem 1.5rem;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+    }
+
+    .success-icon-wrapper {
+      width: 80px;
+      height: 80px;
+    }
+
+    .success-icon-wrapper::after {
+      width: 100px;
+      height: 100px;
+    }
+
+    .order-success-icon {
+      font-size: 3rem;
+    }
+
+    .btn-primary, .btn-outline-dark {
+      padding: 0.65rem 1.5rem;
+      font-size: 0.9rem;
     }
   }
 </style>
 
 <div class="order-success-box">
-  <div class="mb-4">
+  <div class="success-icon-wrapper">
     <i class="bi bi-check-circle-fill order-success-icon"></i>
   </div>
   <h3 class="fw-bold mb-3">Order Placed Successfully!</h3>
