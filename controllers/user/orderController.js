@@ -145,8 +145,9 @@ const cancelOrder = async (req, res) => {
   try {
     const { id } = req.params;
     const { reason = '', description = '' } = req.body;
+    const userId = req.session.user;
 
-    const order = await Order.findById(id);
+    const order = await Order.findOne({ _id: id, user: userId });
     if (!order) return res.status(404).json({ ok: false, msg: 'Order not found' });
     if (order.status === 'Cancelled')
       return res.status(400).json({ ok: false, msg: 'Already cancelled' });
@@ -203,10 +204,11 @@ const cancelProduct = async (req, res) => {
   try {
     const { orderId, itemId } = req.params;
     const { reason = '', description = '' } = req.body;
+    const userId = req.session.user;
 
     if (!reason) return res.status(400).json({ ok: false, msg: 'Reason required' });
 
-    const order = await Order.findById(orderId);
+    const order = await Order.findOne({ _id: orderId, user: userId });
     if (!order) return res.status(404).json({ ok: false, msg: 'Order not found' });
 
     const item = order.orderedItems.id(itemId);
@@ -254,11 +256,12 @@ const returnProduct = async (req, res) => {
     const { orderId, itemId } = req.params;
     const { reason, description } = req.body;
     const imagePaths = (req.files || []).map(f => f.path);
+    const userId = req.session.user;
 
     if (!reason || !description)
       return res.status(400).json({ ok:false, msg:'Reason & description required' });
 
-    const order = await Order.findById(orderId);
+    const order = await Order.findOne({ _id: orderId, user: userId });
     if (!order) return res.status(404).json({ ok:false, msg:'Order not found' });
 
     const item = order.orderedItems.id(itemId);
@@ -292,6 +295,7 @@ const returnProduct = async (req, res) => {
 const getretryPayment = async (req, res) => {
   const { orderId } = req.params;
   const userSession = req.session.user;
+  const userId = req.session.user;
 
   //  First, check if orderId is a valid ObjectId
   if (!mongoose.Types.ObjectId.isValid(orderId)) {
@@ -299,7 +303,7 @@ const getretryPayment = async (req, res) => {
   }
 
   //  Only query database if orderId is valid
-  const order = await Order.findById(orderId);
+  const order = await Order.findOne({ _id: orderId, user: userId });
   if (!order) return res.status(404).send('Order not found');
 
   // Load full user with wallet to avoid undefined in view
@@ -316,11 +320,12 @@ const returnOrder = async (req, res) => {
     const { id } = req.params;
     const { reason, description } = req.body;
     const imagePaths = (req.files || []).map(f => f.path);
+    const userId = req.session.user;
 
     if (!reason || !description)
       return res.status(400).json({ ok: false, msg: 'Reason & description required' });
 
-    const order = await Order.findById(id);
+    const order = await Order.findOne({ _id: id, user: userId });
     if (!order || order.status !== 'Delivered')
       return res.status(400).json({ ok: false, msg: 'Invalid return request' });
 
@@ -360,7 +365,8 @@ const returnOrder = async (req, res) => {
 const retryCOD = async (req, res) => {
   try {
     const { orderId } = req.params;   //  FIXED
-    const order = await Order.findById(orderId);
+    const userId = req.session.user;
+    const order = await Order.findOne({ _id: orderId, user: userId });
     if (!order) return res.status(404).json({ message: 'Order not found' });
 
     if (order.finalAmount > 1000) {
@@ -385,7 +391,7 @@ const retryWallet = async (req, res) => {
    const { orderId } = req.params;
     const userId = req.session.user;
 
-    const order = await Order.findById(orderId);
+    const order = await Order.findOne({ _id: orderId, user: userId });
     if (!order) return res.status(404).json({ message: 'Order not found' });
 
     const user = await User.findById(userId);
@@ -423,8 +429,9 @@ const retryWallet = async (req, res) => {
 const retryRazorpay = async (req, res) => {
   try {
     const { orderId } = req.body;   // use the correct field
+    const userId = req.session.user;
 
-   const order = await Order.findById(orderId);   //  now it will work
+   const order = await Order.findOne({ _id: orderId, user: userId });   //  now it will work
 
     if (!order) return res.status(404).json({ message: 'Order not found' });
 
@@ -453,8 +460,9 @@ const retryRazorpay = async (req, res) => {
 const verifyRetryPayment = async (req, res) => {
   try {
     const { razorpay_payment_id, razorpay_order_id, razorpay_signature, orderId } = req.body;
+    const userId = req.session.user;
 
-const order = await Order.findById(orderId);
+const order = await Order.findOne({ _id: orderId, user: userId });
 if (!order) return res.status(404).json({ success: false, message: 'Order not found' });
 
 const hmac = crypto.createHmac('sha256', process.env.RAZORPAY_KEY_SECRET);

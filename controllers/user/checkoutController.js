@@ -339,7 +339,8 @@ if (req.session.appliedCoupon) {
 
 const orderSuccess = async (req, res) => {
   const orderId = req.query.orderId;
-  const order = await Order.findById(orderId);
+  const userId = req.session.user;
+  const order = await Order.findOne({ _id: orderId, user: userId });
   if (!order) return res.status(404).render('404', { message: 'Order not found' });
 
   res.render('orderSuccess', { orderId: order._id });
@@ -349,13 +350,14 @@ const orderSuccess = async (req, res) => {
 
 const paymentFailure = async (req, res) => {
   const { orderId } = req.query;
+  const userId = req.session.user;
 
   try {
     if (!orderId) {
       return res.render('paymentFailure', { orderId: null, order: null });
     }
 
-    const order = await Order.findById(orderId);
+    const order = await Order.findOne({ _id: orderId, user: userId });
 
     if (!order) {
       return res.render('paymentFailure', { orderId, order: null });
@@ -392,7 +394,8 @@ const verifyPayment = async (req, res) => {
       return res.status(400).json({ status: false, message: "Signature mismatch" });
     }
 
-    const order = await Order.findById(orderId);
+    const order = await Order.findOne({ _id: orderId, user: userId });
+    if (!order) return res.status(404).json({ status: false, message: "Order not found" });
     order.status = "Confirmed";
     order.paymentStatus = "Paid";
     order.paymentMethod = "Razorpay";
