@@ -1,6 +1,6 @@
-
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <title>Admin Login</title>
@@ -8,9 +8,9 @@
 </head>
 
 
-        <body class="d-flex justify-content-center align-items-center" style="height: 100vh; background-color: #18191f;">
+<body class="d-flex justify-content-center align-items-center" style="height: 100vh; background-color: #18191f;">
 
-        <div class="card shadow p-4 text-white" style="width: 100%; max-width: 400px; background-color: #32343c;">
+  <div class="card shadow p-4 text-white" style="width: 100%; max-width: 400px; background-color: #32343c;">
 
 
 
@@ -20,35 +20,28 @@
       <div class="alert alert-danger text-center">
         <%= message %>
       </div>
-    <% } %>
+      <% } %>
 
-    <form action="/admin/login" method="POST">
+        <form action="/admin/login" method="POST">
 
-      <div class="mb-3">
-        <label for="email" class="form-label">Email</label>
-        <input type="text" name="email" class="form-control" id="email" placeholder="admin@example.com">
+          <div class="mb-3">
+            <label for="email" class="form-label">Email</label>
+            <input type="text" name="email" class="form-control" id="email" placeholder="admin@example.com">
 
-      </div>
-      <div class="mb-3">
-        <label for="password" class="form-label">Password</label>
-        <input type="password" name="password"  class="form-control" id="password" placeholder="Enter password">
-      </div>
-     
+          </div>
+          <div class="mb-3">
+            <label for="password" class="form-label">Password</label>
+            <input type="password" name="password" class="form-control" id="password" placeholder="Enter password">
+          </div>
 
-      <button class="btn w-100" style="background-color: #0d6efd; color: white;">Login</button>
 
-    
-      
+          <button class="btn w-100" style="background-color: #0d6efd; color: white;">Login</button>
 
-    </form>
+
+
+
+        </form>
   </div>
 </body>
+
 </html>
-
-
-
-
-
-
-
-

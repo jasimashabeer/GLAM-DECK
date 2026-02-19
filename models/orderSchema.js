@@ -48,7 +48,7 @@ const orderSchema = new Schema({
     type: Number,
     default: 0
   },
-    totalDiscount: { type: Number, default: 0 },
+  totalDiscount: { type: Number, default: 0 },
   finalAmount: {
     type: Number,
     required: true
@@ -64,11 +64,11 @@ const orderSchema = new Schema({
     ref: 'Address'
   },
 
-  
+
   shippingCharge: {
-  type: Number,
-  default: 50
-},
+    type: Number,
+    default: 50
+  },
 
   inVoiceDate: {
     type: Date
@@ -80,11 +80,11 @@ const orderSchema = new Schema({
     enum: ['Pending', 'Confirmed', 'Shipped', 'Delivered', 'Cancelled', 'Return Request', 'returned'],
     default: 'Pending'
   },
-paymentMethod: {
-  type: String,
-  required: true,
-  enum: ['Cash On Delivery', 'Razorpay', 'Wallet']
-},
+  paymentMethod: {
+    type: String,
+    required: true,
+    enum: ['Cash On Delivery', 'Razorpay', 'Wallet']
+  },
 
 
   //  Whole-order return data (optional; kept if needed)
@@ -103,13 +103,13 @@ paymentMethod: {
     default: false
   },
   couponCode: {
-  type: String,
-  default: null
-},
-couponMinimumPrice: {
-  type: Number,
-  default: 0
-}
+    type: String,
+    default: null
+  },
+  couponMinimumPrice: {
+    type: Number,
+    default: 0
+  }
 
 });
 

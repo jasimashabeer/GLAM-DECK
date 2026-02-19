@@ -24,12 +24,12 @@ const couponSchema = new Schema({
     type: Number,
     required: true
   },
-  isBlocked:    { type: Boolean, default: false },
+  isBlocked: { type: Boolean, default: false },
 
-  usedUsers:    [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
- 
-},{
-  timestamps:true
+  usedUsers: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }]
+
+}, {
+  timestamps: true
 });
 
 const Coupon = mongoose.model('Coupon', couponSchema);

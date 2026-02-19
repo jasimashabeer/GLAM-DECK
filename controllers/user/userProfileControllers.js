@@ -1,76 +1,52 @@
-const User=require('../../models/userSchema')
-const nodemailer=require('nodemailer')
-const bcrypt=require('bcrypt')
-const env=require('dotenv').config();
-const session=require('express-session');
+const User = require('../../models/userSchema')
+const nodemailer = require('nodemailer')
+const bcrypt = require('bcrypt')
+const env = require('dotenv').config();
+const session = require('express-session');
 const { text } = require('express');
 const Address = require('../../models/addressSchema');
 const path = require('path');
 const Order = require('../../models/orderSchema');
 
-function generateOtp(){
-    const digits="1234567890"
-    let otp=""
-    for(let i=0;i<6;i++){
-        otp+=digits[Math.floor(Math.random()*10)]
-    }
-    return otp;
+function generateOtp() {
+  const digits = "1234567890"
+  let otp = ""
+  for (let i = 0; i < 6; i++) {
+    otp += digits[Math.floor(Math.random() * 10)]
+  }
+  return otp;
 }
 
 
 
-const sendVerificationEmail= async(email,otp)=>{
-try{
-    const transporter=nodemailer.createTransport({
-        service:'gmail',
-        port:587,
-        secure:false,
-        requireTLS:true,
-        auth:{
-            user:process.env.NODEMAILER_EMAIL,
-            pass:process.env.NODEMAILER_PASSWORD,
-        }
+const sendVerificationEmail = async (email, otp) => {
+  try {
+    const transporter = nodemailer.createTransport({
+      service: 'gmail',
+      port: 587,
+      secure: false,
+      requireTLS: true,
+      auth: {
+        user: process.env.NODEMAILER_EMAIL,
+        pass: process.env.NODEMAILER_PASSWORD,
+      }
     })
 
 
-    const mailOptions={
-        from:process.env.NODEMAILER_EMAIL,
-        to:email,
-        subject:"our otp forpassword reset",
-        text:`Your ot is ${otp}`,
-        html:`<b><h4>your otp:${otp}</h4></b>`
+    const mailOptions = {
+      from: process.env.NODEMAILER_EMAIL,
+      to: email,
+      subject: "our otp forpassword reset",
+      text: `Your ot is ${otp}`,
+      html: `<b><h4>your otp:${otp}</h4></b>`
     }
-    const info=await transporter.sendMail(mailOptions)
-    console.log("email sent",info.messageId)
+    const info = await transporter.sendMail(mailOptions)
+    console.log("email sent", info.messageId)
     return true
-}catch(error){
-   console.log("error sending email",error)
-   return false
-}
-}
-
-
-
-
-
-
-
-const userProfile=async(req,res)=>{
-    try {
-        const userId=req.session.user
-        const userData=await User.findById(userId)
-        const addressData=await Address.findOne({userId:userId});
-       res.render('profile', {
-  user: {
-    ...userData.toObject(),
-    addresses: addressData ? addressData.address : []
+  } catch (error) {
+    console.log("error sending email", error)
+    return false
   }
-});
-
-    } catch (error) {
-        console.error('Error for retrieve profile data',error)
-        res.redirect('/pageNotFound')
-    }
 }
 
 
@@ -79,17 +55,41 @@ const userProfile=async(req,res)=>{
 
 
 
- const getEditProfile=async(req,res)=>{
-    try {
-        const userId=req.session.user
-        const userData=await User.findById(userId)
-        res.render('editProfile',{
-            user:userData
-        })
-    } catch (error) {
-        console.error('Error for retrieve edit profile data',error)
-        res.redirect('/pageNotFound')
-    }
+const userProfile = async (req, res) => {
+  try {
+    const userId = req.session.user
+    const userData = await User.findById(userId)
+    const addressData = await Address.findOne({ userId: userId });
+    res.render('profile', {
+      user: {
+        ...userData.toObject(),
+        addresses: addressData ? addressData.address : []
+      }
+    });
+
+  } catch (error) {
+    console.error('Error for retrieve profile data', error)
+    res.redirect('/pageNotFound')
+  }
+}
+
+
+
+
+
+
+
+const getEditProfile = async (req, res) => {
+  try {
+    const userId = req.session.user
+    const userData = await User.findById(userId)
+    res.render('editProfile', {
+      user: userData
+    })
+  } catch (error) {
+    console.error('Error for retrieve edit profile data', error)
+    res.redirect('/pageNotFound')
+  }
 }
 
 
@@ -104,8 +104,8 @@ const profileUpload = async (req, res) => {
 
     const updatedUser = await User.findByIdAndUpdate(
       userId,
-      { $set: { image: filePath } }, 
-      { new: true }                    
+      { $set: { image: filePath } },
+      { new: true }
     );
 
     console.log(" Image path saved to DB:", updatedUser.image); // Check this
@@ -120,13 +120,13 @@ const profileUpload = async (req, res) => {
 
 
 
-const changeEmail=async(req,res)=>{
-    try {
-        res.render('changeEmail')
-    } catch (error) {
-        res.redirect('/pageNotFound')
-        
-    }
+const changeEmail = async (req, res) => {
+  try {
+    res.render('changeEmail')
+  } catch (error) {
+    res.redirect('/pageNotFound')
+
+  }
 }
 
 
@@ -156,7 +156,7 @@ const changeEmailValid = async (req, res) => {
     const emailSent = await sendVerificationEmail(email, otp);
 
     if (emailSent) {
-              console.log(' OTP for email verification:', otp);
+      console.log(' OTP for email verification:', otp);
       req.session.userOtp = otp;
       req.session.userData = req.body;
       req.session.email = email;
@@ -188,7 +188,7 @@ const verifyEmailOtp = async (req, res) => {
     if (enteredOtp === sessionOtp) {
       return res.json({
         success: true,
-        redirectUrl: '/updateEmail' 
+        redirectUrl: '/updateEmail'
       });
     } else {
       return res.json({
@@ -202,19 +202,19 @@ const verifyEmailOtp = async (req, res) => {
   }
 };
 
-const getNewEmailPage=async(req,res)=>{
-    try {
-        if (!req.session.userOtp) {
-    return res.redirect('/changeEmail');   // or wherever the flow starts
-  }
-
-  return res.render('newEmail', {
-    userData:       req.session.userData || {},
-    successMessage: 'OTP verified successfully!'
-  });
-    } catch (error) {
-     res.redirect('/pageNotFound')   
+const getNewEmailPage = async (req, res) => {
+  try {
+    if (!req.session.userOtp) {
+      return res.redirect('/changeEmail');   // or wherever the flow starts
     }
+
+    return res.render('newEmail', {
+      userData: req.session.userData || {},
+      successMessage: 'OTP verified successfully!'
+    });
+  } catch (error) {
+    res.redirect('/pageNotFound')
+  }
 }
 
 
@@ -254,7 +254,7 @@ const showCurrentPassPage = (req, res) => {
 
 const validateCurrentPass = async (req, res) => {
   try {
-    const userId = req.session.user; 
+    const userId = req.session.user;
     const { password } = req.body;
 
     const user = await User.findById(userId);
@@ -276,8 +276,8 @@ const validateCurrentPass = async (req, res) => {
 
 const getResetPasswordPage = async (req, res) => {
   try {
-   
-    res.render('resetPassword'); 
+
+    res.render('resetPassword');
   } catch (error) {
     res.redirect('/pageNotFound');
   }
@@ -384,7 +384,7 @@ const postAddAddress = async (req, res) => {
       await existing.save();
     }
 
-    return res.redirect('/address'); 
+    return res.redirect('/address');
   } catch (err) {
     console.error("Error in postAddAddress:", err);
     return res.redirect('/pageNotFound');
@@ -434,24 +434,26 @@ const updateAddress = async (req, res) => {
   }
 };
 
-const deleteAddress=async(req,res)=>{
-try {
-    const userId=req.session.user
-    const addressId=req.params.id
+const deleteAddress = async (req, res) => {
+  try {
+    const userId = req.session.user
+    const addressId = req.params.id
 
-    await Address.updateOne({userId},{$pull:{address:{_id:addressId}}})
+    await Address.updateOne({ userId }, { $pull: { address: { _id: addressId } } })
 
     res.redirect('/address')
-} catch (error) {
-    console.log("Error in deleting address",error)
+  } catch (error) {
+    console.log("Error in deleting address", error)
     re.redirect('/pageNotFound')
+  }
 }
+
+
+
+
+
+module.exports = {
+  userProfile, getEditProfile, changeEmail, changeEmailValid, verifyEmailOtp,
+  getNewEmailPage, updateEmail, showCurrentPassPage, getResetPasswordPage, validateCurrentPass,
+  getChangeNamePage, updateName, profileUpload, getAddressPage, postAddAddress, updateAddress, deleteAddress
 }
-
-
-
-
-
-module.exports={userProfile,getEditProfile,changeEmail,changeEmailValid,verifyEmailOtp,
-  getNewEmailPage,updateEmail,showCurrentPassPage,getResetPasswordPage,validateCurrentPass,
-getChangeNamePage,updateName,profileUpload,getAddressPage,postAddAddress,updateAddress,deleteAddress}

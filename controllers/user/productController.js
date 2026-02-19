@@ -1,11 +1,11 @@
-const Product=require('../../models/productSchema')
-const Category= require("../../models/categorySchema")
-const Wishlist=require('../../models/wishlistSchema')
-const User=require('../../models/userSchema')
-const mongoose=require('mongoose')
+const Product = require('../../models/productSchema')
+const Category = require("../../models/categorySchema")
+const Wishlist = require('../../models/wishlistSchema')
+const User = require('../../models/userSchema')
+const mongoose = require('mongoose')
 
 
-  
+
 const loadShoppingPage = async (req, res) => {
   try {
     const userId = req.session.user;
@@ -158,84 +158,84 @@ const loadShoppingPage = async (req, res) => {
 
 
 
-  
- 
-const productDetails=async(req,res)=>{
-    try {
-        const userId=req.session.user;
-        const userData=await User.findById(userId)
-        const productId=req.query.id;
-   
 
-        const product=await Product.findById(productId).populate('category')
 
-        
-         if (!product || product.isBlocked ) {
+const productDetails = async (req, res) => {
+  try {
+    const userId = req.session.user;
+    const userData = await User.findById(userId)
+    const productId = req.query.id;
+
+
+    const product = await Product.findById(productId).populate('category')
+
+
+    if (!product || product.isBlocked) {
       return res.redirect('/shop');
     }
 
 
-        const findCategory=product.category;
-        const categoryOffer = product.category?.categoryOffer || 0;
-const productOffer = product.productOffer || 0;
-const totalOffer = Math.max(categoryOffer, productOffer);
-const salePrice = product.regularPrice - (product.regularPrice * totalOffer / 100);
+    const findCategory = product.category;
+    const categoryOffer = product.category?.categoryOffer || 0;
+    const productOffer = product.productOffer || 0;
+    const totalOffer = Math.max(categoryOffer, productOffer);
+    const salePrice = product.regularPrice - (product.regularPrice * totalOffer / 100);
 
-        const relatedProducts = await Product.find({
+    const relatedProducts = await Product.find({
       category: product.category._id,
       _id: { $ne: product._id },
       isBlocked: false,
-    //   quantity: { $gt: 0 },
+      //   quantity: { $gt: 0 },
     })
       .limit(4)
       .lean();
-        res.render('product-details',{
-            user:userData,
-            product:product,
-            quantity:product.quantity,
-            totalOffer:totalOffer,
-          category:findCategory,
-          selectedCategory: findCategory ? String(findCategory._id) : null,
-            salePrice:salePrice,
-            relatedProducts,
-        })
-    } catch (error) {
-        console.log('Error for fetching product details',error)
-        res.redirect('/pageNotFound')
-    }
+    res.render('product-details', {
+      user: userData,
+      product: product,
+      quantity: product.quantity,
+      totalOffer: totalOffer,
+      category: findCategory,
+      selectedCategory: findCategory ? String(findCategory._id) : null,
+      salePrice: salePrice,
+      relatedProducts,
+    })
+  } catch (error) {
+    console.log('Error for fetching product details', error)
+    res.redirect('/pageNotFound')
+  }
 }
 
 
-    
 
 
-  
-  const toggleWishlist = async (req, res) => {
-      try {
-          const userId = req.session.user; // Session now stores just the ID
-          const productId = req.params.id;
-      
-          // Check if the product is already in the wishlist
-          const existingEntry = await Wishlist.findOne({ userId, productId });
-      
-          let added;
-          if (existingEntry) {
-            // If it exists, remove it 
-            await Wishlist.deleteOne({ _id: existingEntry._id });
-            added = false;
-          } else {
-            // If not, add it
-            await Wishlist.create({ userId, productId });
-            added = true;
-          }
-      
-          res.json({ added });
-        
-      } catch (err) {
-          console.error("Error toggling wishlist:", err);
-          res.status(500).json({ success: false, message: "Server error" });
-      }
-  };
-  
 
-  module.exports={loadShoppingPage, productDetails,toggleWishlist}
+
+const toggleWishlist = async (req, res) => {
+  try {
+    const userId = req.session.user; // Session now stores just the ID
+    const productId = req.params.id;
+
+    // Check if the product is already in the wishlist
+    const existingEntry = await Wishlist.findOne({ userId, productId });
+
+    let added;
+    if (existingEntry) {
+      // If it exists, remove it 
+      await Wishlist.deleteOne({ _id: existingEntry._id });
+      added = false;
+    } else {
+      // If not, add it
+      await Wishlist.create({ userId, productId });
+      added = true;
+    }
+
+    res.json({ added });
+
+  } catch (err) {
+    console.error("Error toggling wishlist:", err);
+    res.status(500).json({ success: false, message: "Server error" });
+  }
+};
+
+
+module.exports = { loadShoppingPage, productDetails, toggleWishlist }

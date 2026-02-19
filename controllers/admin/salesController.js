@@ -246,7 +246,7 @@ const getSalesReport = async (req, res, next) => {
     ]);
 
     /* ---------- derived ---------- */
-    const netRevenue = stats.totalPrice;               
+    const netRevenue = stats.totalPrice;
     const averageOrderValue = stats.totalOrders
       ? stats.totalPrice / stats.totalOrders
       : 0;
@@ -361,7 +361,7 @@ const getDashboard = async (req, res) => {
     ]);
 
     console.log('Top Products:', topProducts);
-console.log('Top Categories:', topCategories);
+    console.log('Top Categories:', topCategories);
 
     res.render('dashboard', { filter, topProducts, topCategories });
   } catch (err) {

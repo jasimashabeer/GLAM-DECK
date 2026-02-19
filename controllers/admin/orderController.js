@@ -102,7 +102,7 @@ const verifyReturnRequest = async (req, res) => {
   try {
     const orderId = req.params.id;
 
- 
+
     const order = await Order.findById(orderId);
     if (!order || order.status !== "Return Request") {
       return res
@@ -155,7 +155,7 @@ const viewAdminOrderDetails = async (req, res) => {
       return res.status(404).send("Order not found");
     }
 
-    const userId = order.user._id; 
+    const userId = order.user._id;
 
     const addressDoc = await Address.findOne({ userId }).lean();
     const selectedAddress = addressDoc?.address.find(
@@ -165,7 +165,7 @@ const viewAdminOrderDetails = async (req, res) => {
     res.render("order-details-admin", {
       order,
       user: order.user,
-      address: selectedAddress, 
+      address: selectedAddress,
     });
   } catch (err) {
     console.error("Error loading order details:", err);

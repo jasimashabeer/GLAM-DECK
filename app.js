@@ -54,7 +54,7 @@ app.set("views", [path.join(__dirname, 'views/user'), path.join(__dirname, 'view
 
 
 //app.use('/',userRouter)
-app.use("/",setUser, userRouter)
+app.use("/", setUser, userRouter)
 app.use('/admin', adminRouter)
 
 app.listen(process.env.PORT, () => {

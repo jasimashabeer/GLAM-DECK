@@ -33,7 +33,7 @@ const loadWalletPage = async (req, res) => {
       transactions: paginatedTransactions,
       currentPage: page,
       totalPages,
-       razorpayKey: process.env.RAZORPAY_KEY_ID
+      razorpayKey: process.env.RAZORPAY_KEY_ID
     });
 
   } catch (error) {
@@ -43,23 +43,23 @@ const loadWalletPage = async (req, res) => {
 };
 
 
-const createOrder=async(req,res)=>{
+const createOrder = async (req, res) => {
   try {
-    const {amount}=req.body;
-    if(!amount || amount<=0){
-      return res.status(400).json({success:false,error:'Server Error'})
+    const { amount } = req.body;
+    if (!amount || amount <= 0) {
+      return res.status(400).json({ success: false, error: 'Server Error' })
     }
-      const options = {
-      amount: amount * 100, 
+    const options = {
+      amount: amount * 100,
       currency: "INR",
       receipt: `txn_${Date.now()}`,
     };
-        const order = await razorpay.orders.create(options);
+    const order = await razorpay.orders.create(options);
     res.status(200).json(order);
 
   } catch (error) {
-    console.log('error in create order',error);
-    res.status(500).json({ success:false,error: "Server error" });
+    console.log('error in create order', error);
+    res.status(500).json({ success: false, error: "Server error" });
   }
 }
 
@@ -121,9 +121,9 @@ const withdrawMoney = async (req, res) => {
     }
 
     if (user.wallet.balance < amount) {
-      return res.status(400).json({ 
-        success: false, 
-        message: `You only have ₹${user.wallet.balance.toFixed(2)} in your wallet!` 
+      return res.status(400).json({
+        success: false,
+        message: `You only have ₹${user.wallet.balance.toFixed(2)} in your wallet!`
       });
     }
 
@@ -168,7 +168,7 @@ const creditWallet = async (userId, amount, description, orderId = null) => {
 
   await user.save({ validateBeforeSave: false });
 
-  
+
 };
 
 

@@ -5,8 +5,8 @@ const loadCoupon = async (req, res) => {
     const coupons = await Coupon.find({});
     res.render("coupon", {
       coupons,
-      editCoupon: null, 
-      errorMsg: null, 
+      editCoupon: null,
+      errorMsg: null,
     });
   } catch (err) {
     console.error(err);

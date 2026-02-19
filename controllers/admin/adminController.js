@@ -1,16 +1,16 @@
-const User=require('../../models/userSchema')
-const mongoose=require('mongoose')
-const bcrypt=require('bcrypt')
+const User = require('../../models/userSchema')
+const mongoose = require('mongoose')
+const bcrypt = require('bcrypt')
 
-const pageerror=async(req,res)=>{
+const pageerror = async (req, res) => {
     res.render('admin-error')
 }
 
-const loadLogin=(req,res)=>{
-    if(req.session.admin){
+const loadLogin = (req, res) => {
+    if (req.session.admin) {
         return res.redirect('/admin/dashboard')
     }
-    res.render('admin-login',{message:null})
+    res.render('admin-login', { message: null })
 }
 
 const login = async (req, res) => {
@@ -37,7 +37,7 @@ const login = async (req, res) => {
         }
 
         // Set admin session - user session remains independent
-        req.session.admin = admin._id; 
+        req.session.admin = admin._id;
 
         return res.redirect('dashboard');
     } catch (error) {
@@ -48,7 +48,7 @@ const login = async (req, res) => {
 
 
 
-const logout=async(req,res)=>{
+const logout = async (req, res) => {
     try {
         // Clear only admin session - preserve user session completely
         if (req.session.admin) {
@@ -57,9 +57,9 @@ const logout=async(req,res)=>{
 
         // Only destroy session if no user session exists
         if (!req.session.user) {
-            req.session.destroy(err=>{
-                if(err){
-                    console.log('Error destroying session',err)
+            req.session.destroy(err => {
+                if (err) {
+                    console.log('Error destroying session', err)
                     return res.redirect('/admin/pageerror')
                 }
                 res.redirect('/admin/login')
@@ -69,12 +69,12 @@ const logout=async(req,res)=>{
             return res.redirect('/admin/login');
         }
     } catch (error) {
-        console.log('unexpected error during logout',error);
-        res.redirect('/admin/pageerror')       
+        console.log('unexpected error during logout', error);
+        res.redirect('/admin/pageerror')
     }
 }
 
-module.exports={
+module.exports = {
     loadLogin,
     login,
     pageerror,

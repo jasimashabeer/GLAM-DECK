@@ -1,102 +1,131 @@
 <%- include('../../views/partials/admin/header') %>
 
-<div class="container mt-4">
-  <h2 class="mb-3">Order Detail</h2>
+  <div class="container mt-4">
+    <h2 class="mb-3">Order Detail</h2>
 
-  <div class="row mb-4">
-    <div class="col-md-6">
-      <h5>Order Info</h5>
-      <p><strong>Order ID:</strong> <%= order.orderId %></p>
-      <p><strong>Date:</strong> <%= new Date(order.createdOn).toLocaleString() %></p>
-      <p><strong>Status:</strong>
-        <span class="badge <%= order.status === 'Delivered' ? 'bg-success' : 
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <h5>Order Info</h5>
+        <p><strong>Order ID:</strong>
+          <%= order.orderId %>
+        </p>
+        <p><strong>Date:</strong>
+          <%= new Date(order.createdOn).toLocaleString() %>
+        </p>
+        <p><strong>Status:</strong>
+          <span class="badge <%= order.status === 'Delivered' ? 'bg-success' : 
                                order.status === 'Cancelled' ? 'bg-danger' :
                                order.status === 'Pending' ? 'bg-warning' :
                                order.status === 'returned' ? 'bg-dark' :
                                'bg-info' %>">
-          <%= order.status %>
-        </span>
-      </p>
+            <%= order.status %>
+          </span>
+        </p>
+      </div>
+
+      <div class="col-md-6">
+        <h5>Customer Info</h5>
+        <p><strong>Name:</strong>
+          <%= user.name %>
+        </p>
+        <p><strong>Email:</strong>
+          <%= user.email %>
+        </p>
+        <p><strong>Phone:</strong>
+          <%= address?.mobile || '-' %>
+        </p>
+      </div>
     </div>
 
-    <div class="col-md-6">
-      <h5>Customer Info</h5>
-      <p><strong>Name:</strong> <%= user.name %></p>
-      <p><strong>Email:</strong> <%= user.email %></p>
-      <p><strong>Phone:</strong> <%= address?.mobile || '-' %></p>
-    </div>
-  </div>
+    <div class="row mb-4">
+      <div class="col-md-6">
+        <h5>Shipping Address</h5>
+        <p><strong>
+            <%= address?.name || '-' %>
+          </strong></p>
+        <p>
+          <%= address?.locality %>, <%= address?.city %>
+        </p>
+        <p>
+          <%= address?.state %> - <%= address?.pincode %>
+        </p>
+      </div>
 
-  <div class="row mb-4">
-    <div class="col-md-6">
-      <h5>Shipping Address</h5>
-      <p><strong><%= address?.name || '-' %></strong></p>
-      <p><%= address?.locality %>, <%= address?.city %></p>
-      <p><%= address?.state %> - <%= address?.pincode %></p>
+      <div class="col-md-6">
+        <h5>Payment & Pricing</h5>
+        <p><strong>Payment:</strong>
+          <%= order.paymentMethod %>
+        </p>
+        <p><strong>Subtotal:</strong> ₹<%= order.totalPrice %>
+        </p>
+        <p><strong>Discount:</strong> ₹<%= order.discount || 0 %>
+        </p>
+        <p><strong>Delivery:</strong> ₹<%= order.shippingCharge || 0 %>
+        </p>
+        <p><strong>Total:</strong> ₹<%= order.finalAmount %>
+        </p>
+      </div>
     </div>
 
-    <div class="col-md-6">
-      <h5>Payment & Pricing</h5>
-      <p><strong>Payment:</strong> <%= order.paymentMethod %></p>
-      <p><strong>Subtotal:</strong> ₹<%= order.totalPrice %></p>
-      <p><strong>Discount:</strong> ₹<%= order.discount || 0 %></p>
-      <p><strong>Delivery:</strong> ₹<%= order.shippingCharge || 0 %></p>
-      <p><strong>Total:</strong> ₹<%= order.finalAmount %></p>
-    </div>
-  </div>
-
-<h5 class="mb-3">Ordered Items</h5>
-<div class="table-responsive">
-  <table class="table table-bordered align-middle">
-    <thead class="table-light">
-      <tr>
-        <th>Image</th>
-        <th>Product</th>
-        <th>Price</th>
-        <th>Qty</th>
-        <th>Total</th>
-        <th>Status</th>
-        <th>Action</th>
-      </tr>
-    </thead>
-    <tbody>
-      <% order.orderedItems.forEach(item => { %>
-        <tr>
-          <td>
-            <img src="/uploads/images/<%= item.product.image[0] %>" width="50" height="50" style="object-fit: cover;">
-          </td>
-          <td><%= item.product.productName %></td>
-          <td>₹<%= item.product.salePrice %></td>
-          <td><%= item.quantity %></td>
-          <td>₹<%= item.price %></td>
-          <td>
-            <span class="badge 
+    <h5 class="mb-3">Ordered Items</h5>
+    <div class="table-responsive">
+      <table class="table table-bordered align-middle">
+        <thead class="table-light">
+          <tr>
+            <th>Image</th>
+            <th>Product</th>
+            <th>Price</th>
+            <th>Qty</th>
+            <th>Total</th>
+            <th>Status</th>
+            <th>Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          <% order.orderedItems.forEach(item=> { %>
+            <tr>
+              <td>
+                <img src="/uploads/images/<%= item.product.image[0] %>" width="50" height="50"
+                  style="object-fit: cover;">
+              </td>
+              <td>
+                <%= item.product.productName %>
+              </td>
+              <td>₹<%= item.product.salePrice %>
+              </td>
+              <td>
+                <%= item.quantity %>
+              </td>
+              <td>₹<%= item.price %>
+              </td>
+              <td>
+                <span class="badge 
               <%= item.status === 'Delivered' ? 'bg-success' : 
                   item.status === 'Cancelled' ? 'bg-danger' :
                   item.status === 'Returned' ? 'bg-dark' :
                   item.status === 'Return Request' ? 'bg-warning text-dark' :
                   item.status === 'Shipped' ? 'bg-info' :
                   'bg-light text-dark' %>">
-              <%= item.status %>
-            </span>
-          </td>
-          <td>
-            <% if (item.status === 'Return Request') { %>
-              <form method="POST" action="/admin/viewDetails/<%= order._id %>/verify-return/<%= item._id %>" onsubmit="return confirm('Are you sure you want to verify this return?')">
-                <button class="btn btn-sm btn-outline-dark">Verify Return</button>
-              </form>
-            <% } else { %>
-              -
-            <% } %>
-          </td>
-        </tr>
-      <% }) %>
-    </tbody>
-  </table>
-</div>
+                  <%= item.status %>
+                </span>
+              </td>
+              <td>
+                <% if (item.status==='Return Request' ) { %>
+                  <form method="POST" action="/admin/viewDetails/<%= order._id %>/verify-return/<%= item._id %>"
+                    onsubmit="return confirm('Are you sure you want to verify this return?')">
+                    <button class="btn btn-sm btn-outline-dark">Verify Return</button>
+                  </form>
+                  <% } else { %>
+                    -
+                    <% } %>
+              </td>
+            </tr>
+            <% }) %>
+        </tbody>
+      </table>
+    </div>
 
 
-  
-  <a href="/admin/orders" class="btn btn-secondary mt-3">Back to Orders</a>
-</div>
 
+    <a href="/admin/orders" class="btn btn-secondary mt-3">Back to Orders</a>
+  </div>

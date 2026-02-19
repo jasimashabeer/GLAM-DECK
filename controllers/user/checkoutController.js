@@ -4,13 +4,13 @@ const Product = require('../../models/productSchema');
 const Address = require('../../models/addressSchema'); // Add this
 const Order = require('../../models/orderSchema');
 const Razorpay = require('razorpay');
-const crypto   = require('crypto');
+const crypto = require('crypto');
 const Coupon = require('../../models/couponSchema');
 const mongoose = require('mongoose');
 const toObjectId = (id) => new mongoose.Types.ObjectId(id);
 
 const rzp = new Razorpay({
-  key_id:     process.env.RAZORPAY_KEY_ID,
+  key_id: process.env.RAZORPAY_KEY_ID,
   key_secret: process.env.RAZORPAY_KEY_SECRET
 });
 
@@ -40,7 +40,7 @@ const checkoutPage = async (req, res) => {
     let cartChanged = false;
 
     for (const item of cart.items) {
-      const stock      = item.productId.quantity;       // current stock
+      const stock = item.productId.quantity;       // current stock
       const maxAllowed = Math.min(stock, 5);            // 5‑per‑item limit
 
       if (stock === 0) {
@@ -51,9 +51,9 @@ const checkoutPage = async (req, res) => {
       }
 
       if (item.quantity > maxAllowed) {
-        item.quantity   = maxAllowed;                   // reset quantity
+        item.quantity = maxAllowed;                   // reset quantity
         item.totalPrice = maxAllowed * item.productId.salePrice;
-        cartChanged     = true;
+        cartChanged = true;
       }
     }
 
@@ -68,22 +68,22 @@ const checkoutPage = async (req, res) => {
 
     /* ---------- 4️⃣  Addresses, coupons, totals ---------- */
     const addressDoc = await Address.findOne({ userId }).lean();
-    const addresses  = addressDoc?.address || [];
+    const addresses = addressDoc?.address || [];
     if (addresses.length && !addresses.some(a => a.isDefault)) addresses[0].isDefault = true;
 
     let subtotal = 0;
     cartItems.forEach(i => (subtotal += i.totalPrice));
     const shippingCharge = 50;
-    const discount       = req.session.discountAmount || 0;
-    const finalTotal     = subtotal + shippingCharge - discount;
+    const discount = req.session.discountAmount || 0;
+    const finalTotal = subtotal + shippingCharge - discount;
 
     /* ---------- 5️⃣  Valid coupons ---------- */
-    const now     = new Date();
+    const now = new Date();
     const coupons = await Coupon.find({ startDate: { $lte: now }, endDate: { $gte: now }, isBlocked: false });
 
     /* ---------- 6️⃣  Render ---------- */
     return res.render('checkout', {
-      user:         await User.findById(userId).lean(),
+      user: await User.findById(userId).lean(),
       userAddresses: addresses,
       cartItems,
       subtotal,
@@ -111,36 +111,36 @@ const placeOrder = async (req, res) => {
     const { selectedAddress, paymentMethod } = req.body;
 
     if (!userId || !selectedAddress || !paymentMethod) {
-      return res.status(400).json({ status:false, message:'Missing order information.' });
+      return res.status(400).json({ status: false, message: 'Missing order information.' });
     }
 
     const cart = await Cart.findOne({ userId }).populate('items.productId');
     if (!cart || cart.items.length === 0) {
-      return res.status(400).json({ status:false, message:'Cart is empty.' });
+      return res.status(400).json({ status: false, message: 'Cart is empty.' });
     }
 
     for (const i of cart.items) {
-  const product = i.productId;
+      const product = i.productId;
 
-  if (!product.isListed || product.isBlocked || product.quantity <= 0) {
-    return res.status(400).json({
-      status: false,
-      message: `${product.productName} is out of stock`
-    });
-  }
+      if (!product.isListed || product.isBlocked || product.quantity <= 0) {
+        return res.status(400).json({
+          status: false,
+          message: `${product.productName} is out of stock`
+        });
+      }
 
-  if (i.quantity > product.quantity) {
-    return res.status(400).json({
-      status: false,
-      message: `Only ${product.quantity} left for ${product.productName}`
-    });
-  }
-}
+      if (i.quantity > product.quantity) {
+        return res.status(400).json({
+          status: false,
+          message: `Only ${product.quantity} left for ${product.productName}`
+        });
+      }
+    }
     /* ───────── 1.  build orderedItems ───────── */
     const orderedItems = cart.items.map(i => ({
-      product  : i.productId._id,
-      quantity : i.quantity,
-      price    : i.productId.salePrice        
+      product: i.productId._id,
+      quantity: i.quantity,
+      price: i.productId.salePrice
     }));
 
 
@@ -150,105 +150,105 @@ const placeOrder = async (req, res) => {
       (sum, i) => sum + i.quantity * i.productId.regularPrice, 0);
 
 
-    const saleTotal    = cart.items.reduce(
-      (sum, i) => sum + i.quantity * i.productId.salePrice , 0);
+    const saleTotal = cart.items.reduce(
+      (sum, i) => sum + i.quantity * i.productId.salePrice, 0);
 
-       const offerDiscount   = regularTotal - saleTotal;          
-    const couponDiscount = req.session.discountAmount || 0;  
-    const totalDiscount   = offerDiscount + couponDiscount;
+    const offerDiscount = regularTotal - saleTotal;
+    const couponDiscount = req.session.discountAmount || 0;
+    const totalDiscount = offerDiscount + couponDiscount;
 
-    const totalPrice  = cart.items.reduce((sum, i) => sum + i.totalPrice, 0);
+    const totalPrice = cart.items.reduce((sum, i) => sum + i.totalPrice, 0);
     const finalAmount = totalPrice + SHIPPING - couponDiscount;
 
     // ───── COUPON SNAPSHOT  ─────>>>>>>>>>>>
-let couponCode = null;
-let couponMinimumPrice = 0;
+    let couponCode = null;
+    let couponMinimumPrice = 0;
 
-if (req.session.appliedCoupon) {
-  const coupon = await Coupon.findOne({
-    couponName: req.session.appliedCoupon
-  });
+    if (req.session.appliedCoupon) {
+      const coupon = await Coupon.findOne({
+        couponName: req.session.appliedCoupon
+      });
 
-  if (coupon) {
-    couponCode = coupon.couponName;
-    couponMinimumPrice = coupon.minimumPrice;
-  }
-}
-
-
-if (paymentMethod === 'Cash On Delivery' && finalAmount > 1000) {
-  return res.status(400).json({ status: false, message: 'COD is only available for orders up to ₹1000.' });
-}
-
-
-/* ───────── 5. Wallet Payment ───────── */
-if (paymentMethod === 'Wallet') {
-  const user = await User.findById(userId);
-
-  if (user.wallet.balance < finalAmount) {
-    return res.status(400).json({ status: false, message: 'Insufficient wallet balance.' });
-  }
-
-  const order = new Order({
-    orderedItems,
-    totalPrice,
-    discount: couponDiscount,
-    totalDiscount,
-    finalAmount,
-    shippingCharge: SHIPPING,
-    user: userId,
-    address: selectedAddress,
-    status: 'Confirmed',
-    paymentStatus: 'Paid',
-    paymentMethod: 'Wallet',
-    createdOn: new Date(),
-    couponStatus: !!couponDiscount
-  });
-
-  await order.save();
-
-  user.wallet.balance -= finalAmount;
-  user.wallet.transactions.push({
-    amount: finalAmount,
-    type: 'debit',
-    description: 'Order placed using wallet',
-    createdAt: new Date()
-  });
-
-  await user.save();
-
-  /* Mark coupon used */
-  if (req.session.appliedCoupon) {
-    const coupon = await Coupon.findOne({ couponName: req.session.appliedCoupon });
-    if (coupon) {
-      // Ensure userId is a valid ObjectId string before converting
-      const userIdStr = userId.toString();
-      if (mongoose.Types.ObjectId.isValid(userIdStr)) {
-        const uid = toObjectId(userIdStr);
-        if (!coupon.usedUsers.some(u => u.equals(uid))) {
-          coupon.usedUsers.push(uid);
-          await coupon.save();
-        }
+      if (coupon) {
+        couponCode = coupon.couponName;
+        couponMinimumPrice = coupon.minimumPrice;
       }
     }
-    // Preserve admin session before deleting coupon data
-    const walletAdminSession = req.session.admin;
-    delete req.session.appliedCoupon;
-    delete req.session.discountAmount;
-    // Restore admin session if it existed
-    if (walletAdminSession) {
-      req.session.admin = walletAdminSession;
+
+
+    if (paymentMethod === 'Cash On Delivery' && finalAmount > 1000) {
+      return res.status(400).json({ status: false, message: 'COD is only available for orders up to ₹1000.' });
     }
-  }
 
-  for (const i of cart.items) {
-    await Product.findByIdAndUpdate(i.productId._id, { $inc: { quantity: -i.quantity } });
-  }
 
-  await Cart.deleteOne({ userId });
+    /* ───────── 5. Wallet Payment ───────── */
+    if (paymentMethod === 'Wallet') {
+      const user = await User.findById(userId);
 
-  return res.json({ status: true, wallet: true, orderId: order._id });
-}
+      if (user.wallet.balance < finalAmount) {
+        return res.status(400).json({ status: false, message: 'Insufficient wallet balance.' });
+      }
+
+      const order = new Order({
+        orderedItems,
+        totalPrice,
+        discount: couponDiscount,
+        totalDiscount,
+        finalAmount,
+        shippingCharge: SHIPPING,
+        user: userId,
+        address: selectedAddress,
+        status: 'Confirmed',
+        paymentStatus: 'Paid',
+        paymentMethod: 'Wallet',
+        createdOn: new Date(),
+        couponStatus: !!couponDiscount
+      });
+
+      await order.save();
+
+      user.wallet.balance -= finalAmount;
+      user.wallet.transactions.push({
+        amount: finalAmount,
+        type: 'debit',
+        description: 'Order placed using wallet',
+        createdAt: new Date()
+      });
+
+      await user.save();
+
+      /* Mark coupon used */
+      if (req.session.appliedCoupon) {
+        const coupon = await Coupon.findOne({ couponName: req.session.appliedCoupon });
+        if (coupon) {
+          // Ensure userId is a valid ObjectId string before converting
+          const userIdStr = userId.toString();
+          if (mongoose.Types.ObjectId.isValid(userIdStr)) {
+            const uid = toObjectId(userIdStr);
+            if (!coupon.usedUsers.some(u => u.equals(uid))) {
+              coupon.usedUsers.push(uid);
+              await coupon.save();
+            }
+          }
+        }
+        // Preserve admin session before deleting coupon data
+        const walletAdminSession = req.session.admin;
+        delete req.session.appliedCoupon;
+        delete req.session.discountAmount;
+        // Restore admin session if it existed
+        if (walletAdminSession) {
+          req.session.admin = walletAdminSession;
+        }
+      }
+
+      for (const i of cart.items) {
+        await Product.findByIdAndUpdate(i.productId._id, { $inc: { quantity: -i.quantity } });
+      }
+
+      await Cart.deleteOne({ userId });
+
+      return res.json({ status: true, wallet: true, orderId: order._id });
+    }
 
 
 
@@ -260,13 +260,13 @@ if (paymentMethod === 'Wallet') {
       totalDiscount,
       finalAmount,
       shippingCharge: SHIPPING,
-      user   : userId,
+      user: userId,
       address: selectedAddress,
-      status : paymentMethod === 'Cash On Delivery' ? 'Confirmed' : 'Pending',
+      status: paymentMethod === 'Cash On Delivery' ? 'Confirmed' : 'Pending',
       paymentMethod,
       couponCode,
-couponMinimumPrice,
-couponStatus: !!couponCode,
+      couponMinimumPrice,
+      couponStatus: !!couponCode,
 
       createdOn: new Date(),
       couponStatus: !!couponDiscount          // just a flag
@@ -275,17 +275,17 @@ couponStatus: !!couponCode,
     /* ───────── 4.  Razorpay or COD ───────── */
     if (paymentMethod === 'Razorpay') {
       const rzOrder = await rzp.orders.create({
-        amount  : finalAmount * 100,
+        amount: finalAmount * 100,
         currency: 'INR',
-        receipt : `rcpt_${order._id}`
+        receipt: `rcpt_${order._id}`
       });
       order.razorpayOrderId = rzOrder.id;
       await order.save();
       return res.json({
-        status : true,
+        status: true,
         payment: 'Razorpay',
-        key    : process.env.RAZORPAY_KEY_ID,
-        amount : finalAmount * 100,
+        key: process.env.RAZORPAY_KEY_ID,
+        amount: finalAmount * 100,
         orderId: order._id,
         razorpayOrderId: rzOrder.id
       });
@@ -294,32 +294,32 @@ couponStatus: !!couponCode,
     // plain COD
     await order.save();
 
-/* ---- coupon bookkeeping ---- */
-/* ───── coupon bookkeeping (COD) ───── */
-if (req.session.appliedCoupon) {
-  const coupon = await Coupon.findOne({ couponName: req.session.appliedCoupon });
-  if (coupon) {
-    // Ensure userId is a valid ObjectId string before converting
-    const userIdStr = userId.toString();
-    if (mongoose.Types.ObjectId.isValid(userIdStr)) {
-      const uid = toObjectId(userIdStr);
-      const already = coupon.usedUsers.some(u => u.equals(uid));
+    /* ---- coupon bookkeeping ---- */
+    /* ───── coupon bookkeeping (COD) ───── */
+    if (req.session.appliedCoupon) {
+      const coupon = await Coupon.findOne({ couponName: req.session.appliedCoupon });
+      if (coupon) {
+        // Ensure userId is a valid ObjectId string before converting
+        const userIdStr = userId.toString();
+        if (mongoose.Types.ObjectId.isValid(userIdStr)) {
+          const uid = toObjectId(userIdStr);
+          const already = coupon.usedUsers.some(u => u.equals(uid));
 
-      if (!already) {
-        coupon.usedUsers.push(uid);                    
-        await coupon.save();
+          if (!already) {
+            coupon.usedUsers.push(uid);
+            await coupon.save();
+          }
+        }
+      }
+      // Preserve admin session before deleting coupon data
+      const codAdminSession = req.session.admin;
+      delete req.session.appliedCoupon;
+      delete req.session.discountAmount;
+      // Restore admin session if it existed
+      if (codAdminSession) {
+        req.session.admin = codAdminSession;
       }
     }
-  }
-  // Preserve admin session before deleting coupon data
-  const codAdminSession = req.session.admin;
-  delete req.session.appliedCoupon;
-  delete req.session.discountAmount;
-  // Restore admin session if it existed
-  if (codAdminSession) {
-    req.session.admin = codAdminSession;
-  }
-}
 
 
     /* stock‑down + clear cart */
@@ -328,11 +328,11 @@ if (req.session.appliedCoupon) {
     }
     await Cart.deleteOne({ userId });
 
-    res.json({ status:true, cod:true, orderId:order._id });
+    res.json({ status: true, cod: true, orderId: order._id });
 
   } catch (err) {
     console.error('placeOrder', err);
-    res.status(500).json({ status:false, message:'Server error' });
+    res.status(500).json({ status: false, message: 'Server error' });
   }
 };
 
@@ -404,31 +404,31 @@ const verifyPayment = async (req, res) => {
     order.razorpaySignature = razorpay_signature;
     await order.save();
 
-/* ───── coupon bookkeeping (Razorpay) ───── */
-if (req.session.appliedCoupon) {
-  const coupon = await Coupon.findOne({ couponName: req.session.appliedCoupon });
-  if (coupon) {
-    // Ensure userId is a valid ObjectId string before converting
-    const userIdStr = userId.toString();
-    if (mongoose.Types.ObjectId.isValid(userIdStr)) {
-      const uid = toObjectId(userIdStr);
-      const already = coupon.usedUsers.some(u => u.equals(uid));
+    /* ───── coupon bookkeeping (Razorpay) ───── */
+    if (req.session.appliedCoupon) {
+      const coupon = await Coupon.findOne({ couponName: req.session.appliedCoupon });
+      if (coupon) {
+        // Ensure userId is a valid ObjectId string before converting
+        const userIdStr = userId.toString();
+        if (mongoose.Types.ObjectId.isValid(userIdStr)) {
+          const uid = toObjectId(userIdStr);
+          const already = coupon.usedUsers.some(u => u.equals(uid));
 
-      if (!already) {
-        coupon.usedUsers.push(uid);
-        await coupon.save();
+          if (!already) {
+            coupon.usedUsers.push(uid);
+            await coupon.save();
+          }
+        }
+      }
+      // Preserve admin session before deleting coupon data
+      const razorpayAdminSession = req.session.admin;
+      delete req.session.appliedCoupon;
+      delete req.session.discountAmount;
+      // Restore admin session if it existed
+      if (razorpayAdminSession) {
+        req.session.admin = razorpayAdminSession;
       }
     }
-  }
-  // Preserve admin session before deleting coupon data
-  const razorpayAdminSession = req.session.admin;
-  delete req.session.appliedCoupon;
-  delete req.session.discountAmount;
-  // Restore admin session if it existed
-  if (razorpayAdminSession) {
-    req.session.admin = razorpayAdminSession;
-  }
-}
 
 
     const cart = await Cart.findOne({ userId: order.user }).populate('items.productId');
@@ -452,7 +452,7 @@ if (req.session.appliedCoupon) {
 };
 const applyCoupon = async (req, res) => {
   const { code } = req.body;
-  const userId   = req.session.user; // Session now stores just the ID
+  const userId = req.session.user; // Session now stores just the ID
 
   try {
 
@@ -498,8 +498,8 @@ const applyCoupon = async (req, res) => {
       });
     }
 
-    req.session.appliedCoupon   = code;
-    req.session.discountAmount  = coupon.offerPrice;
+    req.session.appliedCoupon = code;
+    req.session.discountAmount = coupon.offerPrice;
 
     res.json({
       ok: true,
@@ -519,7 +519,7 @@ const applyCoupon = async (req, res) => {
 const removeCoupon = async (req, res) => {
   try {
     const userId = req.session.user;
-    const cart   = await Cart.findOne({ userId }).populate('items.productId');
+    const cart = await Cart.findOne({ userId }).populate('items.productId');
 
     if (!cart || cart.items.length === 0) {
       return res.json({ ok: false, msg: 'Cart is empty' });

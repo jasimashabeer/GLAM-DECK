@@ -1,5 +1,5 @@
-const mongoose=require('mongoose')
-const {Schema}=mongoose;
+const mongoose = require('mongoose')
+const { Schema } = mongoose;
 
 
 const categorySchema = new mongoose.Schema({
@@ -14,9 +14,9 @@ const categorySchema = new mongoose.Schema({
     default: ''
   },
   categoryOffer: {
-  type: Number,
-  default: 0
-},
+    type: Number,
+    default: 0
+  },
 
   isListed: {
     type: Boolean,
