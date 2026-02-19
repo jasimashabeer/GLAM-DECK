@@ -57,7 +57,9 @@ app.set("views", [path.join(__dirname, 'views/user'), path.join(__dirname, 'view
 app.use("/", setUser, userRouter)
 app.use('/admin', adminRouter)
 
-app.listen(process.env.PORT, () => {
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
     console.log('Server Running...')
 })
 
