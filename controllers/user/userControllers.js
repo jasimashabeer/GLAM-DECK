@@ -79,7 +79,7 @@ async function sendVerificationEmail(email, otp) {
     })
 
     const info = await transporter.sendMail({
-      from: process.env.SENDMAILER_EMAIL,
+      from: process.env.NODEMAILER_EMAIL,
       to: email,
       subject: "verify your account",
       text: `your otp is ${otp}`,
