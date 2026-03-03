@@ -76,7 +76,7 @@
 
             $.ajax({
                 type: "POST",
-                url: "http://localhost:3000/verify-otp",
+                url: "/verify-otp",
                 data: JSON.stringify({ otp: otpInput }),
                 contentType: "application/json",
                 success: function (response) {
@@ -110,7 +110,7 @@
         document.getElementById("resend").addEventListener("click", function () {
             $.ajax({
                 type: "POST",
-                url: "http://localhost:3000/resend-otp",
+                url: "/resend-otp",
                 contentType: "application/json",
                 success: function (response) {
                     if (response.success) {
