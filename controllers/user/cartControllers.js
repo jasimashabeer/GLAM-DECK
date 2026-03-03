@@ -1,6 +1,56 @@
 const Cart = require('../../models/cartSchema');
 const Product = require('../../models/productSchema');
 const User = require('../../models/userSchema');
+const Coupon = require('../../models/couponSchema');
+
+const clearAppliedCouponFromSession = (req) => {
+  // Preserve admin session before deleting coupon data 
+  const adminSession = req.session.admin;
+  delete req.session.appliedCoupon;
+  delete req.session.discountAmount;
+  if (adminSession) req.session.admin = adminSession;
+};
+
+const revalidateAppliedCouponForCart = async (req, userId) => {
+  if (!req.session.appliedCoupon) return;
+
+  const cart = await Cart.findOne({ userId }).populate('items.productId');
+  if (!cart || !cart.items || cart.items.length === 0) {
+    clearAppliedCouponFromSession(req);
+    return;
+  }
+
+  const code = String(req.session.appliedCoupon || '').trim();
+  if (!code) {
+    clearAppliedCouponFromSession(req);
+    return;
+  }
+
+  const coupon = await Coupon.findOne({ couponName: code, isBlocked: false });
+  if (!coupon) {
+    clearAppliedCouponFromSession(req);
+    return;
+  }
+
+  const now = new Date();
+  if (now < coupon.startDate || now > coupon.endDate) {
+    clearAppliedCouponFromSession(req);
+    return;
+  }
+
+  const subtotal = cart.items.reduce(
+    (sum, i) => sum + i.quantity * (Number(i.productId?.salePrice) || 0),
+    0
+  );
+
+  if (subtotal < coupon.minimumPrice) {
+    clearAppliedCouponFromSession(req);
+    return;
+  }
+
+  // Keep discount dynamic in case coupon offer changes
+  req.session.discountAmount = coupon.offerPrice;
+};
 
 // in cartController
 const checkBlockedCart = async (req, res) => {
@@ -125,6 +175,8 @@ const addToCart = async (req, res) => {
 
     await cart.save();
 
+    await revalidateAppliedCouponForCart(req, userId);
+
     // remove from wishlist
     await User.updateOne({ _id: userId }, { $pull: { wishlist: productId } });
 
@@ -159,6 +211,8 @@ const removeProduct = async (req, res) => {
 
     cart.items = cart.items.filter(item => item.productId.toString() !== productId);
     await cart.save();
+
+    await revalidateAppliedCouponForCart(req, userId);
 
     return res.redirect('/cart');
   } catch (error) {
@@ -207,6 +261,8 @@ const updateQuantity = async (req, res) => {
 
     item.totalPrice = item.quantity * product.salePrice;
     await cart.save();
+
+    await revalidateAppliedCouponForCart(req, userId);
 
     //  Recalculate cart total the same way as loadCartPage
     let cartTotal = 0;
