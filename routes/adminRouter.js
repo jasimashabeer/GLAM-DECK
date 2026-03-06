@@ -64,6 +64,8 @@ router.get('/blockproduct', adminAuth, productController.blockProduct)
 router.get('/unblockproduct', adminAuth, productController.unblockProduct)
 router.get('/editProduct', adminAuth, productController.getEditProduct)
 router.post('/editProduct/:id', adminAuth, uploads.array("images", 4), productController.editProduct)
+router.post('/addProductOffer',adminAuth,productController.addProductOffer)
+router.post('/removeProductOffer',adminAuth,productController.removeProductOffer)
 
 // coupen mangement
 

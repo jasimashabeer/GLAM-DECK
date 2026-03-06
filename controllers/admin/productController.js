@@ -1,7 +1,7 @@
 const Product = require('../../models/productSchema')
 const Categoey = require('../../models/categorySchema')
 const User = require('../../models/userSchema')
-
+const mongoose = require('mongoose')
 
 const fs = require('fs')
 const path = require('path')
@@ -68,7 +68,7 @@ const addProduct = async (req, res) => {
 
     const newProduct = new Product({
       productName: products.productName,
-      author: products.author,
+      material: products.material,
       description: products.description,
       category: categoryId._id,
       regularPrice,
@@ -110,7 +110,7 @@ const getAllProducts = async (req, res) => {
 
       filter.$or = [
         { productName: { $regex: new RegExp(".*" + search + ".*", "i") } },
-        { author: { $regex: new RegExp(".*" + search + ".*", "i") } },
+        { material: { $regex: new RegExp(".*" + search + ".*", "i") } },
         { category: { $in: categoryIds } }
       ];
     }
@@ -179,16 +179,34 @@ const getEditProduct = async (req, res) => {
 
 const editProduct = async (req, res) => {
   try {
-    const id = req.params.id;
-    const data = req.body;
+    const id = (req.params.id || '').trim();
+    if (!id) {
+      return res.status(400).json({ message: 'Product ID is required.' });
+    }
+    if (!mongoose.Types.ObjectId.isValid(id)) {
+      return res.status(400).json({ message: 'Invalid product ID.' });
+    }
+
+    const data = req.body || {};
+    if (!data.productName || !String(data.productName).trim()) {
+      return res.status(400).json({ message: 'Product name is required.' });
+    }
+    if (!data.description || !String(data.description).trim()) {
+      return res.status(400).json({ message: 'Description is required.' });
+    }
 
     const existingProduct = await Product.findOne({
-      productName: data.productName,
+      productName: data.productName.trim(),
       _id: { $ne: id }
     });
 
     if (existingProduct) {
-      return res.status(400).json({ error: 'Product with this name already exists.' });
+      return res.status(400).json({ message: 'Product with this name already exists.' });
+    }
+
+    const product = await Product.findById(id);
+    if (!product) {
+      return res.status(404).json({ message: 'Product not found.' });
     }
 
     // Add new images if any
@@ -199,20 +217,17 @@ const editProduct = async (req, res) => {
       });
     }
 
-    const product = await Product.findById(id);
-    if (!product) return res.redirect('/admin/pageerror');
-
     // Handle image deletion from form
     const imagesToDelete = Array.isArray(req.body.imagesToDelete) ? req.body.imagesToDelete : (req.body.imagesToDelete ? [req.body.imagesToDelete] : []);
 
     if (imagesToDelete.length > 0) {
       imagesToDelete.forEach(img => {
-        const imagePath = path.join(__dirname, '../public/uploads/images', img);
+        const imagePath = path.join(__dirname, '../../public/uploads/images', img);
         if (fs.existsSync(imagePath)) fs.unlinkSync(imagePath);
 
         const index = product.image.indexOf(img);
         if (index > -1) {
-          product.image.splice(index, 1); // remove from array
+          product.image.splice(index, 1);
         }
       });
     }
@@ -222,13 +237,27 @@ const editProduct = async (req, res) => {
       product.image.push(...newImages);
     }
 
-    // Update other fields
-    product.productName = data.productName;
-    product.author = data.author;
-    product.description = data.description;
-    product.category = data.category;
-    product.regularPrice = data.regularPrice;
-    // product.salePrice = data.salePrice;
+    if (!product.image || product.image.length === 0) {
+      return res.status(400).json({ message: 'At least one image is required.' });
+    }
+
+    // Parse and validate numbers
+    const regularPrice = parseFloat(data.regularPrice);
+    const quantity = parseInt(data.quantity, 10);
+    if (isNaN(regularPrice) || regularPrice <= 0) {
+      return res.status(400).json({ message: 'Valid regular price is required.' });
+    }
+    if (isNaN(quantity) || quantity < 0) {
+      return res.status(400).json({ message: 'Valid quantity is required.' });
+    }
+
+    // Update fields
+    product.productName = data.productName.trim();
+    product.material = data.material != null ? data.material.trim() : product.material;
+    product.description = data.description != null ? data.description.trim() : product.description;
+    product.category = data.category || product.category;
+    product.regularPrice = regularPrice;
+    product.quantity = quantity;
 
     const categoryDoc = await Categoey.findById(product.category);
     const productOffer = product.productOffer || 0;
@@ -236,15 +265,12 @@ const editProduct = async (req, res) => {
     const bestDiscount = Math.max(productOffer, categoryOffer);
     product.salePrice = Math.round(product.regularPrice * (1 - bestDiscount / 100));
 
-
-    product.quantity = data.quantity;
-
     await product.save();
 
-    res.redirect('/admin/products');
+    return res.status(200).json({ success: true, message: 'Product updated successfully.' });
   } catch (error) {
     console.error("Edit product error:", error);
-    res.redirect('/admin/pageerror');
+    return res.status(500).json({ message: error.message || 'Server error. Please try again.' });
   }
 };
 
@@ -298,6 +324,51 @@ const unblockProduct = async (req, res) => {
 }
 
 
+const addProductOffer = async (req, res) => {
+  try {
+    const { productId, discount } = req.body;
+    if (!productId || discount <= 0 || discount > 90)
+      return res.status(400).json({ status:false, message:'Invalid data' });
+
+    const product = await Product.findById(productId).populate('category');
+    if (!product) return res.status(404).json({ status:false, message:'Not found' });
+
+    product.productOffer = discount;
+
+    // Recompute salePrice against category offer
+    const best = Math.max(discount, product.category?.categoryOffer || 0);
+    product.salePrice = Math.round(product.regularPrice * (1 - best/100));
+
+    await product.save();
+    res.json({ status:true });
+  } catch (err) {
+    console.error('addProductOffer', err);
+    res.status(500).json({ status:false, message:'Server error' });
+  }
+};
+
+
+const removeProductOffer = async (req, res) => {
+  try {
+    const { productId } = req.body;
+    const product = await Product.findById(productId).populate('category');
+    if (!product) return res.status(404).json({ status:false, message:'Not found' });
+
+    product.productOffer = 0;
+
+    // Re‑compute salePrice based on only category offer
+    const best = product.category?.categoryOffer || 0;
+    product.salePrice = Math.round(product.regularPrice * (1 - best/100));
+
+    await product.save();
+    res.json({ status:true });
+  } catch (err) {
+    console.error('removeProductOffer', err);
+    res.status(500).json({ status:false, message:'Server error' });
+  }
+};
+
+
 
 module.exports = {
   getProductAddPage,
@@ -307,6 +378,8 @@ module.exports = {
   unblockProduct,
   getEditProduct,
   editProduct,
-  deleteSingleImage
+  deleteSingleImage,
+  addProductOffer,
+  removeProductOffer
 
 }

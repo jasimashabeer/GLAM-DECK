@@ -289,7 +289,8 @@ const getDashboard = async (req, res) => {
     const { startDate, endDate } = buildDateRange(filter, req.query);
 
     const match = {
-      status: { $regex: /^confirmed$/i },
+      // Treat both "Confirmed" and "Delivered" as successful sales for dashboard stats
+      status: { $in: ['Confirmed', 'Delivered'] },
       createdOn: { $gte: startDate, $lte: endDate }
     };
 

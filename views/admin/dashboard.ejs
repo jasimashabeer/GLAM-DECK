@@ -378,10 +378,10 @@
     };
 
     /* ---------------- Data from Backend ---------------- */
-    const productLabels = <% - JSON.stringify(topProducts.map(p => p.name)) %>;
-    const productData = <% - JSON.stringify(topProducts.map(p => p.totalSold)) %>;
-    const categoryLabels = <% - JSON.stringify(topCategories.map(c => c.name)) %>;
-    const categoryData = <% - JSON.stringify(topCategories.map(c => c.totalSold)) %>;
+    const productLabels = <%- JSON.stringify(topProducts.map(p => p.name)) %>;
+    const productData = <%- JSON.stringify(topProducts.map(p => p.totalSold)) %>;
+    const categoryLabels = <%- JSON.stringify(topCategories.map(c => c.name)) %>;
+    const categoryData = <%- JSON.stringify(topCategories.map(c => c.totalSold)) %>;
 
     /* ---------------- Clean Chart Options ---------------- */
     const baseOptions = {

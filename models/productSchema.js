@@ -7,7 +7,7 @@ const productSchema = new Schema({
     required: true,
     trim: true
   },
-  author: {
+  material: {
     type: String
 
   },

@@ -812,7 +812,7 @@
         <% data.slice().reverse().forEach(p => { %>
           <tr>
             <td class="product-name-cell"><%= p.productName %></td>
-            <td><%= p.author %></td>
+            <td><%= p.material %></td>
             <td><%= p.category.name %></td>
             <td class="price-cell">₹<%= p.salePrice %></td>
             
@@ -1116,7 +1116,7 @@ async function removeOffer(productId) {
                   <label class="form-label">Category</label>
                   <div style="position: relative;">
                     <select name="category" class="form-select" style="appearance: none; padding-right: 2.5rem;">
-                      <option value="">Necklace</option>
+                      <option value="">Select Category</option>
                       <% cat.forEach(c => { %>
                         <option value="<%= c._id %>"><%= c.name %></option>
                       <% }) %>
@@ -1304,10 +1304,18 @@ function validateForm() {
 
 const productForm = document.getElementById('productForm');
 if (productForm) {
+  let isAddProductSubmitting = false;
+  const addProductSubmitBtn = document.querySelector('button[type="submit"][form="productForm"]');
+
   productForm.addEventListener('submit', async function (e) {
     e.preventDefault();
 
     if (!validateForm()) return;
+
+    // Debounce / double-submit protection (prevents duplicate product creation)
+    if (isAddProductSubmitting) return;
+    isAddProductSubmitting = true;
+    if (addProductSubmitBtn) addProductSubmitBtn.disabled = true;
 
     if (cropper) {
       try {
@@ -1348,6 +1356,8 @@ if (productForm) {
         text: 'Please upload exactly 3 images',
         confirmButtonColor: '#4169E1'
       });
+      isAddProductSubmitting = false;
+      if (addProductSubmitBtn) addProductSubmitBtn.disabled = false;
       return;
     }
 
@@ -1355,21 +1365,24 @@ if (productForm) {
       formData.append("images", blob, `product-${index + 1}.jpg`);
     });
 
-    const response = await fetch('/admin/addProduct', {
-      method: 'POST',
-      body: formData
-    });
+    try {
+      const response = await fetch('/admin/addProduct', {
+        method: 'POST',
+        body: formData
+      });
 
-    if (response.ok) {
-      croppedBlobs = [];
+      if (response.ok) {
+        croppedBlobs = [];
 
-      Swal.fire({
-        icon: 'success',
-        title: 'Success',
-        text: 'Product added successfully!',
-        confirmButtonColor: '#4169E1'
-      }).then(() => window.location.reload());
-    } else {
+        Swal.fire({
+          icon: 'success',
+          title: 'Success',
+          text: 'Product added successfully!',
+          confirmButtonColor: '#4169E1'
+        }).then(() => window.location.reload());
+        return;
+      }
+
       const error = await response.json().catch(() => ({}));
       Swal.fire({
         icon: 'error',
@@ -1377,6 +1390,10 @@ if (productForm) {
         text: error.message || 'Something went wrong!',
         confirmButtonColor: '#4169E1'
       });
+    } finally {
+      // Re-enable if not reloading (e.g., validation/server error)
+      isAddProductSubmitting = false;
+      if (addProductSubmitBtn) addProductSubmitBtn.disabled = false;
     }
   });
 }

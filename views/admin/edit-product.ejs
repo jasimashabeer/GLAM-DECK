@@ -76,9 +76,9 @@
               </div>
 
               <div class="mb-4">
-                <label for="author" class="form-label">Material</label>
-                <input type="text" name="author" class="form-control" id="author" value="<%= product.author %>">
-                <div id="author-error" class="error-message"></div>
+                <label for="material" class="form-label">Material</label>
+                <input type="text" name="material" class="form-control" id="material" value="<%= product.material %>">
+                <div id="material-error" class="error-message"></div>
               </div>
 
               <div class="mb-4">
@@ -286,26 +286,30 @@
       const formData = new FormData(form);
 
       try {
-        const productId = "<%= product._id %>";
+        const productId = ("<%= product._id %>").trim();
         const response = await fetch(`/admin/editProduct/${productId}`, {
           method: 'POST',
           body: formData
         });
 
-        if (response.ok) {
+        const contentType = response.headers.get('content-type') || '';
+        const isJson = contentType.includes('application/json');
+        const data = isJson ? await response.json().catch(() => ({})) : {};
+
+        if (response.ok && isJson && data.success === true) {
           Swal.fire({
             icon: 'success',
             title: 'Updated',
-            text: 'Product updated successfully!'
+            text: data.message || 'Product updated successfully!'
           }).then(() => {
             window.location.href = '/admin/products';
           });
         } else {
-          const errorData = await response.json();
+          const msg = (data && (data.message || data.error)) || (response.status === 302 || !isJson ? 'Session may have expired. Please log in again.' : 'Something went wrong.');
           Swal.fire({
             icon: 'error',
-            title: 'Oops...',
-            text: errorData.message || 'Something went wrong'
+            title: 'Update failed',
+            text: msg
           });
         }
       } catch (error) {
@@ -313,7 +317,7 @@
         Swal.fire({
           icon: 'error',
           title: 'Error',
-          text: 'Server error, please try again'
+          text: 'Network or server error. Please try again.'
         });
       }
     });
@@ -327,7 +331,7 @@
       // Fields and messages
       const fields = [
         { name: "productName", label: "Product Name" },
-        { name: "author", label: "Author" },
+        { name: "material", label: "material" },
         { name: "description", label: "Description" },
         { name: "regularPrice", label: "Regular Price" },
         { name: "quantity", label: "Quantity" },

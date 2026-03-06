@@ -530,11 +530,11 @@
     const salesChart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: <% - JSON.stringify(salesData.months) %>,
+        labels: <%- JSON.stringify(salesData.months) %>,
         datasets: [
           {
             label: 'Sales (₹)',
-            data: <% -JSON.stringify(salesData.sales) %>,
+            data: <%- JSON.stringify(salesData.sales) %>,
             fill: true,
             backgroundColor: gradient,
             borderColor: '#45B7D1',
