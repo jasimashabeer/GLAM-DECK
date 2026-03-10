@@ -112,7 +112,7 @@
               <td>
                 <% if (item.status==='Return Request' ) { %>
                   <form method="POST" action="/admin/viewDetails/<%= order._id %>/verify-return/<%= item._id %>"
-                    onsubmit="return confirm('Are you sure you want to verify this return?')">
+                    class="verify-return-form">
                     <button class="btn btn-sm btn-outline-dark">Verify Return</button>
                   </form>
                   <% } else { %>
@@ -129,3 +129,40 @@
 
     <a href="/admin/orders" class="btn btn-secondary mt-3">Back to Orders</a>
   </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+  <script>
+    // Show SweetAlert feedback after redirect
+    (function () {
+      try {
+        const swalData = <%- JSON.stringify(swal || {}) %>;
+        if (swalData && swalData.type && swalData.message) {
+          Swal.fire({
+            icon: swalData.type,
+            title: swalData.type === 'success' ? 'Success' : 'Error',
+            text: swalData.message,
+            confirmButtonColor: '#4169E1'
+          });
+        }
+      } catch (e) { }
+    })();
+
+    // Replace native confirm() with SweetAlert confirm
+    document.querySelectorAll('form.verify-return-form').forEach(form => {
+      form.addEventListener('submit', function (e) {
+        e.preventDefault();
+        Swal.fire({
+          title: 'Verify return request?',
+          text: 'This will process the refund to the customer wallet.',
+          icon: 'warning',
+          showCancelButton: true,
+          confirmButtonColor: '#28a745',
+          cancelButtonColor: '#6c757d',
+          confirmButtonText: 'Yes, verify',
+          cancelButtonText: 'Cancel'
+        }).then(result => {
+          if (result.isConfirmed) form.submit();
+        });
+      });
+    });
+  </script>

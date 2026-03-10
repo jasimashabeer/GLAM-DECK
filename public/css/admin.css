@@ -12,3 +12,17 @@
     border: none;
     border-radius: 0.5rem;
   }
+
+    /* Active sidebar item */
+  #sidebar .nav-item.active .nav-link {
+    background-color: #0d6efd !important;
+    color: white !important;
+    border-radius: 6px;
+  }
+
+  /* Active item for mobile menu */
+  #offcanvasSidebar .nav-item.active .nav-link {
+    background-color: #0d6efd !important;
+    color: white !important;
+    border-radius: 6px;
+  }

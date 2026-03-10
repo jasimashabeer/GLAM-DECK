@@ -17,7 +17,17 @@ const listOrders = async (req, res) => {
 
     const filter = {};
     if (search) filter.orderId = { $regex: search, $options: "i" };
-    if (status && status !== "all") filter.status = status;
+    if (status && status !== "all") {
+      if (status === "Return Request") {
+        // Include both whole-order return requests and item-level return requests
+        filter.$or = [
+          { status: "Return Request" },
+          { "orderedItems.status": "Return Request" },
+        ];
+      } else {
+        filter.status = status;
+      }
+    }
 
     const total = await Order.countDocuments(filter);
     const orders = await Order.find(filter)
@@ -27,8 +37,16 @@ const listOrders = async (req, res) => {
       .limit(limit)
       .lean();
 
+    // Flag orders that have any item-level return request
+    const ordersWithFlags = orders.map((o) => ({
+      ...o,
+      hasItemReturnRequest: Array.isArray(o.orderedItems)
+        ? o.orderedItems.some((it) => it?.status === "Return Request")
+        : false,
+    }));
+
     res.render("orderPage", {
-      orders,
+      orders: ordersWithFlags,
       searchQuery: search,
       currentPage: Number(page),
       totalPages: Math.ceil(total / limit),
@@ -166,6 +184,10 @@ const viewAdminOrderDetails = async (req, res) => {
       order,
       user: order.user,
       address: selectedAddress,
+      swal: {
+        type: req.query?.swalType || null,
+        message: req.query?.swalMsg || null,
+      },
     });
   } catch (err) {
     console.error("Error loading order details:", err);
@@ -177,14 +199,14 @@ const verifyProductReturn = async (req, res) => {
     const { id: orderId, itemId } = req.params;
 
     const order = await Order.findById(orderId).populate("user");
-    if (!order) return res.status(404).send("Order not found");
+    if (!order) return res.redirect(`/admin/viewDetails/${orderId}?swalType=error&swalMsg=${encodeURIComponent("Order not found")}`);
 
     const user = order.user;
-    if (!user) return res.status(404).send("User not found");
+    if (!user) return res.redirect(`/admin/viewDetails/${orderId}?swalType=error&swalMsg=${encodeURIComponent("User not found")}`);
 
     const item = order.orderedItems.id(itemId);
     if (!item || item.status !== "Return Request") {
-      return res.status(400).send("Invalid or already processed item");
+      return res.redirect(`/admin/viewDetails/${orderId}?swalType=error&swalMsg=${encodeURIComponent("Invalid or already processed item")}`);
     }
 
     // 1. Refund the item's price
@@ -215,10 +237,10 @@ const verifyProductReturn = async (req, res) => {
 
     await order.save();
 
-    res.redirect(`/admin/viewDetails/${orderId}`);
+    res.redirect(`/admin/viewDetails/${orderId}?swalType=success&swalMsg=${encodeURIComponent("Return verified and refund processed")}`);
   } catch (err) {
     console.error("verifyProductReturn error:", err);
-    res.status(500).send("Server error");
+    res.redirect(`/admin/viewDetails/${req.params.id}?swalType=error&swalMsg=${encodeURIComponent("Server error")}`);
   }
 };
 

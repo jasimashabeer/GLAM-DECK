@@ -574,6 +574,9 @@
                 <tr>
                   <!-- Order ID -->
                   <td class="order-id-cell">#<%= o.orderId %>
+                    <% if (o.hasItemReturnRequest && o.status !== 'Return Request') { %>
+                      <i class="bi bi-arrow-return-left ms-2" title="Item return request pending" style="font-size: 0.95rem; color: #6c757d;"></i>
+                    <% } %>
                   </td>
 
                   <!-- Date -->

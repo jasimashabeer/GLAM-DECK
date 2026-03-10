@@ -7,8 +7,22 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
         <title>Admin Dashboard</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
-        <link rel="stylesheet" href="/css/admin.css" />
+        <link rel="stylesheet" href="/css/admin.css"/>
       </head>
+      <style>
+          #sidebar .nav-item.active .nav-link {
+    background-color: #0d6efd !important;
+    color: white !important;
+    border-radius: 6px;
+  }
+
+  /* Active item for mobile menu */
+  #offcanvasSidebar .nav-item.active .nav-link {
+    background-color: #0d6efd !important;
+    color: white !important;
+    border-radius: 6px;
+  }
+      </style>
       <body>
         <header class="bg-light py-3 px-4 border-bottom d-flex justify-content-between align-items-center" style="background-color: #d1d8dd !important;">
             <!-- Toggle button only on small screens -->
@@ -30,7 +44,7 @@
               <li class="nav-item"><a class="nav-link text-white" href="/admin/sales">Sales</a></li>
               <li class="nav-item"><a class="nav-link text-white" href="/admin/users">Customers</a></li>
               <li class="nav-item"><a class="nav-link text-white" href="/admin/category">Category</a></li>
-              <li class="nav-item"><a class="nav-link text-white" href="/admin/addProduct">Add Product</a></li>
+        
               <li class="nav-item"><a class="nav-link text-white" href="/admin/products">Products</a></li>
               <li class="nav-item"><a class="nav-link text-white" href="/admin/coupons">Coupons</a></li>
               
@@ -61,35 +75,52 @@
           </div>
       
           <script>
-            (function(){
+            (function () {
               try {
                 var path = window.location.pathname || '/';
-                var nav = document.querySelectorAll('nav#sidebar ul.nav li');
-                nav.forEach(function(li){ li.classList.remove('active'); });
-                var links = document.querySelectorAll('nav#sidebar a');
-                var matched = null;
-                links.forEach(function(a){
-                  try {
-                    var url = new URL(a.href, window.location.origin);
-                    var aPath = (url.pathname || '/').replace(/\/$/, '') || '/';
-                    var cur = path.replace(/\/$/, '') || '/';
-                    if (aPath === cur) matched = a;
-                  } catch(e){}
-                });
-                if (!matched) {
-                  links.forEach(function(a){
-                    try {
-                      var url = new URL(a.href, window.location.origin);
-                      var aPath = (url.pathname || '/').replace(/\/$/, '') || '/';
-                      if (aPath !== '/' && path.indexOf(aPath) === 0) matched = a;
-                    } catch(e){}
+                var normalizedPath = (path || '/').replace(/\/$/, '') || '/';
+
+                function applyActive(containerSelector) {
+                  var container = document.querySelector(containerSelector);
+                  if (!container) return;
+
+                  var items = container.querySelectorAll('ul.nav li');
+                  items.forEach(function (li) {
+                    li.classList.remove('active');
                   });
+
+                  var links = container.querySelectorAll('a.nav-link');
+                  var matched = null;
+
+                  links.forEach(function (a) {
+                    try {
+                      var url = new URL(a.getAttribute('href'), window.location.origin);
+                      var aPath = (url.pathname || '/').replace(/\/$/, '') || '/';
+                      if (aPath === normalizedPath) matched = a;
+                    } catch (e) { }
+                  });
+
+                  if (!matched) {
+                    links.forEach(function (a) {
+                      try {
+                        var url = new URL(a.getAttribute('href'), window.location.origin);
+                        var aPath = (url.pathname || '/').replace(/\/$/, '') || '/';
+                        if (aPath !== '/' && normalizedPath.indexOf(aPath) === 0) matched = a;
+                      } catch (e) { }
+                    });
+                  }
+
+                  if (matched) {
+                    var li = matched.closest('li');
+                    if (li) li.classList.add('active');
+                  }
                 }
-                if (matched) {
-                  var li = matched.closest('li');
-                  if (li) li.classList.add('active');
-                }
-              } catch(e){ console.error(e); }
+
+                applyActive('nav#sidebar');
+                applyActive('#offcanvasSidebar');
+              } catch (e) {
+                console.error(e);
+              }
             })();
           </script>
 
