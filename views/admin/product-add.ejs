@@ -435,7 +435,7 @@
           
           <div class="form-group">
             <label class="form-label">Description</label>
-            <textarea name="description" class="form-textarea" placeholder="Description"></textarea>
+            <textarea name="description" class="form-textarea" placeholder="Description" maxlength="500"></textarea>
             <div id="description-error" class="error-message"></div>
           </div>
         </div>
@@ -504,7 +504,7 @@
             <label class="form-label">Category</label>
             <div style="position: relative;">
               <select name="category" class="form-select" style="appearance: none; padding-right: 2.5rem;">
-                <option value="">Necklace</option>
+                <option value="">Select category</option>
                 <% cat.forEach(c => { %>
                   <option value="<%= c._id %>"><%= c.name %></option>
                 <% }) %>
@@ -519,7 +519,7 @@
           <div class="form-group">
             <label class="form-label">Material</label>
             <div class="tags-wrapper" style="position: relative;">
-              <input name="material" class="form-input" placeholder="gold" style="padding-left: 2.5rem;" />
+              <input name="material" class="form-input" placeholder="gold" style="padding-left: 2.5rem;" maxlength="50" />
             
                 <path d="M2 5L8 2L14 5M2 5L8 8M2 5V11L8 14M14 5L8 8M14 5V11L8 14M8 8V14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
@@ -559,6 +559,30 @@ function handleImage(input) {
 
   if (croppedBlobs.length >= 3) {
     Swal.fire("Limit Reached", "You can upload exactly 3 images", "warning");
+    input.value = "";
+    return;
+  }
+
+  const file = input.files[0];
+  const imagesErrorEl = document.getElementById("images-error");
+  if (imagesErrorEl) imagesErrorEl.innerText = "";
+
+  const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
+  if (!allowedTypes.includes(file.type)) {
+    if (imagesErrorEl) {
+      imagesErrorEl.innerText = "Only JPG, JPEG, PNG, or WEBP image files are allowed";
+    }
+    Swal.fire("Invalid File", "Please upload only image files (jpg, jpeg, png, webp).", "error");
+    input.value = "";
+    return;
+  }
+
+  const maxSizeBytes = 2 * 1024 * 1024; // 2MB
+  if (file.size > maxSizeBytes) {
+    if (imagesErrorEl) {
+      imagesErrorEl.innerText = "Each image must be 2MB or smaller";
+    }
+    Swal.fire("File Too Large", "Each image must be 2MB or smaller.", "error");
     input.value = "";
     return;
   }
@@ -621,42 +645,99 @@ function addPreview(blob) {
 
 function validateForm() {
   let isValid = true;
-  
+
+  // Clear previous error messages
+  document.querySelectorAll(".error-message").forEach(el => {
+    el.innerText = "";
+  });
+  const imagesErrorEl = document.getElementById("images-error");
+  if (imagesErrorEl) imagesErrorEl.innerText = "";
+
+  // Product Name validation
   const productName = mainInput.value.trim();
   const productNameError = document.getElementById("productName-error");
-  
+  const productNameRegex = /^[A-Za-z0-9 ]{3,100}$/;
+
   if (!productName) {
     productNameError.innerText = "Product name is required";
     isValid = false;
-  } else {
-    productNameError.innerText = "";
-  }
-
-  const fields = ["material", "description", "regularPrice", "quantity", "category"];
-
-  fields.forEach(field => {
-    const value = document.getElementsByName(field)[0].value.trim();
-    const errorEl = document.getElementById(field + "-error");
-
-    if (!value) {
-      errorEl.innerText = `${field} is required`;
-      isValid = false;
-    } else {
-      errorEl.innerText = "";
-    }
-  });
-
-  const price = parseFloat(document.getElementsByName("regularPrice")[0].value);
-  if (isNaN(price) || price <= 1) {
-    document.getElementById("regularPrice-error").innerText = "Regular price must be greater than ₹1";
+  } else if (!productNameRegex.test(productName)) {
+    productNameError.innerText = "Product name must be 3–100 characters and contain only letters, numbers, and spaces";
     isValid = false;
   }
 
+  // Description validation
+  const descriptionEl = document.getElementsByName("description")[0];
+  const description = descriptionEl ? descriptionEl.value.trim() : "";
+  const descriptionError = document.getElementById("description-error");
+  if (!description) {
+    descriptionError.innerText = "Description is required";
+    isValid = false;
+  } else if (description.length < 10) {
+    descriptionError.innerText = "Description must be at least 10 characters long";
+    isValid = false;
+  } else if (description.length > 500) {
+    descriptionError.innerText = "Description must be 500 characters or fewer";
+    isValid = false;
+  }
+
+  // Regular price validation
+  const priceInput = document.getElementsByName("regularPrice")[0];
+  const priceStr = priceInput ? priceInput.value.trim() : "";
+  const priceErrorEl = document.getElementById("regularPrice-error");
+  const price = parseFloat(priceStr);
+
+  if (!priceStr) {
+    priceErrorEl.innerText = "Regular price is required";
+    isValid = false;
+  } else if (isNaN(price) || price <= 0) {
+    priceErrorEl.innerText = "Regular price must be a valid number greater than 0";
+    isValid = false;
+  }
+
+  // Quantity validation
+  const qtyInput = document.getElementsByName("quantity")[0];
+  const qtyStr = qtyInput ? qtyInput.value.trim() : "";
+  const qtyErrorEl = document.getElementById("quantity-error");
+  const quantity = qtyStr === "" ? NaN : Number(qtyStr);
+
+  if (qtyStr === "") {
+    qtyErrorEl.innerText = "Quantity is required";
+    isValid = false;
+  } else if (!Number.isInteger(quantity) || quantity < 0) {
+    qtyErrorEl.innerText = "Quantity must be 0 or a positive whole number";
+    isValid = false;
+  }
+
+  // Category validation
+  const categoryInput = document.getElementsByName("category")[0];
+  const categoryValue = categoryInput ? categoryInput.value.trim() : "";
+  const categoryErrorEl = document.getElementById("category-error");
+  if (!categoryValue) {
+    categoryErrorEl.innerText = "Please select a category";
+    isValid = false;
+  }
+
+  // Material validation
+  const materialInput = document.getElementsByName("material")[0];
+  const material = materialInput ? materialInput.value.trim() : "";
+  const materialErrorEl = document.getElementById("material-error");
+  const materialRegex = /^[A-Za-z ]+$/;
+
+  if (!material) {
+    materialErrorEl.innerText = "Material is required";
+    isValid = false;
+  } else if (!materialRegex.test(material)) {
+    materialErrorEl.innerText = "Material can only contain letters and spaces";
+    isValid = false;
+  }
+
+  // Image count validation (cropper output)
   if (croppedBlobs.length !== 3) {
-    document.getElementById("images-error").innerText = "Please upload exactly 3 images";
+    if (imagesErrorEl) {
+      imagesErrorEl.innerText = "Please upload exactly 3 images";
+    }
     isValid = false;
-  } else {
-    document.getElementById("images-error").innerText = "";
   }
 
   return isValid;

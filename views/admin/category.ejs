@@ -505,7 +505,7 @@
               <i class="bi bi-tag"></i> Category Name
             </label>
             <input type="text" name="name" placeholder="Enter category name..." class="form-input-modern"
-              id="product_name" />
+              id="product_name" maxlength="50" />
             <div id="name-error" class="error-message"></div>
           </div>
 
@@ -514,7 +514,7 @@
               <i class="bi bi-card-text"></i> Description
             </label>
             <input type="text" placeholder="Enter description..." name="description" class="form-input-modern"
-              id="descriptionId" />
+              id="descriptionId" maxlength="200" />
             <div id="description-error" class="error-message"></div>
           </div>
 
@@ -712,13 +712,15 @@
       const description = document.getElementById('descriptionId').value.trim();
       let isValid = true;
 
-      if (name === '') {
-        displayErrorMessage('name-error', 'Please enter a name');
+      const nameRegex = /^[A-Za-z ]{3,50}$/; // letters and spaces only, 3–50 chars
+
+      if (!nameRegex.test(name)) {
+        displayErrorMessage('name-error', 'Name must be 3–50 characters and contain only letters and spaces');
         isValid = false;
       }
 
-      if (description === '') {
-        displayErrorMessage("description-error", "Please enter a description");
+      if (description.length < 5) {
+        displayErrorMessage("description-error", "Description must be at least 5 characters long");
         isValid = false;
       }
 

@@ -63,15 +63,15 @@
             <form id="addressForm" action="/addAddress" method="POST" onsubmit="return validation()">
               <input type="hidden" id="addressId" name="addressId" />
               <div class="mb-2">
-                <input type="text" id="name" name="name" class="form-control" placeholder="Full Name">
+                <input type="text" id="name" name="name" class="form-control" placeholder="Full Name" maxlength="50">
                 <div id="nameError" class="text-danger"></div>
               </div>
               <div class="mb-2">
-                <input type="text" id="locality" name="locality" class="form-control" placeholder="Locality">
+                <input type="text" id="locality" name="locality" class="form-control" placeholder="Locality" maxlength="100">
                 <div id="localityError" class="text-danger"></div>
               </div>
               <div class="mb-2">
-                <input type="text" id="city" name="city" class="form-control" placeholder="City">
+                <input type="text" id="city" name="city" class="form-control" placeholder="City" maxlength="50">
                 <div id="cityError" class="text-danger"></div>
               </div>
               <div class="mb-2">
@@ -111,15 +111,15 @@
                 <div id="stateError" class="text-danger"></div>
               </div>
               <div class="mb-2">
-                <input type="text" id="pincode" name="pincode" class="form-control" placeholder="Pincode">
+                <input type="text" id="pincode" name="pincode" class="form-control" placeholder="Pincode" maxlength="6" inputmode="numeric">
                 <div id="pincodeError" class="text-danger"></div>
               </div>
               <div class="mb-2">
-                <input type="text" id="mobile" name="mobile" class="form-control" placeholder="Mobile Number">
+                <input type="text" id="mobile" name="mobile" class="form-control" placeholder="Mobile Number" maxlength="10" inputmode="numeric">
                 <div id="mobileError" class="text-danger"></div>
               </div>
               <div class="mb-2">
-                <input type="text" id="alternatePhone" name="alternatePhone" class="form-control" placeholder="Alternate Phone (optional)">
+                <input type="text" id="alternatePhone" name="alternatePhone" class="form-control" placeholder="Alternate Phone (optional)" maxlength="10" inputmode="numeric">
                 <div id="altPhoneError" class="text-danger"></div>
               </div>
               <button type="submit" id="submitBtn" class="btn btn-success px-4 btn-pill" style="height: 40px;">Save Address</button>
@@ -162,21 +162,24 @@ function validation() {
   const mobile = document.getElementById("mobile").value.trim();
   const altPhone = document.getElementById("alternatePhone").value.trim();
 
+  const nameRegex = /^[A-Za-z ]{3,}$/;               // at least 3 letters/spaces
+  const cityRegex = /^[A-Za-z ]+$/;                  // letters and spaces only
+  const localityRegex = /^[A-Za-z0-9 ,.\-]+$/;       // letters, numbers, space, comma, dot, hyphen
   const pinRegex = /^[0-9]{6}$/;
   const phoneRegex = /^[6-9][0-9]{9}$/;
 
-  if (name.length < 3) {
-    document.getElementById("nameError").textContent = "Full name must be at least 3 characters";
+  if (!nameRegex.test(name)) {
+    document.getElementById("nameError").textContent = "Full name must be at least 3 letters and contain only letters and spaces";
     valid = false;
   }
 
-  if (locality.length < 3) {
-    document.getElementById("localityError").textContent = "Locality must be at least 3 characters";
+  if (locality.length < 3 || !localityRegex.test(locality)) {
+    document.getElementById("localityError").textContent = "Locality must be at least 3 characters and can include letters, numbers, spaces, commas, dots and hyphens";
     valid = false;
   }
 
-  if (city.length < 2) {
-    document.getElementById("cityError").textContent = "City must be at least 2 characters";
+  if (city.length < 2 || !cityRegex.test(city)) {
+    document.getElementById("cityError").textContent = "City must be at least 2 characters and contain only letters and spaces";
     valid = false;
   }
 
@@ -208,6 +211,16 @@ function validation() {
 
   return valid;
 }
+
+// Restrict certain inputs to numeric characters only
+['pincode', 'mobile', 'alternatePhone'].forEach(function (id) {
+  const el = document.getElementById(id);
+  if (el) {
+    el.addEventListener('input', function () {
+      this.value = this.value.replace(/\D/g, '');
+    });
+  }
+});
 
 document.querySelectorAll('.delete-btn').forEach(button => {
     button.addEventListener('click', () => {
