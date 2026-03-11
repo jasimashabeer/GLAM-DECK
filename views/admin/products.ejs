@@ -1170,6 +1170,9 @@ if (mainInput && displayInput) {
 function handleImage(input) {
   if (!input.files.length) return;
 
+  const imgError = document.getElementById("images-error");
+  if (imgError) imgError.innerText = "";
+
   if (croppedBlobs.length >= 3) {
     Swal.fire({
       icon: 'warning',
@@ -1177,6 +1180,22 @@ function handleImage(input) {
       text: 'You can upload exactly 3 images',
       confirmButtonColor: '#4169E1'
     });
+    input.value = "";
+    return;
+  }
+
+  const file = input.files[0];
+  const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+  const maxSize = 2 * 1024 * 1024; // 2MB
+
+  if (!allowedTypes.includes(file.type)) {
+    if (imgError) imgError.innerText = "Only JPG, JPEG, PNG and WEBP images are allowed";
+    input.value = "";
+    return;
+  }
+
+  if (file.size > maxSize) {
+    if (imgError) imgError.innerText = "Each image must be less than or equal to 2MB";
     input.value = "";
     return;
   }
@@ -1253,14 +1272,26 @@ function addPreview(blob) {
 function validateForm() {
   let isValid = true;
 
+  // Clear previous errors
+  document.querySelectorAll('.add-product-modal .error-message').forEach(el => {
+    el.innerText = '';
+  });
+
   const productNameError = document.getElementById("productName-error");
   const productName = mainInput ? mainInput.value.trim() : "";
 
   if (!productName) {
     if (productNameError) productNameError.innerText = "Product name is required";
     isValid = false;
-  } else if (productNameError) {
-    productNameError.innerText = "";
+  } else if (productName.length < 3) {
+    if (productNameError) productNameError.innerText = "Product name must be at least 3 characters";
+    isValid = false;
+  } else if (productName.length > 100) {
+    if (productNameError) productNameError.innerText = "Product name must be less than or equal to 100 characters";
+    isValid = false;
+  } else if (!/^[A-Za-z0-9 ]+$/.test(productName)) {
+    if (productNameError) productNameError.innerText = "Product name can contain only letters, numbers and spaces";
+    isValid = false;
   }
 
   const fields = ["material", "description", "regularPrice", "quantity", "category"];
@@ -1271,18 +1302,55 @@ function validateForm() {
     const errorEl = document.getElementById(field + "-error");
 
     if (!value) {
-      if (errorEl) errorEl.innerText = `${field} is required`;
+      if (errorEl) errorEl.innerText = `${field === 'regularPrice' ? 'Regular price' : field.charAt(0).toUpperCase() + field.slice(1)} is required`;
       isValid = false;
-    } else if (errorEl) {
-      errorEl.innerText = "";
+      return;
+    }
+
+    if (field === 'description') {
+      if (value.length < 10) {
+        if (errorEl) errorEl.innerText = "Description must be at least 10 characters";
+        isValid = false;
+      } else if (value.length > 500) {
+        if (errorEl) errorEl.innerText = "Description must be less than or equal to 500 characters";
+        isValid = false;
+      }
+    } else if (field === 'material') {
+      if (!/^[A-Za-z ]+$/.test(value)) {
+        if (errorEl) errorEl.innerText = "Material can contain only letters and spaces";
+        isValid = false;
+      }
+    } else if (field === 'category') {
+      if (!value) {
+        if (errorEl) errorEl.innerText = "Please select a category";
+        isValid = false;
+      }
     }
   });
 
   const priceInput = document.getElementsByName("regularPrice")[0];
-  const price = priceInput ? parseFloat(priceInput.value) : NaN;
-  if (isNaN(price) || price <= 1) {
+  const priceValue = priceInput ? priceInput.value.trim() : "";
+  const price = priceValue === "" ? NaN : parseFloat(priceValue);
+  if (priceValue === "" || isNaN(price)) {
     const priceError = document.getElementById("regularPrice-error");
-    if (priceError) priceError.innerText = "Regular price must be greater than ₹1";
+    if (priceError) priceError.innerText = "Regular price must be a valid number";
+    isValid = false;
+  } else if (price <= 0) {
+    const priceError = document.getElementById("regularPrice-error");
+    if (priceError) priceError.innerText = "Regular price must be greater than 0";
+    isValid = false;
+  }
+
+  const quantityInput = document.getElementsByName("quantity")[0];
+  const quantityValue = quantityInput ? quantityInput.value.trim() : "";
+  const quantity = quantityValue === "" ? NaN : Number(quantityValue);
+  if (quantityValue === "" || isNaN(quantity)) {
+    const quantityError = document.getElementById("quantity-error");
+    if (quantityError) quantityError.innerText = "Quantity must be a valid number";
+    isValid = false;
+  } else if (quantity < 0) {
+    const quantityError = document.getElementById("quantity-error");
+    if (quantityError) quantityError.innerText = "Quantity cannot be negative";
     isValid = false;
   }
 

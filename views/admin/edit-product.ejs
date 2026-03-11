@@ -184,8 +184,23 @@
     function handleImageUpload(event) {
       const files = Array.from(event.target.files);
       const previewContainer = document.getElementById("imagePreviewContainer");
+      const imgError = document.getElementById("images-error");
+      if (imgError) imgError.innerText = "";
+
+      const allowedTypes = ["image/jpeg", "image/png", "image/webp", "image/jpg"];
+      const maxSize = 2 * 1024 * 1024; // 2MB
 
       files.forEach((file) => {
+        if (!allowedTypes.includes(file.type)) {
+          if (imgError) imgError.innerText = "Only JPG, JPEG, PNG and WEBP images are allowed";
+          return;
+        }
+
+        if (file.size > maxSize) {
+          if (imgError) imgError.innerText = "Each image must be less than or equal to 2MB";
+          return;
+        }
+
         const reader = new FileReader();
         reader.onload = function () {
           const image = document.createElement("img");
@@ -328,10 +343,15 @@
     function validateForm() {
       let isValid = true;
 
+      // Clear previous errors
+      document.querySelectorAll('.error-message').forEach(el => {
+        el.innerText = '';
+      });
+
       // Fields and messages
       const fields = [
         { name: "productName", label: "Product Name" },
-        { name: "material", label: "material" },
+        { name: "material", label: "Material" },
         { name: "description", label: "Description" },
         { name: "regularPrice", label: "Regular Price" },
         { name: "quantity", label: "Quantity" },
@@ -347,30 +367,68 @@
         if (!value) {
           errorEl.innerText = `${field.label} is required`;
           isValid = false;
-        } else {
-          errorEl.innerText = "";
+          return;
+        }
+
+        if (field.name === "productName") {
+          if (value.length < 3) {
+            errorEl.innerText = "Product name must be at least 3 characters";
+            isValid = false;
+          } else if (value.length > 100) {
+            errorEl.innerText = "Product name must be less than or equal to 100 characters";
+            isValid = false;
+          } else if (!/^[A-Za-z0-9 ]+$/.test(value)) {
+            errorEl.innerText = "Product name can contain only letters, numbers and spaces";
+            isValid = false;
+          }
+        } else if (field.name === "description") {
+          if (value.length < 10) {
+            errorEl.innerText = "Description must be at least 10 characters";
+            isValid = false;
+          } else if (value.length > 500) {
+            errorEl.innerText = "Description must be less than or equal to 500 characters";
+            isValid = false;
+          }
+        } else if (field.name === "material") {
+          if (!/^[A-Za-z ]+$/.test(value)) {
+            errorEl.innerText = "Material can contain only letters and spaces";
+            isValid = false;
+          }
+        } else if (field.name === "category") {
+          if (!value) {
+            errorEl.innerText = "Please select a category";
+            isValid = false;
+          }
         }
       });
 
       //  Regular Price validation
       const priceStr = document.getElementsByName("regularPrice")[0].value.trim();
-      const price = parseFloat(priceStr);
-      if (priceStr && (isNaN(price) || price <= 1)) {
+      const price = priceStr === "" ? NaN : parseFloat(priceStr);
+      if (priceStr === "" || isNaN(price)) {
         document.getElementById("regularPrice-error").innerText =
-          "Regular Price must be greater than ₹1";
+          "Regular price must be a valid number";
+        isValid = false;
+      } else if (price <= 0) {
+        document.getElementById("regularPrice-error").innerText =
+          "Regular price must be greater than 0";
         isValid = false;
       }
 
       //  Quantity validation
       const quantityStr = document.getElementsByName("quantity")[0].value.trim();
-      const quantity = parseInt(quantityStr, 10);
-      if (quantityStr && (isNaN(quantity) || quantity < 1)) {
+      const quantity = quantityStr === "" ? NaN : Number(quantityStr);
+      if (quantityStr === "" || isNaN(quantity)) {
         document.getElementById("quantity-error").innerText =
-          "Quantity must be a positive number";
+          "Quantity must be a valid number";
+        isValid = false;
+      } else if (quantity < 0) {
+        document.getElementById("quantity-error").innerText =
+          "Quantity cannot be negative";
         isValid = false;
       }
 
-      //  Image validation (must have at least 3 total images)
+      //  Image validation (must have exactly 3 total images)
       const uploadedImages = document.getElementById("uploadInput").files;
 
       // Count existing images that are NOT marked for deletion
@@ -385,9 +443,9 @@
 
       const totalImages = uploadedImages.length + existingImagesCount;
 
-      if (totalImages < 3) {
+      if (totalImages !== 3) {
         document.getElementById("images-error").innerText =
-          "At least 3 images are required";
+          "Exactly 3 images are required";
         isValid = false;
       } else {
         document.getElementById("images-error").innerText = "";
