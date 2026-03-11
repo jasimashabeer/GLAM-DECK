@@ -441,11 +441,11 @@
         }
       });
 
-      const totalImages = uploadedImages.length + existingImagesCount;
+      const totalImages = uploadedImages.length + existingImagesCount; // remaining existing + newly uploaded
 
       if (totalImages !== 3) {
         document.getElementById("images-error").innerText =
-          "Exactly 3 images are required";
+          "Exactly 3 images are required (existing + uploaded).";
         isValid = false;
       } else {
         document.getElementById("images-error").innerText = "";
