@@ -6,6 +6,10 @@
     "start": "node app.js",
     "dev": "nodemon app.js"
   },
+  "engines": {
+    "node": ">=24.14.1",
+    "npm": ">=11.11.0"
+  },
   "author": "",
   "license": "ISC",
   "dependencies": {
