@@ -40,6 +40,23 @@ const addProduct = async (req, res) => {
     }
 
     const Jimp = require('jimp');
+    const cloudinary = require('cloudinary').v2;
+
+    // Ensure Cloudinary is configured
+    if (
+      !process.env.CLOUDINARY_CLOUD_NAME ||
+      !process.env.CLOUDINARY_API_KEY ||
+      !process.env.CLOUDINARY_API_SECRET
+    ) {
+      return res.status(500).json({ message: 'Cloudinary is not configured' });
+    }
+
+    cloudinary.config({
+      cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
+      api_key: process.env.CLOUDINARY_API_KEY,
+      api_secret: process.env.CLOUDINARY_API_SECRET,
+    });
+
     const images = [];
 
     for (let i = 0; i < req.files.length; i++) {
@@ -52,7 +69,21 @@ const addProduct = async (req, res) => {
       const img = await Jimp.read(originalPath);
       await img.resize(440, 440).quality(90).writeAsync(resizedPath);
 
-      images.push(resizedName);
+      // Upload resized image to Cloudinary and store secure URL
+      const uploadResult = await cloudinary.uploader.upload(resizedPath, {
+        folder: 'products',
+      });
+
+      images.push(uploadResult.secure_url);
+
+      // Cleanup temp local files after successful upload
+      try {
+        if (fs.existsSync(originalPath)) fs.unlinkSync(originalPath);
+      } catch (e) {}
+
+      try {
+        if (fs.existsSync(resizedPath)) fs.unlinkSync(resizedPath);
+      } catch (e) {}
     }
 
     // Category
