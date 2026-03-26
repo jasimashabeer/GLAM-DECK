@@ -20,9 +20,7 @@ const customerInfo = async (req, res) => {
       isAdmin: false,
       $or: [
         { name: { $regex: '.*' + search + '.*', $options: 'i' } },
-        { email: { $regex: '.*' + search + '.*', $options: 'i' } },{
-          numberOfProducts:populate{orders,$count{}}
-        }
+        { email: { $regex: '.*' + search + '.*', $options: 'i' } }
       ],
     })
       .sort({ createdAt: -1 })
